@@ -35,8 +35,8 @@ class Listing extends Model
         $this->attributes['slug'] = Str::slug($value);
     }
 
-    public function transaction(): HasMany
+    public function transactions(): HasMany
     {
-        return $this->hasMany(Transaction::class);
+        return $this->hasMany(Transaction::class, 'items_id');
     }
 }
