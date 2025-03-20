@@ -60,8 +60,9 @@ class TransactionResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->money('IDR')
-                    ->sortable()
+                    ->getStateUsing(function ($record) {
+                        return 'Rp. ' . number_format($record->price, 0, ',', '.'); // Format as IDR, no decimals, with commas
+                    })
                     ->weight(FontWeight::Bold),
                 Tables\Columns\TextColumn::make('status')->badge()->color(fn(string $state): string => match ($state) {
                     'waiting' => 'gray',

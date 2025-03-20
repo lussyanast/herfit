@@ -61,9 +61,11 @@ class ListingResource extends Resource
                     ->weight(FontWeight::Bold),
                 Tables\Columns\TextColumn::make('slug')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money('IDR')
-                    ->weight(FontWeight::Bold),
+                    Tables\Columns\TextColumn::make('price')
+                    ->getStateUsing(function ($record) {
+                        return 'Rp. ' . number_format($record->price, 0, ',', '.');
+                    })
+                    ->weight(FontWeight::Bold),                
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
