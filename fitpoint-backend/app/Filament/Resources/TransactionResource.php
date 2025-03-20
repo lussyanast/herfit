@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TransactionResource\Pages;
-use App\Filament\Resources\TransactionResource\RelationManagers;
 use App\Models\Transaction;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,79 +10,67 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Table;
+use App\Filament\Resources\TransactionResource\Pages;
 
 class TransactionResource extends Resource
 {
     protected static ?string $model = Transaction::class;
-
-    public static function canCreate(): bool
-    {
-        return false;
-    }
-
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
-                Forms\Components\TextInput::make('items_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('price')
-                    ->required()
-                    ->numeric()
-                    ->default(0)
-                    ->prefix('$'),
-                Forms\Components\TextInput::make('status')
-                    ->required(),
-            ]);
+        return $form->schema([
+            Forms\Components\Select::make('user_id')
+                ->relationship('user', 'name')
+                ->required(),
+            Forms\Components\TextInput::make('items_id')
+                ->required()
+                ->numeric(),
+            Forms\Components\TextInput::make('price')
+                ->required()
+                ->numeric()
+                ->default(0)
+                ->prefix('$'),
+            Forms\Components\TextInput::make('status')
+                ->required(),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable()
-                    ->weight(FontWeight::Bold),
-                Tables\Columns\TextColumn::make('items_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->getStateUsing(function ($record) {
-                        return 'Rp. ' . number_format($record->price, 0, ',', '.'); // Format as IDR, no decimals, with commas
-                    })
-                    ->weight(FontWeight::Bold),
-                Tables\Columns\TextColumn::make('status')->badge()->color(fn(string $state): string => match ($state) {
+        return $table->columns([
+            Tables\Columns\TextColumn::make('user.name')
+                ->sortable()
+                ->weight(FontWeight::Bold),
+            Tables\Columns\TextColumn::make('items_id')
+                ->sortable(),
+            Tables\Columns\TextColumn::make('price')
+                ->getStateUsing(fn($record) => 'Rp. ' . number_format($record->price, 0, ',', '.'))
+                ->weight(FontWeight::Bold),
+            Tables\Columns\TextColumn::make('status')
+                ->badge()
+                ->color(fn(string $state) => match ($state) {
                     'waiting' => 'gray',
                     'approved' => 'info',
                     'canceled' => 'danger',
                 }),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
+            Tables\Columns\TextColumn::make('created_at')
+                ->dateTime()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+            Tables\Columns\TextColumn::make('updated_at')
+                ->dateTime()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+        ])
             ->filters([
-                SelectFilter::make('status')
-                    ->options([
-                        'waiting' => 'Waiting',
-                        'approved' => 'Approved',
-                        'canceled' => 'Canceled',
-                    ])
+                SelectFilter::make('status')->options([
+                    'waiting' => 'Menunggu',
+                    'approved' => 'Disetujui',
+                    'canceled' => 'Dibatalkan',
+                ]),
             ])
             ->actions([
                 Action::make('approve')
@@ -92,10 +78,13 @@ class TransactionResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->action(function (Transaction $transaction) {
-                        Transaction::find($transaction->id)->update([
-                            'status' => 'approved'
-                        ]);
-                        Notification::make()->success()->title('Transaction Approved!')->body('Transaction has been aprproved successfully')->icon('heroicon-o-check')->send();
+                        $transaction->update(['status' => 'approved']);
+                        Notification::make()
+                            ->success()
+                            ->title('Transaksi Disetujui!')
+                            ->body('Transaksi berhasil disetujui.')
+                            ->icon('heroicon-o-check')
+                            ->send();
                     })
                     ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting')
             ])
@@ -109,7 +98,7 @@ class TransactionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Tentukan relasi di sini jika diperlukan
         ];
     }
 
@@ -120,5 +109,10 @@ class TransactionResource extends Resource
             'create' => Pages\CreateTransaction::route('/create'),
             'edit' => Pages\EditTransaction::route('/{record}/edit'),
         ];
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
     }
 }
