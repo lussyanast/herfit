@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Transaction\Store;
-use App\Models\Transaction;
-use App\Models\Listing;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Requests\Transaction\Store;
+use App\Models\Listing;
+use App\Models\Transaction;
 
 class TransactionController extends Controller
 {
@@ -18,7 +18,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Ambil semua transaksiku.',
+            'message' => 'Get all my transactions',
             'data' => $transactions
         ]);
     }
@@ -44,7 +44,7 @@ class TransactionController extends Controller
             throw new HttpResponseException(
                 response()->json([
                     'success' => false,
-                    'message' => 'Listing sudah penuh.',
+                    'message' => 'Listing is fully booked',
                 ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
             );
         }
@@ -58,7 +58,45 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Listing suddah dapat dipesan.'
+            'message' => 'Listing is ready to book'
+        ]);
+    }
+
+    public function store(Store $request)
+    {
+        $this->_fullyBookedChecker($request);
+
+        $transaction = Transaction::create([
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'listing_id' => $request->listing_id,
+            'user_id' => auth()->id()
+        ]);
+
+        $transaction->Listing;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'New transaction created',
+            'data' => $transaction
+        ]);
+    }
+
+    public function show(Transaction $transaction): JsonResponse
+    {
+        if ($transaction->user_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $transaction->Listing;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get detail transaction',
+            'data' => $transaction
         ]);
     }
 }

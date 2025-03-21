@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return response()->json([
         'success' => true,
-        'message' => 'Detail akun yang terdaftar',
+        'message' => 'Detail akun yang terdaftar.',
         'data' => $request->user()
     ]);
 });
@@ -16,5 +16,6 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::resource('listing', ListingController::class)->only(['index', 'show']);
 
 Route::post('transaction/is-available', [TransactionController::class, 'isAvailable'])->middleware(['auth:sanctum']);
+Route::resource('transaction', TransactionController::class)->only(['store', 'index', 'show'])->middleware(['auth:sanctum']);
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

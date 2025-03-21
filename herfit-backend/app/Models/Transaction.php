@@ -21,6 +21,15 @@ class Transaction extends Model
         'status'
     ];
 
+    public function setListingIdAttribute($value)
+    {
+        $listing = Listing::find($value);
+        $totalDays = Carbon::createFromDate($this->attributes['start_date'])->diffInDays($this->attributes['end_date']) + 1;
+
+        $this->attributes['listing_id'] = $value;
+        $this->attributes['total_days'] = $totalDays;
+    }
+
     // Mutator to set 'price' attribute
     public function setPriceAttribute($value)
     {
