@@ -18,7 +18,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Get all my transactions',
+            'message' => 'Mengambil semua transaksi.',
             'data' => $transactions
         ]);
     }
@@ -44,7 +44,7 @@ class TransactionController extends Controller
             throw new HttpResponseException(
                 response()->json([
                     'success' => false,
-                    'message' => 'Listing is fully booked',
+                    'message' => 'Listing sudah penuh.',
                 ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
             );
         }
@@ -58,7 +58,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Listing is ready to book'
+            'message' => 'Listing sudah dapat dipesan.'
         ]);
     }
 
@@ -77,7 +77,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'New transaction created',
+            'message' => 'Transaksi baru telah dibuat.',
             'data' => $transaction
         ]);
     }
@@ -95,7 +95,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Get detail transaction',
+            'message' => 'Mengambil detail transaksi.',
             'data' => $transaction
         ]);
     }
