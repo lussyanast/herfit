@@ -13,9 +13,10 @@ class Listing extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'items_name',
+        'listing_name',
         'slug',
         'description',
+        'max_person',
         'price',
         'attachments'
     ];
@@ -29,14 +30,14 @@ class Listing extends Model
         return 'slug';
     }
 
-    public function setItemsNameAttribute($value)
+    public function setListingNameAttribute($value)
     {
-        $this->attributes['items_name'] = $value;
+        $this->attributes['listing_name'] = $value;
         $this->attributes['slug'] = Str::slug($value);
     }
 
     public function transactions(): HasMany
     {
-        return $this->hasMany(Transaction::class, 'items_id');
+        return $this->hasMany(Transaction::class, 'listing_id');
     }
 }

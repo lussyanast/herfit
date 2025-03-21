@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
                 new Sequence(
                     fn(Sequence $sequence) => [
                         'user_id' => $users->random(),
-                        'items_id' => $listings->random(),
+                        'listing_id' => $listings->random(),
                     ],
                 )
             )->create();

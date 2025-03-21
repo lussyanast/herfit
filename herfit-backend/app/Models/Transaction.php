@@ -13,7 +13,10 @@ class Transaction extends Model
 
     protected $fillable = [
         'user_id',
-        'items_id',
+        'listing_id',
+        'start_date',
+        'end_date',
+        'total_days',
         'price',
         'status'
     ];

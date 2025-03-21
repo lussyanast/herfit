@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('listings', function (Blueprint $table) {
             $table->id();
-            $table->string('items_name')->unique();
+            $table->string('listing_name')->unique();
             $table->string('slug')->unique();
             $table->text('description');
+            $table->unsignedSmallInteger('max_person')->default(0);
             $table->text('price');
             $table->longText('attachments')->nullable();
             $table->timestamps();

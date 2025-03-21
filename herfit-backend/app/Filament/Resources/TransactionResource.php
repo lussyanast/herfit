@@ -25,8 +25,14 @@ class TransactionResource extends Resource
             Forms\Components\Select::make('user_id')
                 ->relationship('user', 'name')
                 ->required(),
-            Forms\Components\TextInput::make('items_id')
+            Forms\Components\TextInput::make('listing_id')
                 ->required()
+                ->numeric(),
+            Forms\Components\TextInput::make('start_date')
+                ->numeric(),
+            Forms\Components\TextInput::make('end_date')
+                ->numeric(),
+            Forms\Components\TextInput::make('total_days')
                 ->numeric(),
             Forms\Components\TextInput::make('price')
                 ->required()
@@ -44,8 +50,14 @@ class TransactionResource extends Resource
             Tables\Columns\TextColumn::make('user.name')
                 ->sortable()
                 ->weight(FontWeight::Bold),
-            Tables\Columns\TextColumn::make('items_id')
+            Tables\Columns\TextColumn::make('listing_id')
                 ->sortable(),
+            Tables\Columns\TextColumn::make('start_date')
+                ->weight(FontWeight::Bold),
+            Tables\Columns\TextColumn::make('end_date')
+                ->weight(FontWeight::Bold),
+            Tables\Columns\TextColumn::make('total_days')
+                ->weight(FontWeight::Bold),
             Tables\Columns\TextColumn::make('price')
                 ->getStateUsing(fn($record) => 'Rp. ' . number_format($record->price, 0, ',', '.'))
                 ->weight(FontWeight::Bold),

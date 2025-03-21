@@ -28,7 +28,7 @@ class ListingResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('items_name')
+                Forms\Components\TextInput::make('listing_name')
                     ->required()
                     ->afterStateUpdated(fn($state, callable $set) => $set('slug', Str::slug($state)))
                     ->live(debounce: 250)
@@ -39,9 +39,10 @@ class ListingResource extends Resource
                 Forms\Components\Textarea::make('description')
                     ->required()
                     ->columnSpanFull(),
+                Forms\Components\TextInput::make('max_person')
+                    ->required(),
                 Forms\Components\TextInput::make('price')
-                    ->required()
-                    ->columnSpanFull(),
+                    ->required(),
                 FileUpload::make('attachments')
                     ->directory('listings')
                     ->image()
@@ -57,15 +58,17 @@ class ListingResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('items_name')
+                Tables\Columns\TextColumn::make('listing_name')
                     ->weight(FontWeight::Bold),
                 Tables\Columns\TextColumn::make('slug')
                     ->searchable(),
-                    Tables\Columns\TextColumn::make('price')
+                Tables\Columns\TextColumn::make('max_person')
+                    ->weight(FontWeight::Bold),
+                Tables\Columns\TextColumn::make('price')
                     ->getStateUsing(function ($record) {
                         return 'Rp. ' . number_format($record->price, 0, ',', '.');
                     })
-                    ->weight(FontWeight::Bold),                
+                    ->weight(FontWeight::Bold),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
