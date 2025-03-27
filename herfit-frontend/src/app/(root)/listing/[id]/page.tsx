@@ -32,7 +32,6 @@ function Detail({ params }: { params: { id: string } }) {
 
           <div className="mt-[30px] grid grid-cols-3 xl:grid-cols-4 gap-x-5">
             <div className="col-span-2 xl:col-span-3 space-y-5 pr-[50px]">
-              <Badge>Featured</Badge>
 
               <div className="flex items-center justify-between">
                 <h1 className="font-bold text-[32px] leading-[48px] text-secondary max-w-[300px]">
@@ -62,13 +61,15 @@ function Detail({ params }: { params: { id: string } }) {
         <div className="w-full max-w-[600px] xl:max-w-[650px] space-y-[30px]">
           <Title
             section="detail"
-            title="Description"
+            title="Deskripsi"
             subtitle={listing?.description}
           />
           <Map />
           <CustomerReviews />
         </div>
-        <BookingSection id={params?.id} />
+        {listing && (
+          <BookingSection id={params?.id} price={listing?.price} />
+        )}
       </section>
 
       <ListingShowcase
