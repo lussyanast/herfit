@@ -5,7 +5,8 @@ import { DatePickerDemo } from "@/components/molecules/date-picker";
 import { moneyFormat } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import moment from 'moment';
 
 interface BookingSectionProps {
   id: string;
@@ -15,6 +16,17 @@ interface BookingSectionProps {
 function BookingSection({ id, price }: BookingSectionProps) {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const [totalDays, setTotalDays] = useState<number>(0);
+
+  // Fungsi untuk menghitung jumlah hari antara startDate dan endDate
+  useEffect(() => {
+    if (startDate && endDate) {
+      const start = moment(startDate);
+      const end = moment(endDate);
+      const daysDifference = end.diff(start, "days");
+      setTotalDays(daysDifference);
+    }
+  }, [startDate, endDate]);
 
   return (
     <div className="w-full max-w-[360px] xl:max-w-[400px] h-fit space-y-5 bg-white border border-border rounded-[20px] p-[30px] shadow-indicator">
@@ -26,23 +38,13 @@ function BookingSection({ id, price }: BookingSectionProps) {
         <DatePickerDemo placeholder="End Date" date={endDate} setDate={setEndDate} />
       </div>
       <div className="space-y-5">
-        <CardBooking title="Total hari" value="30 days" />
+        <CardBooking title="Total hari" value={`${totalDays} hari`} />
       </div>
       <Link href={`/listing/${id}/checkout`}>
         <Button variant="default" className="mt-4">
           Pesan Sekarang
         </Button>
       </Link>
-      <div className="bg-gray-light p-5 rounded-[20px] flex items-center space-x-4">
-        <Image src="/icons/medal-star.svg" alt="icon" height={36} width={36} />
-        <div>
-          <Title
-            section="booking"
-            title="77% Off Discount"
-            subtitle="BuildWithAngga card is giving you extra priviledge today."
-          />
-        </div>
-      </div>
     </div>
   );
 }
