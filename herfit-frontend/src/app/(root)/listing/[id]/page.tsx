@@ -68,7 +68,7 @@ function Detail({ params }: { params: { id: string } }) {
           <CustomerReviews />
         </div>
         {listing && (
-          <BookingSection id={params?.id} price={listing?.price} />
+          <BookingSection id={listing?.id} price={listing?.price} />
         )}
       </section>
 
