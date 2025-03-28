@@ -9,18 +9,21 @@ import React, { useState, useEffect } from "react";
 import moment from 'moment';
 import { useCheckAvailabilityMutation } from "@/services/transaction.service";
 import { useToast } from "@/components/atomics/use-toast";
+import { useRouter } from "next/navigation";
 
 interface BookingSectionProps {
   id: number;
+  slug: string;
   price: number;
 }
 
-function BookingSection({ id, price }: BookingSectionProps) {
+function BookingSection({ id, slug, price }: BookingSectionProps) {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [totalDays, setTotalDays] = useState<number>(0);
 
   const { toast } = useToast();
+  const router = useRouter();
   const [checkAvailability, { isLoading }] = useCheckAvailabilityMutation();
 
   // Fungsi untuk menghitung jumlah hari antara startDate dan endDate
@@ -34,7 +37,6 @@ function BookingSection({ id, price }: BookingSectionProps) {
   }, [startDate, endDate]);
 
   const handleBook = async () => {
-    // `/listing/${id}/checkout`
     try {
       const data = {
         listing_id: id,
@@ -43,7 +45,10 @@ function BookingSection({ id, price }: BookingSectionProps) {
       };
 
       const res = await checkAvailability(data).unwrap();
-      console.log("~ handleBook ~ res:", res);
+      if (res.success) {
+        router.push(`/listing/${slug}/checkout?start_date=${data.start_date}&end_date=${data.end_date}`);
+      }
+
     } catch (error: any) {
       if (error.status === 401) {
         toast({
