@@ -1,43 +1,24 @@
-import CardFacility from "@/components/molecules/card/card-facility";
+import { Listing as ListingInterface } from "@/interfaces/listing";
 import Image from "next/image";
 import React from "react";
 
-function Listing() {
+function Listing({ listing }: { listing: ListingInterface }) {
   return (
     <div className="w-full max-w-[460px] h-fit p-[30px] space-y-5 bg-white rounded-[30px] shadow-indicator border border-border">
-      <Image
-        src="/images/image-detail-1.svg"
-        alt="image-1"
-        height={0}
-        width={0}
-        className="w-full h-[220px] rounded-[30px]"
-      />
+      {listing?.attachments?.[0] && (
+        <Image
+          src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${listing?.attachments[0]}`}
+          alt="image-1"
+          height={0}
+          width={0}
+          className="w-full h-[220px] rounded-[30px]"
+          unoptimized
+        />
+      )}
       <h1 className="font-bold text-[22px] leading-[33px] text-secondary">
-        Tedjamudita Buxiang Parahyangan
+        {listing.listing_name}
       </h1>
       <div className="space-y-3.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center font-semibold leading-6">
-            <Image
-              src="/icons/location-dark.svg"
-              alt="location-dark"
-              height={0}
-              width={0}
-              className="w-5 h-5 mr-1"
-            />
-            Shanghai, China
-          </div>
-          <div className="flex items-center font-semibold leading-6">
-            <Image
-              src="/icons/format-square-dark.svg"
-              alt="format-square-dark"
-              height={0}
-              width={0}
-              className="w-5 h-5 mr-1"
-            />
-            18,209 sqft
-          </div>
-        </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center font-semibold leading-6">
             <Image
@@ -47,41 +28,9 @@ function Listing() {
               width={0}
               className="w-5 h-5 mr-1"
             />
-            3 people
-          </div>
-          <div className="flex items-center font-semibold leading-6">
-            <Image
-              src="/icons/wifi-dark.svg"
-              alt="wifi-dark"
-              height={0}
-              width={0}
-              className="w-5 h-5 mr-1"
-            />
-            10 gbps
+            {listing.max_person}
           </div>
         </div>
-      </div>
-      <div className="space-y-3.5">
-        <CardFacility
-          icon="/icons/security.svg"
-          title="24/7 Supports"
-          subtitle="Best People"
-        />
-        <CardFacility
-          icon="/icons/weight.svg"
-          title="Gym Space"
-          subtitle="Complete"
-        />
-        <CardFacility
-          icon="/icons/coffee.svg"
-          title="Mini Cafe"
-          subtitle="Western"
-        />
-        <CardFacility
-          icon="/icons/video-play.svg"
-          title="Cinema"
-          subtitle="All Movies Included"
-        />
       </div>
     </div>
   );
