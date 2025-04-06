@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('listing_name')->unique();
             $table->string('slug')->unique();
+            $table->string('category');
             $table->text('description');
             $table->unsignedSmallInteger('max_person')->default(0);
             $table->text('price');

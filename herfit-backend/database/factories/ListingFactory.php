@@ -18,6 +18,7 @@ class ListingFactory extends Factory
     {
         return [
             'listing_name' => ucwords(join(' ', fake()->words(2))),
+            'category' => fake()->randomElement(['Membership', 'Lainnya']),
             'description' => fake()->paragraph(5),
             'max_person' => fake()->numberBetween(1, 10),
             'price' => fake()->numberBetween(1, 10)

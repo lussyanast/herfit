@@ -15,6 +15,7 @@ class Listing extends Model
     protected $fillable = [
         'listing_name',
         'slug',
+        'category',
         'description',
         'max_person',
         'price',

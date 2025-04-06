@@ -36,6 +36,14 @@ class ListingResource extends Resource
                 Forms\Components\TextInput::make('slug')
                     ->disabled()
                     ->maxLength(255),
+                Forms\Components\Select::make('category')
+                    ->required()
+                    ->options([
+                        'Membership' => 'Membership',
+                        'Lainnya' => 'Lainnya',
+                    ])
+                    ->label('Kategori')
+                    ->columnSpanFull(),
                 Forms\Components\Textarea::make('description')
                     ->required()
                     ->columnSpanFull(),
@@ -61,6 +69,8 @@ class ListingResource extends Resource
                 Tables\Columns\TextColumn::make('listing_name')
                     ->weight(FontWeight::Bold),
                 Tables\Columns\TextColumn::make('slug')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('category')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('max_person')
                     ->weight(FontWeight::Bold),

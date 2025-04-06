@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Listing;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -22,34 +23,36 @@ class Transaction extends Model
         'status'
     ];
 
-    public function setListingIdAttribute($value)
+    // Automatically calculate total_days before saving
+    protected static function booted()
     {
-        $listing = Listing::find($value);
-        $totalDays = Carbon::createFromDate($this->attributes['start_date'])->diffInDays($this->attributes['end_date']) + 1;
-
-        $this->attributes['listing_id'] = $value;
-        $this->attributes['total_days'] = $totalDays;
+        static::saving(function ($transaction) {
+            if ($transaction->start_date && $transaction->end_date) {
+                $transaction->total_days = Carbon::parse($transaction->start_date)
+                    ->diffInDays(Carbon::parse($transaction->end_date)) + 1;
+            }
+        });
     }
 
     // Mutator to set 'price' attribute
     public function setPriceAttribute($value)
     {
-        // memastikan harga selalu disimpan sebagai angka yang valid (integer atau float)
         $this->attributes['price'] = (float) $value;
     }
 
     // Mutator to set 'status' attribute
     public function setStatusAttribute($value)
     {
-        // memastikan status disimpan dalam format huruf kapital (uppercase)
         $this->attributes['status'] = strtoupper($value);
     }
 
-    public function user(): BelongsTo {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function listing(): BelongsTo {
+    public function listing(): BelongsTo
+    {
         return $this->belongsTo(Listing::class);
     }
 }
