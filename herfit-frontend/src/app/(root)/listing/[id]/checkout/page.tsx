@@ -1,4 +1,8 @@
-"use client"
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import moment from "moment";
 import Image from "next/image";
 import Breadcrumbs from "@/components/molecules/breadcrumbs";
 import CardBooking from "@/components/molecules/card/card-booking";
@@ -10,9 +14,35 @@ import Link from "next/link";
 import Listing from "./listing";
 import Review from "./review";
 import { useGetDetailListingQuery } from "@/services/listing.service";
+import { moneyFormat } from "@/lib/utils";
 
 function Checkout({ params }: { params: { id: string } }) {
   const { data: listing } = useGetDetailListingQuery(params.id);
+  const searchParams = useSearchParams();
+
+  const [checkInDate, setCheckInDate] = useState<Date>();
+  const [checkOutDate, setCheckOutDate] = useState<Date>();
+  const [totalDays, setTotalDays] = useState<number>(0);
+
+  useEffect(() => {
+    const start = searchParams.get("start_date");
+    const end = searchParams.get("end_date");
+
+    if (start) setCheckInDate(moment(start, "YY-MM-DD").toDate());
+    if (end) setCheckOutDate(moment(end, "YY-MM-DD").toDate());
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (checkInDate && checkOutDate) {
+      const start = moment(checkInDate);
+      const end = moment(checkOutDate);
+      const days = end.diff(start, "days");
+      setTotalDays(days > 0 ? days : 0);
+    }
+  }, [checkInDate, checkOutDate]);
+
+  const price = listing?.data?.price ?? 0;
+  const grandTotal = price * totalDays;
 
   return (
     <main>
@@ -38,12 +68,20 @@ function Checkout({ params }: { params: { id: string } }) {
             </h1>
             <div className="rounded-[30px] mt-2.5 p-[30px] bg-white border border-border shadow-indicator space-y-5">
               <div className="space-y-5">
-                <DatePickerDemo />
-                <DatePickerDemo />
+                <DatePickerDemo
+                  placeholder="Start Date"
+                  date={checkInDate}
+                  setDate={setCheckInDate}
+                />
+                <DatePickerDemo
+                  placeholder="End Date"
+                  date={checkOutDate}
+                  setDate={setCheckOutDate}
+                />
               </div>
               <div className="space-y-5">
-                <CardBooking title="Total days" value="30 days" />
-                <CardBooking title="Grand total price" value="$103,940" />
+                <CardBooking title="Total hari" value={`${totalDays} hari`} />
+                <CardBooking title="Grand total price" value={moneyFormat.format(price)} />
               </div>
             </div>
           </div>
