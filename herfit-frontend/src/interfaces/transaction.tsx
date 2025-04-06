@@ -1,3 +1,5 @@
+import { Listing } from "./listing";
+
 export interface Transaction {
     id:         number;
     user_id:    number;
