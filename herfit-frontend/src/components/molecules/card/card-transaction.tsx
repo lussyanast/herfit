@@ -52,26 +52,20 @@ function CardTransaction({
           <div className='flex gap-4 mt-4'>
             <div className='mt-2 flex flex-wrap gap-x-5 gap-y-2.5'>
               <div className='flex items-center text-sm font-semibold leading-[21px]'>
-                <Image
-                  src='/icons/location-dark.svg'
-                  alt='location-dark'
-                  height={0}
-                  width={0}
-                  className='w-5 h-5 mr-1'
-                />
-                {location}
-              </div>
-              <div className='flex items-center text-sm font-semibold leading-[21px]'>
                 <HiOutlineClock className='w-5 h-5 mr-1' />
-                {days} days
+                {days} hari
               </div>
-              <div className='flex items-center text-sm font-semibold leading-[21px]'>
-                <HiOutlineCurrencyDollar className='w-5 h-5 mr-1' />
-                {price.toLocaleString('en-US', {
-                  style: "currency",
-                  currency: "IDR"
-                })}
+              <div className="flex items-center gap-1 text-sm font-semibold leading-[21px] text-gray-800">
+                <HiOutlineCurrencyDollar className="w-5 h-5" />
+                <span>
+                  {price.toLocaleString('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                  })}
+                </span>
               </div>
+
             </div>
             <div className='flex items-center space-x-3.5'>
               <Button

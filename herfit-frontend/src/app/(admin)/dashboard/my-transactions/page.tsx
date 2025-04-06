@@ -22,8 +22,7 @@ function MyTransactions() {
       <div className="flex items-center justify-between">
         <Title
           section="admin"
-          title="My Transactions"
-          subtitle="Manage your house and get money"
+          title="Riwayat Transaksi"
         />
       </div>
 

@@ -1,3 +1,4 @@
+"use client"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,25 +8,28 @@ import {
 import { Input } from '@/components/atomics/input'
 import Title from '@/components/atomics/title'
 import Image from 'next/image'
+import { useSession } from 'next-auth/react'
 
 function TopMenu() {
+  const { data: session } = useSession();
+  console.log("~ Header ~ session:", session)
+
   return (
     <header className='w-full p-[30px] rounded-[30px] bg-white flex justify-between items-center'>
       <div>
-        <Input
+        {/* <Input
           icon='/icons/search.svg'
           variant='auth'
-          placeholder='Search listing or rental by name...'
+          placeholder='Cari item berdasarkan nama...'
           className='w-[400px]'
-        />
+        /> */}
       </div>
 
       <DropdownMenu>
-        <DropdownMenuTrigger className='outline-none'>
+        <DropdownMenuTrigger data-login={!!session?.user} className='outline-none'>
           <div className='flex items-center space-x-2'>
             <Title
-              title='Ariana Xian'
-              subtitle='Howdy'
+              title={session?.user.name}
               section='header'
               reverse
             />

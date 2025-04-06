@@ -63,7 +63,7 @@ function Header() {
             className="data-[login=false]:hidden outline-none"
           >
             <div className="flex items-center space-x-2">
-              <Title title={session?.user.name} subtitle="Howdy" section="header" />
+              <Title title={session?.user.name} section="header" />
               <Image
                 src="/images/avatar.webp"
                 alt="avatar"
