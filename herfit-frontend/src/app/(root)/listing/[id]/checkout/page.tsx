@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import Image from "next/image";
@@ -15,34 +15,60 @@ import Listing from "./listing";
 import Review from "./review";
 import { useGetDetailListingQuery } from "@/services/listing.service";
 import { moneyFormat } from "@/lib/utils";
+import { useTransactionMutation } from "@/services/transaction.service";
+import { useToast } from "@/components/atomics/use-toast";
 
 function Checkout({ params }: { params: { id: string } }) {
   const { data: listing } = useGetDetailListingQuery(params.id);
   const searchParams = useSearchParams();
+  const [transaction, { isLoading }] = useTransactionMutation();
+  const { toast } = useToast();
+  const router = useRouter();
 
-  const [checkInDate, setCheckInDate] = useState<Date>();
-  const [checkOutDate, setCheckOutDate] = useState<Date>();
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
   const [totalDays, setTotalDays] = useState<number>(0);
 
   useEffect(() => {
     const start = searchParams.get("start_date");
     const end = searchParams.get("end_date");
 
-    if (start) setCheckInDate(moment(start, "YY-MM-DD").toDate());
-    if (end) setCheckOutDate(moment(end, "YY-MM-DD").toDate());
+    if (start) setStartDate(moment(start, "YY-MM-DD").toDate());
+    if (end) setEndDate(moment(end, "YY-MM-DD").toDate());
   }, [searchParams]);
 
   useEffect(() => {
-    if (checkInDate && checkOutDate) {
-      const start = moment(checkInDate);
-      const end = moment(checkOutDate);
+    if (startDate && endDate) {
+      const start = moment(startDate);
+      const end = moment(endDate);
       const days = end.diff(start, "days");
       setTotalDays(days > 0 ? days : 0);
     }
-  }, [checkInDate, checkOutDate]);
+  }, [startDate, endDate]);
 
   const price = listing?.data?.price ?? 0;
-  const grandTotal = price * totalDays;
+
+  const handlePayment = async () => {
+    try {
+      const data = {
+        listing_id: listing.data.id,
+        start_date: moment(startDate).format("YYYY-MM-DD"),
+        end_date: moment(endDate).format("YYYY-MM-DD"),
+      };
+
+      const res = await transaction(data).unwrap();
+
+      if (res.success) {
+        router.push(`/booking-success/${res.data.id}/success`);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Something went wrong.",
+        description: error.data?.message ?? "Failed to create transaction.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <main>
@@ -70,18 +96,21 @@ function Checkout({ params }: { params: { id: string } }) {
               <div className="space-y-5">
                 <DatePickerDemo
                   placeholder="Start Date"
-                  date={checkInDate}
-                  setDate={setCheckInDate}
+                  date={startDate}
+                  setDate={setStartDate}
                 />
                 <DatePickerDemo
                   placeholder="End Date"
-                  date={checkOutDate}
-                  setDate={setCheckOutDate}
+                  date={endDate}
+                  setDate={setEndDate}
                 />
               </div>
               <div className="space-y-5">
                 <CardBooking title="Total hari" value={`${totalDays} hari`} />
-                <CardBooking title="Grand total price" value={moneyFormat.format(price)} />
+                <CardBooking
+                  title="Grand total price"
+                  value={moneyFormat.format(price)}
+                />
               </div>
             </div>
           </div>
@@ -133,11 +162,16 @@ function Checkout({ params }: { params: { id: string } }) {
                   I agree with terms & conditions
                 </label>
               </div>
-              <Link href={`/booking-success/12321aa12/success`}>
-                <Button variant="default" size="default" className="mt-4">
-                  Make a Payment
-                </Button>
-              </Link>
+
+              <Button
+                variant="default"
+                size="default"
+                className="mt-4"
+                onClick={handlePayment}
+                disabled={isLoading}
+              >
+                Make a Payment
+              </Button>
             </div>
           </div>
         </div>
