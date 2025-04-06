@@ -1,0 +1,13 @@
+export interface Transaction {
+    id:         number;
+    user_id:    number;
+    listing_id: number;
+    start_date: Date;
+    end_date:   Date;
+    total_days: number;
+    price:      number;
+    status:     string;
+    created_at: Date;
+    updated_at: Date;
+    listing:    Listing;
+}
