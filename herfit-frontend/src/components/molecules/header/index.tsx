@@ -31,16 +31,16 @@ function Header() {
         <nav>
           <ul className="flex items-center space-x-[30px]">
             <li className="cursor-pointer font-semibold leading-6 hover:text-primary">
-              Featured
+              Membership
             </li>
             <li className="cursor-pointer font-semibold leading-6 hover:text-primary">
-              Categories
+              Produk Lainnya
             </li>
             <li className="cursor-pointer font-semibold leading-6 hover:text-primary">
-              Testimonials
+              Lokasi
             </li>
             <li className="cursor-pointer font-semibold leading-6 hover:text-primary">
-              About
+              Tentang Kami
             </li>
           </ul>
         </nav>

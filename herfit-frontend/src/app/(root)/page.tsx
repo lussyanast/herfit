@@ -75,37 +75,6 @@ function Home() {
         </div>
       </section>
 
-      <ListingShowcase
-        id="deals-section"
-        title="Our Latest Deals"
-        subtitle="Explore the beauty of architecture and living love"
-      />
-
-      <section id="categories-section" className="bg-gray-light">
-        <div className="px-10 xl:container xl:mx-auto py-[50px]">
-          <div className="flex items-center justify-between">
-            <Title title="Categories" subtitle="We provide everything" />
-            <div>
-              <Button variant="default" size="button" className="shadow-button">
-                Explore All
-              </Button>
-            </div>
-          </div>
-
-          <div className="mt-[30px] grid grid-cols-3 xl:grid-cols-4 gap-[30px]">
-            {categories.data.map((item: CategoriesProps, index: number) => (
-              <CardIndicator
-                key={index}
-                icon={item.icon}
-                title={item.title}
-                subtitle={item.subtitle}
-                section="categories"
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section
         id="benefits-section"
         className="px-10 xl:container xl:mx-auto mt-[100px]"
@@ -168,84 +137,6 @@ function Home() {
       </section>
 
       <section id="review-section" className="container mx-auto my-[100px]">
-        <div className="flex justify-center text-center">
-          <Title
-            title="Happy Customers"
-            subtitle={`We’d love to come back again soon`}
-            section=""
-          />
-        </div>
-        <div className="mt-[30px] grid grid-cols-3 gap-[30px]">
-          <div className="space-y-[30px]">
-            <CardReview
-              rating={4}
-              review="I was not so sure if there was a beautiful bedroom, but it was really great experience."
-              avatar="/images/avatar-review.svg"
-              username="Evelin Bie"
-              jobdesk="Full-Time Traveler"
-            />
-            <CardReview
-              rating={4}
-              review="It’s just amazing, will be back."
-              avatar="/images/avatar-review.svg"
-              username="Evelin Bie"
-              jobdesk="Full-Time Traveler"
-            />
-            <CardReview
-              rating={4}
-              review="I was not so sure if there was a beautiful bedroom, but it was really great experience."
-              avatar="/images/avatar-review.svg"
-              username="Evelin Bie"
-              jobdesk="Full-Time Traveler"
-            />
-          </div>
-          <div className="space-y-[30px]">
-            <CardReview
-              rating={5}
-              review="Price was too low yet luxury."
-              avatar="/images/avatar-review.svg"
-              username="Evelin Bie"
-              jobdesk="Full-Time Traveler"
-            />
-            <CardReview
-              rating={4}
-              review="I was not so sure if there was a beautiful bedroom, but it was really great experience."
-              avatar="/images/avatar-review.svg"
-              username="Evelin Bie"
-              jobdesk="Full-Time Traveler"
-            />
-            <CardReview
-              rating={5}
-              review="During covid I was stayed here and I got a lot of full of supports that I need to keep my body healthy."
-              avatar="/images/avatar-review.svg"
-              username="Evelin Bie"
-              jobdesk="Full-Time Traveler"
-            />
-          </div>
-          <div className="space-y-[30px]">
-            <CardReview
-              rating={4}
-              review="I was not so sure if there was a beautiful bedroom, but it was really great experience."
-              avatar="/images/avatar-review.svg"
-              username="Evelin Bie"
-              jobdesk="Full-Time Traveler"
-            />
-            <CardReview
-              rating={4}
-              review="It’s just amazing, will be back."
-              avatar="/images/avatar-review.svg"
-              username="Evelin Bie"
-              jobdesk="Full-Time Traveler"
-            />
-            <CardReview
-              rating={4}
-              review="I was not so sure if there was a beautiful bedroom, but it was really great experience."
-              avatar="/images/avatar-review.svg"
-              username="Evelin Bie"
-              jobdesk="Full-Time Traveler"
-            />
-          </div>
-        </div>
       </section>
     </main>
   );

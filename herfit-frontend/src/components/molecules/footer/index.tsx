@@ -1,89 +1,77 @@
-import Link from 'next/link'
-import Menu from './menu'
-import DataMenu from '@/json/footer-menu.json'
-import { Input } from '@/components/atomics/input'
-import { Button } from '@/components/atomics/button'
-import Image from 'next/image'
-import { Separator } from '@/components/atomics/separator'
+import Link from 'next/link';
+import Image from 'next/image';
+import { Separator } from '@/components/atomics/separator';
 
 function Footer() {
   return (
-    <footer className='bg-secondary'>
-      <div className='container mx-auto py-[100px]'>
-        <div className='grid grid-cols-5'>
-          <Menu
-            title='Solutions'
-            data={DataMenu.data.solutions}
-          />
-          <Menu
-            title='Product'
-            data={DataMenu.data.product}
-          />
-          <Menu
-            title='Company'
-            data={DataMenu.data.company}
-          />
-          <div className='col-span-2 text-white'>
-            <span className='font-semibold leading-6'>
-              Subscribe & Free Rewards
-            </span>
-            <div className='relative mt-3'>
-              <Input
-                type='text'
-                placeholder='Email Address'
-                icon='/icons/sms.svg'
-                variant='footer'
-                className=''
+    <footer className="bg-secondary mt-[100px] text-white">
+      <div className="container mx-auto px-[30px] py-[100px] rounded-t-[30px]">
+        {/* Section atas */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-[50px]">
+          {/* Menu Navigasi */}
+          <div>
+            <h4 className="font-semibold text-lg mb-4">Menu</h4>
+            <ul className="space-y-3 text-sm">
+              <li><Link href="#" className="hover:underline">Membership</Link></li>
+              <li><Link href="#" className="hover:underline">Produk Lainnya</Link></li>
+              <li><Link href="#" className="hover:underline">Lokasi</Link></li>
+              <li><Link href="#" className="hover:underline">Tentang Kami</Link></li>
+            </ul>
+          </div>
+
+          {/* Menu Bantuan */}
+          <div>
+            <h4 className="font-semibold text-lg mb-4">Bantuan</h4>
+            <ul className="space-y-3 text-sm">
+              <li><Link href="#" className="hover:underline">FAQ</Link></li>
+              <li><Link href="#" className="hover:underline">Kontak</Link></li>
+              <li><Link href="#" className="hover:underline">Syarat & Ketentuan</Link></li>
+              <li><Link href="#" className="hover:underline">Kebijakan Privasi</Link></li>
+            </ul>
+          </div>
+
+          {/* Form Newsletter */}
+          <div>
+            <h4 className="font-semibold text-lg mb-4">Subscribe & Free Rewards</h4>
+            <form className="flex items-center bg-white rounded-full overflow-hidden max-w-md">
+              <div className="flex items-center pl-4">
+                <Image src="/icons/sms.svg" alt="icon" width={20} height={20} />
+              </div>
+              <input
+                type="email"
+                placeholder="Email Address"
+                className="flex-1 px-4 py-3 text-sm text-black placeholder:text-gray-400 focus:outline-none bg-white"
               />
-              <Button
-                variant='default'
-                size='footer'
-                className='absolute right-0 top-0'
+              <button
+                type="submit"
+                className="bg-primary text-white text-sm font-semibold px-6 py-3 rounded-full hover:opacity-90 transition-all"
               >
                 Subscribe
-              </Button>
-            </div>
-            <div className='mt-[30px] space-y-3'>
-              <span className='font-semibold leading-6'>
-                Choose Language
-              </span>
-              <div className='flex items-center space-x-2.5'>
-                <Image
-                  src='/images/uk.svg'
-                  alt='UK'
-                  height={0}
-                  width={0}
-                  className='w-[26.67px] h-5'
-                />
-                <span className='leading-6'>
-                  English (UK)
-                </span>
-                <Image
-                  src='/icons/arrow-down.svg'
-                  alt='arrow'
-                  height={0}
-                  width={0}
-                  className='w-[18px] h-[18px]'
-                />
-              </div>
-            </div>
+              </button>
+            </form>
           </div>
         </div>
-        <Separator className='my-[50px] bg-separator-foreground'/>
-        <div className='flex items-center justify-between'>
-          <Image
-            src='/images/logo-white.svg'
-            alt='nidejia'
-            height={36}
-            width={133}
-          />
-          <span className='leading-6 text-white'>  
-            All Rights Reserved Nidejia BuildWithAngga 2024
+
+        {/* Garis Pembatas */}
+        <Separator className="my-[50px] bg-separator-foreground" />
+
+        {/* Bottom Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <Link href="/">
+            <Image
+              src="/images/logo-white.svg"
+              alt="nidejia"
+              height={36}
+              width={133}
+            />
+          </Link>
+          <span className="text-sm text-center sm:text-right">
+            © {new Date().getFullYear()} Lussy Triana. All Rights Reserved.
           </span>
         </div>
       </div>
     </footer>
-  )
+  );
 }
 
-export default Footer
+export default Footer;
