@@ -13,7 +13,7 @@ function Footer() {
   };
 
   return (
-    <footer className="bg-secondary mt-[100px] text-white">
+    <footer className="mt-[100px] text-white" style={{ backgroundColor: '#675371' }}>
       <div className="container mx-auto px-[30px] py-[100px] rounded-t-[30px]">
         {/* Section atas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-[50px]">
@@ -53,45 +53,24 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Form Newsletter */}
-          <div>
-            <h4 className="font-semibold text-lg mb-4">Subscribe & Free Rewards</h4>
-            <form className="flex items-center bg-white rounded-full overflow-hidden max-w-md">
-              <div className="flex items-center pl-4">
-                <Image src="/icons/sms.svg" alt="icon" width={20} height={20} />
-              </div>
-              <input
-                type="email"
-                placeholder="Email Address"
-                className="flex-1 px-4 py-3 text-sm text-black placeholder:text-gray-400 focus:outline-none bg-white"
+          {/* Bottom Section */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <Link href="/">
+              <Image
+                src="/images/logo-white.svg"
+                alt="nidejia"
+                height={36}
+                width={133}
               />
-              <button
-                type="submit"
-                className="bg-primary text-white text-sm font-semibold px-6 py-3 rounded-full hover:opacity-90 transition-all"
-              >
-                Subscribe
-              </button>
-            </form>
+            </Link>
+            <span className="text-sm text-center sm:text-right">
+              © {new Date().getFullYear()} All Rights Reserved.
+            </span>
           </div>
         </div>
 
         {/* Garis Pembatas */}
         <Separator className="my-[50px] bg-separator-foreground" />
-
-        {/* Bottom Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <Link href="/">
-            <Image
-              src="/images/logo-white.svg"
-              alt="nidejia"
-              height={36}
-              width={133}
-            />
-          </Link>
-          <span className="text-sm text-center sm:text-right">
-            © {new Date().getFullYear()} All Rights Reserved.
-          </span>
-        </div>
       </div>
     </footer>
   );
