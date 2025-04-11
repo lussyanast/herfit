@@ -1,8 +1,17 @@
+"use client"
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Separator } from '@/components/atomics/separator';
 
 function Footer() {
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="bg-secondary mt-[100px] text-white">
       <div className="container mx-auto px-[30px] py-[100px] rounded-t-[30px]">
@@ -14,7 +23,14 @@ function Footer() {
             <ul className="space-y-3 text-sm">
               <li><Link href="#" className="hover:underline">Membership</Link></li>
               <li><Link href="#" className="hover:underline">Produk Lainnya</Link></li>
-              <li><Link href="#" className="hover:underline">Lokasi</Link></li>
+              <li>
+                <button
+                  onClick={() => scrollToSection('location-section')}
+                  className="hover:underline text-left"
+                >
+                  Lokasi
+                </button>
+              </li>
               <li><Link href="#" className="hover:underline">Tentang Kami</Link></li>
             </ul>
           </div>

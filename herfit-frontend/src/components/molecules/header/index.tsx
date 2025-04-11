@@ -1,31 +1,32 @@
-'use client'
-import { Button } from '@/components/atomics/button'
-import Image from 'next/image'
-import Link from 'next/link'
-import { useState } from 'react'
+"use client";
+import { Button } from "@/components/atomics/button";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/atomics/dropdown-menu'
-import Title from '@/components/atomics/title'
-import { signOut, useSession } from 'next-auth/react'
+} from "@/components/atomics/dropdown-menu";
+import Title from "@/components/atomics/title";
+import { signOut, useSession } from "next-auth/react";
 
 function Header() {
   const { data: session } = useSession();
-  console.log("~ Header ~ session:", session)
+  console.log("~ Header ~ session:", session);
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <header className="container mx-auto fixed inset-x-0 top-[30px] z-20">
       <div className="p-[30px] rounded-[30px] bg-white flex justify-between items-center">
         <Link href="/">
-          <Image
-            src="/images/logo.svg"
-            alt="nidejia"
-            height={36}
-            width={133}
-          />
+          <Image src="/images/logo.svg" alt="nidejia" height={36} width={133} />
         </Link>
 
         <nav>
@@ -36,7 +37,10 @@ function Header() {
             <li className="cursor-pointer font-semibold leading-6 hover:text-primary">
               Produk Lainnya
             </li>
-            <li className="cursor-pointer font-semibold leading-6 hover:text-primary">
+            <li
+              className="cursor-pointer font-semibold leading-6 hover:text-primary"
+              onClick={() => scrollToSection("location-section")}
+            >
               Lokasi
             </li>
             <li className="cursor-pointer font-semibold leading-6 hover:text-primary">
@@ -82,7 +86,9 @@ function Header() {
             </DropdownMenuItem>
             <DropdownMenuItem>My Rentals</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => signOut()}>
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -90,4 +96,4 @@ function Header() {
   );
 }
 
-export default Header
+export default Header;

@@ -1,3 +1,5 @@
+"use client"
+
 import CardIndicator from "@/components/molecules/card/card-indicator";
 import { Button } from "@/components/atomics/button";
 import { Input } from "@/components/atomics/input";
