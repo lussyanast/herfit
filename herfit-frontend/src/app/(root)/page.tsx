@@ -136,6 +136,30 @@ function Home() {
         </div>
       </section>
 
+      <section
+        id="location-section"
+        className="container mx-auto my-[100px] px-4 xl:px-0"
+      >
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold mb-2">Lokasi Kami</h2>
+          <p className="text-muted-foreground max-w-[500px] mx-auto">
+            Temukan kami langsung di lokasi pusat kebugaran khusus wanita Her.Fit Ladies Gym.
+          </p>
+        </div>
+        <div className="rounded-[20px] overflow-hidden shadow-md">
+          <iframe
+            title="Lokasi Her.Fit Ladies Gym"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.7117498133534!2d106.9379705753429!3d-6.301554493687597!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e699332bfb7260b%3A0xece285f91f9d44c4!2sHer.Fit_ladiesgym!5e0!3m2!1sen!2sid!4v1744368457510!5m2!1sen!2sid"
+            width="100%"
+            height="450"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      </section>
+
       <section id="review-section" className="container mx-auto my-[100px]">
       </section>
     </main>
