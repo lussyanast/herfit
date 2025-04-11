@@ -162,6 +162,58 @@ function Home() {
         </div>
       </section>
 
+      <section
+        id="contact-section"
+        className="container mx-auto my-[100px] px-4 xl:px-0"
+      >
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold mb-2">Hubungi Kami</h2>
+          <p className="text-muted-foreground max-w-[500px] mx-auto">
+            Kirimkan pertanyaan atau kebutuhan Anda, dan kami akan menghubungi Anda melalui WhatsApp.
+          </p>
+        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const name = (document.getElementById("name") as HTMLInputElement).value;
+            const message = (document.getElementById("message") as HTMLTextAreaElement).value;
+            const text = `Halo, saya ${name}. ${message}`;
+            const encodedText = encodeURIComponent(text);
+            window.open(`https://wa.me/6282261291606?text=${encodedText}`, "_blank");
+          }}
+          className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-md space-y-6"
+        >
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Nama
+            </label>
+            <input
+              type="text"
+              id="name"
+              required
+              className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+              Pesan
+            </label>
+            <textarea
+              id="message"
+              required
+              rows={4}
+              className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2"
+            />
+          </div>
+          <div className="text-center">
+            <Button type="submit" variant="default" size="header">
+              Kirim via WhatsApp
+            </Button>
+          </div>
+        </form>
+      </section>
+
       <section id="review-section" className="container mx-auto my-[100px]">
       </section>
     </main>

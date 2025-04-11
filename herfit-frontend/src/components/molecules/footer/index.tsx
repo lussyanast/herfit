@@ -40,7 +40,14 @@ function Footer() {
             <h4 className="font-semibold text-lg mb-4">Bantuan</h4>
             <ul className="space-y-3 text-sm">
               <li><Link href="#" className="hover:underline">FAQ</Link></li>
-              <li><Link href="#" className="hover:underline">Kontak</Link></li>
+              <li>
+                <button
+                  onClick={() => scrollToSection('contact-section')}
+                  className="hover:underline text-left"
+                >
+                  Kontak
+                </button>
+              </li>
               <li><Link href="#" className="hover:underline">Syarat & Ketentuan</Link></li>
               <li><Link href="#" className="hover:underline">Kebijakan Privasi</Link></li>
             </ul>
@@ -82,7 +89,7 @@ function Footer() {
             />
           </Link>
           <span className="text-sm text-center sm:text-right">
-            © {new Date().getFullYear()} Lussy Triana. All Rights Reserved.
+            © {new Date().getFullYear()} All Rights Reserved.
           </span>
         </div>
       </div>
