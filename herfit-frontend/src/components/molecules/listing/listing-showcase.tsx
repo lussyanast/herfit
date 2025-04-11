@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import React from "react";
 import Title from "@/components/atomics/title";
 import {
@@ -8,7 +9,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/atomics/carousel";
-import listings from "@/json/listings.json";
 import CardDeals from "@/components/molecules/card/card-deals";
 import { Listing } from "@/interfaces/listing";
 import { useGetAllListingQuery } from "@/services/listing.service";
@@ -17,11 +17,20 @@ interface ListingShowcaseProps {
   id: string;
   title: string;
   subtitle: string;
+  category?: string;
 }
 
-const ListingShowcase = ({ id, title, subtitle }: ListingShowcaseProps) => {
+const ListingShowcase = ({ id, title, subtitle, category }: ListingShowcaseProps) => {
   const { data: listings } = useGetAllListingQuery({});
-  console.log("~ ListingShowcase ~ listings:", listings);
+
+  const filteredListings = listings?.data?.data.filter((item: Listing) => {
+    if (category === "membership") {
+      return item.category?.toLowerCase() === "membership";
+    } else if (category === "others") {
+      return item.category?.toLowerCase() !== "membership";
+    }
+    return true;
+  });
 
   return (
     <section id={id} className="px-10 xl:container xl:mx-auto pt-16 pb-[100px]">
@@ -30,10 +39,10 @@ const ListingShowcase = ({ id, title, subtitle }: ListingShowcaseProps) => {
       </div>
       <Carousel className="w-full mt-[30px]">
         <CarouselContent>
-          {listings?.data?.data.map((item: Listing, index: number) => (
+          {filteredListings?.map((item: Listing, index: number) => (
             <CarouselItem key={index} className="basis-1/4">
               <CardDeals
-                image={item.attachments?.[0] || ''}
+                image={item.attachments?.[0] || ""}
                 title={item.listing_name}
                 slug={"/listing/" + item.slug}
                 price={item.price}

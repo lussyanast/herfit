@@ -5,12 +5,9 @@ import { Button } from "@/components/atomics/button";
 import { Input } from "@/components/atomics/input";
 import { Separator } from "@/components/atomics/separator";
 import Title from "@/components/atomics/title";
-import categories from "@/json/categories.json";
-import { CategoriesProps } from "@/interfaces/landing-page";
 import Image from "next/image";
 import CardBenefit from "@/components/molecules/card/card-benefit";
 import CardPurpose from "@/components/molecules/card/card-purpose";
-import CardReview from "@/components/molecules/card/card-review";
 import ListingShowcase from "@/components/molecules/listing/listing-showcase";
 
 function Home() {
@@ -23,21 +20,10 @@ function Home() {
         <div className="pt-[226px] container mx-auto">
           <div className="max-w-[555px]">
             <Title
-              title="Find Glorious Living And Loving Space"
-              subtitle="Dolor house comfortable si amet with cheap price that also lorem when you need grow."
+              title="Empower Your Fitness Journey with HerFit"
+              subtitle="Temukan pengalaman gym yang nyaman, aman, dan menyenangkan khusus untuk perempuan. Bergabunglah dengan komunitas sehat dan penuh semangat."
               section="hero"
             />
-            <div className="pt-[50px] flex items-center">
-              <div className="grow">
-                <Input
-                  placeholder="Search by city or country..."
-                  variant="hero"
-                />
-              </div>
-              <Button variant="default" size="hero">
-                Explore
-              </Button>
-            </div>
           </div>
         </div>
       </section>
@@ -76,6 +62,20 @@ function Home() {
           />
         </div>
       </section>
+
+      <ListingShowcase
+        id="membership-listing"
+        title="Pilih Membershipmu!"
+        subtitle="Telusuri pilihan keanggotaan khususmu."
+        category="membership"
+      />
+
+      <ListingShowcase
+        id="other-listing"
+        title="Produk Lainnya"
+        subtitle="Berbagai produk lainnya yang tersedia."
+        category="others"
+      />
 
       <section
         id="benefits-section"
