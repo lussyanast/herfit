@@ -39,55 +39,6 @@ function Home() {
       </section>
 
       <section
-        id="indicator-section"
-        className="px-10 xl:container xl:mx-auto mt-12 pb-9"
-      >
-        <div className="h-[128px] flex justify-center xl:justify-between items-center space-x-6 xl:space-x-12 bg-white shadow-indicator rounded-[20px] px-9 py-5 xl:px-[50px] xl:py-[29px]">
-          <CardIndicator
-            icon="/icons/house-2.svg"
-            title="382M"
-            subtitle="Kos Available"
-            variant="indicator"
-          />
-          <Separator orientation="vertical" className="bg-separator" />
-          <CardIndicator
-            icon="/icons/people-2.svg"
-            title="9/10"
-            subtitle="People Happy"
-            variant="indicator"
-          />
-          <Separator orientation="vertical" className="bg-separator" />
-          <CardIndicator
-            icon="/icons/security-user.svg"
-            title="100%"
-            subtitle="High Security"
-            variant="indicator"
-          />
-          <Separator orientation="vertical" className="bg-separator" />
-          <CardIndicator
-            icon="/icons/global.svg"
-            title="183"
-            subtitle="Countries"
-            variant="indicator"
-          />
-        </div>
-      </section>
-
-      <ListingShowcase
-        id="membership-listing"
-        title="Pilih Membershipmu!"
-        subtitle="Telusuri pilihan keanggotaan khususmu."
-        category="membership"
-      />
-
-      <ListingShowcase
-        id="other-listing"
-        title="Produk Lainnya"
-        subtitle="Berbagai produk lainnya yang tersedia."
-        category="others"
-      />
-
-      <section
         id="benefits-section"
         className="px-10 xl:container xl:mx-auto mt-[100px]"
       >
@@ -148,7 +99,21 @@ function Home() {
         </div>
       </section>
 
-      <section
+      <ListingShowcase
+        id="membership-listing"
+        title="Pilih Membershipmu!"
+        subtitle="Telusuri pilihan keanggotaan khususmu."
+        category="membership"
+      />
+
+      <ListingShowcase
+        id="other-listing"
+        title="Produk Lainnya"
+        subtitle="Berbagai produk lainnya yang tersedia."
+        category="others"
+      />
+
+<section
         id="location-section"
         className="container mx-auto my-[100px] px-4 xl:px-0"
       >
