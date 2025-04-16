@@ -57,8 +57,8 @@ function Footer() {
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <Link href="/">
               <Image
-                src="/images/logo-white.svg"
-                alt="nidejia"
+                src="/images/logo.png"
+                alt="HerFit"
                 height={36}
                 width={133}
               />

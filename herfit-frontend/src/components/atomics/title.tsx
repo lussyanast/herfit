@@ -1,8 +1,7 @@
-
 const getTitleStyle = (section: string) => {
   switch (section) {
     case 'hero':
-      return 'text-[55px] leading-[82.5px]'
+      return 'text-[60px] leading-[85px] font-extrabold text-white drop-shadow-md'
     case 'header':
       return 'text-base font-semibold leading-6'
     case 'categories':
@@ -10,11 +9,11 @@ const getTitleStyle = (section: string) => {
     case 'facility':
       return 'text-xl font-semibold leading-[30px]'
     case 'detail':
-      return 'font-bold text-lg leading-[27px] text-secondary'
+      return 'font-bold text-lg leading-[27px] text-white'
     case 'booking':
-      return 'font-bold text-lg leading-[27px] text-secondary'
+      return 'font-bold text-lg leading-[27px] text-white'
     case 'empty': 
-      return 'font-bold text-lg leading-[27px] text-secondary text-center'
+      return 'font-bold text-lg leading-[27px] text-white text-center'
     default:
       return 'text-2xl leading-9'
   }
@@ -23,7 +22,7 @@ const getTitleStyle = (section: string) => {
 const getSubtitleStyle = (section: string) => {
   switch (section) {
     case 'hero':
-      return 'text-lg leading-8 text-secondary'
+      return 'text-lg leading-8 font-semibold text-white drop-shadow-md'
     case 'header':
       return 'text-sm leading-[21px] text-subtitle'
     case 'categories':
@@ -31,7 +30,7 @@ const getSubtitleStyle = (section: string) => {
     case 'facility':
       return 'text-base leading-6 text-subtitle'
     case 'detail':
-      return 'text-base leading-[30px] text-secondary pt-2.5'
+      return 'text-base leading-[30px] text-white pt-2.5'
     case 'booking':
       return 'text-base leading-[30px] text-subtitle pt-2.5'
     case 'empty':

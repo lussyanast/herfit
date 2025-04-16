@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: 'HerFit Ladies Gym',
   description: 'Ladies Gym',
   icons: {
-    icon: '/favicon.svg',
+    icon: '/logo.png',
   },
 }
 
