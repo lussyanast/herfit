@@ -1,16 +1,11 @@
 "use client";
 import Breadcrumbs from "@/components/molecules/breadcrumbs";
-import CardFacility from "@/components/molecules/card/card-facility";
-import CardStar from "@/components/molecules/card/card-star";
-import { Badge } from "@/components/atomics/badge";
-import { Button } from "@/components/atomics/button";
 import Title from "@/components/atomics/title";
 import Image from "next/image";
 import Map from "@/components/molecules/map";
 import ListingShowcase from "@/components/molecules/listing/listing-showcase";
 import PhotoGallery from "./photo-gallery";
 import BookingSection from "./booking-section";
-import CustomerReviews from "./customer-reviews";
 import { useGetDetailListingQuery } from "@/services/listing.service";
 import { useMemo } from "react";
 import { Listing } from "@/interfaces/listing";
@@ -64,8 +59,6 @@ function Detail({ params }: { params: { id: string } }) {
             title="Deskripsi"
             subtitle={listing?.description}
           />
-          <Map />
-          <CustomerReviews />
         </div>
         {listing && (
           <BookingSection id={listing?.id} slug={listing?.slug} price={listing?.price} />
@@ -74,8 +67,8 @@ function Detail({ params }: { params: { id: string } }) {
 
       <ListingShowcase
         id="deals-section"
-        title="Similar Places"
-        subtitle="Beauty in comparison of models"
+        title="Lihat produk lainnya"
+        subtitle=""
       />
     </main>
   );
