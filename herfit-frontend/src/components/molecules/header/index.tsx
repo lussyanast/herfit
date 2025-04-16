@@ -2,7 +2,6 @@
 import { Button } from "@/components/atomics/button";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,24 +28,14 @@ function Header() {
           <Image src="/images/logo.png" alt="HerFit" height={20} width={60} />
         </Link>
 
-        <nav>
-          <ul className="flex items-center space-x-[30px]">
-            <li className="cursor-pointer font-semibold leading-6 hover:text-primary">
-              Membership
-            </li>
-            <li className="cursor-pointer font-semibold leading-6 hover:text-primary">
-              Produk Lainnya
-            </li>
-            <li
-              className="cursor-pointer font-semibold leading-6 hover:text-primary"
-              onClick={() => scrollToSection("location-section")}
-            >
-              Lokasi
-            </li>
-            <li className="cursor-pointer font-semibold leading-6 hover:text-primary">
-              Tentang Kami
-            </li>
-          </ul>
+        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">
+          <button onClick={() => scrollToSection("about-section")} className="hover:text-primary">Tentang Kami</button>
+          <button onClick={() => scrollToSection("benefits-section")} className="hover:text-primary">Fasilitas</button>
+          <button onClick={() => scrollToSection("membership-listing")} className="hover:text-primary">Membership</button>
+          <button onClick={() => scrollToSection("other-listing")} className="hover:text-primary">Produk Lainnya</button>
+          <button onClick={() => scrollToSection("location-section")} className="hover:text-primary">Lokasi</button>
+          <button onClick={() => scrollToSection("faq-section")} className="hover:text-primary">FAQ</button>
+          <button onClick={() => scrollToSection("contact-section")} className="hover:text-primary">Hubungi Kami</button>
         </nav>
 
         <div

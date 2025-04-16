@@ -216,6 +216,26 @@ function Home() {
         </form>
       </section>
 
+      <section
+        id="instagram-section"
+        className="container mx-auto my-[100px] px-4 xl:px-0"
+      >
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold mb-2">Instagram Kami</h2>
+          <p className="text-muted-foreground max-w-[500px] mx-auto mb-6">
+            Lihat update aktivitas terbaru kami melalui Instagram resmi Her.Fit Ladies Gym.
+          </p>
+          <a
+            href="https://www.instagram.com/her.fit_ladies?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-gradient-to-r from-pink-500 to-yellow-500 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:scale-105 transition-transform"
+          >
+            Kunjungi Instagram
+          </a>
+        </div>
+      </section>
+
       <section id="review-section" className="container mx-auto my-[100px]">
       </section>
     </main>
