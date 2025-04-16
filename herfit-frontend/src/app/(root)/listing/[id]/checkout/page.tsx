@@ -10,9 +10,7 @@ import { Button } from "@/components/atomics/button";
 import { Separator } from "@/components/atomics/separator";
 import { Checkbox } from "@/components/atomics/checkbox";
 import { DatePickerDemo } from "@/components/molecules/date-picker";
-import Link from "next/link";
 import Listing from "./listing";
-import Review from "./review";
 import { useGetDetailListingQuery } from "@/services/listing.service";
 import { moneyFormat } from "@/lib/utils";
 import { useTransactionMutation } from "@/services/transaction.service";
@@ -90,7 +88,7 @@ function Checkout({ params }: { params: { id: string } }) {
         <div className="w-full max-w-[460px] pt-[50px]">
           <div>
             <h1 className="font-bold text-[22px] leading-[33px] text-secondary">
-              Booking Informations
+              Informasi pesanan
             </h1>
             <div className="rounded-[30px] mt-2.5 p-[30px] bg-white border border-border shadow-indicator space-y-5">
               <div className="space-y-5">
@@ -108,7 +106,7 @@ function Checkout({ params }: { params: { id: string } }) {
               <div className="space-y-5">
                 <CardBooking title="Total hari" value={`${totalDays} hari`} />
                 <CardBooking
-                  title="Grand total price"
+                  title="Grand total harga"
                   value={moneyFormat.format(price)}
                 />
               </div>
@@ -117,7 +115,7 @@ function Checkout({ params }: { params: { id: string } }) {
 
           <div className="mt-[30px]">
             <h1 className="font-bold text-[22px] leading-[33px] text-secondary">
-              Payment
+              Pembayaran
             </h1>
             <div className="rounded-[30px] mt-2.5 p-[30px] bg-white border border-border shadow-indicator space-y-5">
               <div className="flex items-center space-x-3">
@@ -149,8 +147,8 @@ function Checkout({ params }: { params: { id: string } }) {
                   />
                 </Button>
               </div>
-              <CardBooking title="Bank Name" value="BuildWithAngga Fi" />
-              <CardBooking title="Bank Account" value="Nidejia Listings" />
+              <CardBooking title="Bank Name" value="HerFit" />
+              <CardBooking title="Bank Account" value="HerFit Listings" />
               <CardBooking title="Number" value="20193050" />
               <Separator className="bg-border" />
               <div className="flex items-center space-x-2">
@@ -159,7 +157,7 @@ function Checkout({ params }: { params: { id: string } }) {
                   htmlFor="terms"
                   className="text-sm font-semibold leading-[21px] peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  I agree with terms & conditions
+                  Saya setuju dengan syarat dan ketentuan
                 </label>
               </div>
 
@@ -170,13 +168,12 @@ function Checkout({ params }: { params: { id: string } }) {
                 onClick={handlePayment}
                 disabled={isLoading}
               >
-                Make a Payment
+                Buat pesanan
               </Button>
             </div>
           </div>
         </div>
       </section>
-      <Review />
     </main>
   );
 }
