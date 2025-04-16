@@ -1,6 +1,6 @@
 "use client";
+
 import { Button } from "@/components/atomics/button";
-import { Checkbox } from "@/components/atomics/checkbox";
 import { Input } from "@/components/atomics/input";
 import Title from "@/components/atomics/title";
 import Image from "next/image";
@@ -39,7 +39,7 @@ function SignIn() {
     },
   });
 
-  const [login, { isLoading }] = useLoginMutation()
+  const [login, { isLoading }] = useLoginMutation();
 
   async function onSubmit(values: FormData) {
     try {
@@ -56,6 +56,7 @@ function SignIn() {
           callbackUrl: searchParams.get("callbackUrl") || "/",
           redirect: false,
         });
+
         toast({
           title: "Welcome",
           description: "Sign in successfully",
@@ -75,22 +76,18 @@ function SignIn() {
 
   return (
     <div
-      className={`px-6 py-24 lg:px-28 bg-primary-foreground bg-cover lg:bg-contain bg-right bg-no-repeat bg-[url('/images/bg-image.svg')] h-screen flex items-center`}
+      className="min-h-screen flex items-center justify-center bg-primary-foreground bg-no-repeat bg-cover bg-right px-4 lg:px-28"
+      style={{ backgroundImage: "url('/images/bg-image.png')" }}
     >
-      <div className="p-8 bg-white rounded-[30px] max-w-full lg:max-w-[460px] lg:min-w-[460px] space-y-[30px]">
-        <Image src="/images/logo.svg" alt="nidejia" height={36} width={133} />
-        <Title
-          title="Sign In"
-          subtitle="Rent and make money online"
-          section=""
-        />
+      <div className="w-full max-w-md bg-white rounded-[30px] shadow-lg p-8 space-y-6">
+        <div className="flex justify-center">
+          <Image src="/images/logo.png" alt="HerFit" height={36} width={133} />
+        </div>
 
-        {/* Form for create account */}
+        <Title title="Masuk" subtitle="" section="" />
+
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-[30px]"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-5">
               <FormField
                 control={form.control}
@@ -100,11 +97,11 @@ function SignIn() {
                     <FormControl>
                       <Input
                         type="text"
-                        placeholder="Email Address"
+                        placeholder="Alamat email"
                         icon="/icons/sms.svg"
                         variant="auth"
                         className={
-                          form.formState.errors.email && "border-destructive"
+                          form.formState.errors.email ? "border-destructive" : ""
                         }
                         {...field}
                       />
@@ -121,11 +118,11 @@ function SignIn() {
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Password"
+                        placeholder="Kata sandi"
                         icon="/icons/lock-circle.svg"
                         variant="auth"
                         className={
-                          form.formState.errors.password && "border-destructive"
+                          form.formState.errors.password ? "border-destructive" : ""
                         }
                         {...field}
                       />
@@ -135,19 +132,14 @@ function SignIn() {
                 )}
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox id="terms" />
-              <label
-                htmlFor="terms"
-                className="text-sm font-semibold leading-[21px] peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Remember me
-              </label>
-            </div>
-            <Button type="submit" disabled={isLoading}>Sign In</Button>
+
+            <Button type="submit" disabled={isLoading} className="w-full">
+              Masuk
+            </Button>
+
             <Link href="/sign-up">
-              <Button variant="third" type="button" className="mt-3">
-                Create New Account
+              <Button variant="third" type="button" className="w-full mt-5">
+                Buat akun baru
               </Button>
             </Link>
           </form>
