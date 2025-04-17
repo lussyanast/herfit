@@ -21,12 +21,17 @@ import { useToast } from "@/components/atomics/use-toast";
 import { useRegisterMutation } from "@/services/auth.service";
 import { signIn } from "next-auth/react";
 
+// Validasi schema
 const schema = yup.object().shape({
   name: yup
     .string()
     .min(5, "Nama lengkap minimal 5 karakter")
     .required("Nama lengkap wajib diisi"),
-  phone: yup
+  no_identitas: yup
+    .string()
+    .length(16, "Nomor identitas harus 16 digit")
+    .required("Nomor identitas wajib diisi"),
+  no_telp: yup
     .string()
     .min(10, "Nomor telepon minimal 10 digit")
     .max(12, "Nomor telepon maksimal 12 digit")
@@ -46,11 +51,13 @@ type FormData = yup.InferType<typeof schema>;
 function SignUp() {
   const router = useRouter();
   const { toast } = useToast();
+
   const form = useForm<FormData>({
     resolver: yupResolver(schema),
     defaultValues: {
       name: "",
-      phone: "",
+      no_identitas: "",
+      no_telp: "",
       email: "",
       password: "",
     },
@@ -62,6 +69,7 @@ function SignUp() {
     try {
       const res = await register({
         ...values,
+        photo_profile: null, // Kirim null untuk foto profil
         password_confirmation: values.password,
       }).unwrap();
 
@@ -74,6 +82,7 @@ function SignUp() {
           token: user.token,
           redirect: false,
         });
+
         toast({
           title: "Welcome",
           description: "Sign up successfully",
@@ -106,6 +115,7 @@ function SignUp() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-5">
+              {/* Nama */}
               <FormField
                 control={form.control}
                 name="name"
@@ -125,9 +135,32 @@ function SignUp() {
                   </FormItem>
                 )}
               />
+
+              {/* No Identitas */}
               <FormField
                 control={form.control}
-                name="phone"
+                name="no_identitas"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Nomor identitas (NIK)"
+                        icon="/icons/card.svg"
+                        variant="auth"
+                        className={form.formState.errors.no_identitas ? "border-destructive" : ""}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Telepon */}
+              <FormField
+                control={form.control}
+                name="no_telp"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -136,7 +169,7 @@ function SignUp() {
                         placeholder="Nomor telepon"
                         icon="/icons/call.svg"
                         variant="auth"
-                        className={form.formState.errors.phone ? "border-destructive" : ""}
+                        className={form.formState.errors.no_telp ? "border-destructive" : ""}
                         {...field}
                       />
                     </FormControl>
@@ -144,6 +177,8 @@ function SignUp() {
                   </FormItem>
                 )}
               />
+
+              {/* Email */}
               <FormField
                 control={form.control}
                 name="email"
@@ -163,6 +198,8 @@ function SignUp() {
                   </FormItem>
                 )}
               />
+
+              {/* Password */}
               <FormField
                 control={form.control}
                 name="password"
