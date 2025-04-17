@@ -10,7 +10,6 @@ import { Transaction } from "@/interfaces/transaction";
 import { Badge } from "@/components/atomics/badge";
 import { Button } from "@/components/atomics/button";
 import { Separator } from "@/components/atomics/separator";
-import Title from "@/components/atomics/title";
 
 function BookingSuccess({ params }: { params: { id: string } }) {
   const { data } = useGetDetailTransactionQuery(params.id);

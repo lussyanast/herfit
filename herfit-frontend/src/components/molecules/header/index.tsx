@@ -1,4 +1,6 @@
 "use client";
+
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/atomics/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,7 +15,8 @@ import { signOut, useSession } from "next-auth/react";
 
 function Header() {
   const { data: session } = useSession();
-  console.log("~ Header ~ session:", session);
+  const pathname = usePathname();
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -22,25 +25,28 @@ function Header() {
   };
 
   return (
-    <header className="container mx-auto fixed inset-x-0 top-[30px] z-20">
-      <div className="p-[30px] rounded-[30px] bg-white flex justify-between items-center">
+    <header className="container mx-auto fixed inset-x-0 top-[20px] z-20">
+      <div className="p-4 md:px-6 rounded-[20px] bg-white flex flex-wrap md:flex-nowrap justify-between items-center gap-y-4 shadow-md">
         <Link href="/">
-          <Image src="/images/logo.png" alt="HerFit" height={20} width={60} />
+          <Image src="/images/logo.png" alt="HerFit" height={18} width={55} />
         </Link>
 
-        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">
-          <button onClick={() => scrollToSection("about-section")} className="hover:text-primary">Tentang Kami</button>
-          <button onClick={() => scrollToSection("benefits-section")} className="hover:text-primary">Fasilitas</button>
-          <button onClick={() => scrollToSection("membership-listing")} className="hover:text-primary">Membership</button>
-          <button onClick={() => scrollToSection("other-listing")} className="hover:text-primary">Produk Lainnya</button>
-          <button onClick={() => scrollToSection("location-section")} className="hover:text-primary">Lokasi</button>
-          <button onClick={() => scrollToSection("faq-section")} className="hover:text-primary">FAQ</button>
-          <button onClick={() => scrollToSection("contact-section")} className="hover:text-primary">Hubungi Kami</button>
+        {/* Menu */}
+        <nav className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 gap-y-2 text-xs md:text-sm font-semibold">
+          <Link href="/#about-section" className="hover:text-primary">Tentang Kami</Link>
+          <Link href="/#benefits-section" className="hover:text-primary">Fasilitas</Link>
+          <Link href="/#membership-listing" className="hover:text-primary">Membership</Link>
+          <Link href="/#other-listing" className="hover:text-primary">Produk Lainnya</Link>
+          <Link href="/#location-section" className="hover:text-primary">Lokasi</Link>
+          <Link href="/#faq-section" className="hover:text-primary">FAQ</Link>
+          <Link href="/#contact-section" className="hover:text-primary">Hubungi Kami</Link>
+          <Link href="/chat" className="hover:text-primary">Chatbot AI</Link>
         </nav>
 
+        {/* Auth */}
         <div
           data-login={!!session?.user}
-          className="data-[login=true]:hidden data-[login=false]:flex items-center space-x-3"
+          className="data-[login=true]:hidden data-[login=false]:flex items-center space-x-2 md:space-x-3"
         >
           <Button variant="secondary" size="header">
             <Link href="/sign-in">Sign In</Link>
@@ -50,6 +56,7 @@ function Header() {
           </Button>
         </div>
 
+        {/* User Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger
             data-login={!!session?.user}
@@ -60,24 +67,18 @@ function Header() {
               <Image
                 src="/images/avatar.webp"
                 alt="avatar"
-                height={48}
-                width={48}
+                height={40}
+                width={40}
                 className="rounded-full"
               />
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[240px] mr-8 space-y-4">
-            <DropdownMenuItem>
-              <Link href={"/dashboard"}>Dashboard</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link href={"/dashboard/my-listings"}>My Listings</Link>
-            </DropdownMenuItem>
+          <DropdownMenuContent className="w-[220px] mr-8 space-y-4">
+            <DropdownMenuItem><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
+            <DropdownMenuItem><Link href="/dashboard/my-listings">My Listings</Link></DropdownMenuItem>
             <DropdownMenuItem>My Rentals</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => signOut()}>
-              Logout
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

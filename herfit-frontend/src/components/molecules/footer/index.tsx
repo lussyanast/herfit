@@ -59,6 +59,11 @@ function Footer() {
                   Lokasi
                 </button>
               </li>
+              <li>
+                <Link href="/chat" className="hover:underline text-left">
+                  Chatbot AI
+                </Link>
+              </li>
             </ul>
           </div>
 

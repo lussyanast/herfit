@@ -1,11 +1,7 @@
 "use client"
 
-import CardIndicator from "@/components/molecules/card/card-indicator";
 import { Button } from "@/components/atomics/button";
-import { Input } from "@/components/atomics/input";
-import { Separator } from "@/components/atomics/separator";
 import Title from "@/components/atomics/title";
-import Image from "next/image";
 import CardBenefit from "@/components/molecules/card/card-benefit";
 import CardPurpose from "@/components/molecules/card/card-purpose";
 import ListingShowcase from "@/components/molecules/listing/listing-showcase";
@@ -34,6 +30,26 @@ function Home() {
               subtitle="Temukan ruang kebugaran khusus perempuan yang mendukung kenyamanan, keamanan, dan semangatmu dalam berolahraga."
               section="hero"
             />
+          </div>
+        </div>
+      </section>
+
+      <section className="container mx-auto mt-[60px] px-4 xl:px-0">
+        <div className="bg-gradient-to-r from-[#ffb199] to-[#ff0844] text-white rounded-2xl shadow-lg p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">Tanya Gemini, AI Asisten Gym Kamu!</h2>
+            <p className="text-base leading-relaxed">
+              Bingung mulai dari mana? Mau tanya soal jadwal latihan, tips diet, atau program keanggotaan?
+              Gunakan fitur <strong>Chatbot AI</strong> kami yang ditenagai oleh <strong>Gemini dari Google</strong>. Dapatkan jawaban instan kapan saja kamu butuh bantuan!
+            </p>
+          </div>
+          <div className="text-center">
+            <a
+              href="/chat"
+              className="inline-block bg-white text-primary font-semibold px-6 py-3 rounded-full shadow hover:scale-105 transition-transform"
+            >
+              Mulai Chat
+            </a>
           </div>
         </div>
       </section>
