@@ -46,9 +46,6 @@ function TopMenu() {
             Dashboard
           </DropdownMenuItem>
           <DropdownMenuItem>
-            My Listings
-          </DropdownMenuItem>
-          <DropdownMenuItem>
             Settings
           </DropdownMenuItem>
           <DropdownMenuItem>

@@ -75,8 +75,6 @@ function Header() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[220px] mr-8 space-y-4">
             <DropdownMenuItem><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
-            <DropdownMenuItem><Link href="/dashboard/my-listings">My Listings</Link></DropdownMenuItem>
-            <DropdownMenuItem>My Rentals</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
