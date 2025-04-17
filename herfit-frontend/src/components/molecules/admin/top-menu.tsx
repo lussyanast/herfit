@@ -5,7 +5,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/atomics/dropdown-menu'
-import { Input } from '@/components/atomics/input'
 import Title from '@/components/atomics/title'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
@@ -48,9 +47,6 @@ function TopMenu() {
           </DropdownMenuItem>
           <DropdownMenuItem>
             My Listings
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            My Rentals
           </DropdownMenuItem>
           <DropdownMenuItem>
             Settings

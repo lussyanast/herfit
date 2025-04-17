@@ -1,14 +1,12 @@
 import Image from "next/image";
 import ItemMenu from "./item-menu";
-import Title from "@/components/atomics/title";
-import { Button } from "@/components/atomics/button";
 import Link from "next/link";
 
 function SideMenu() {
   return (
     <nav className="bg-white w-full max-w-[250px] px-6 py-[30px] rounded-[20px] h-fit">
       <Link href="/">
-        <Image src="/images/logo.svg" alt="nidejia" height={36} width={133} />
+        <Image src="/images/logo.png" alt="HerFit" height={36} width={133} />
       </Link>
 
       <div className="mt-[37.5px]">
