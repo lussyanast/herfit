@@ -157,8 +157,7 @@ export default function EditProfilePage() {
 
     return (
         <div
-            className="min-h-screen flex items-center justify-center pt-28 px-4 lg:px-28 bg-primary-foreground bg-cover bg-no-repeat bg-right"
-            style={{ backgroundImage: "url('/images/bg-image.png')" }}
+            className="min-h-screen flex items-center justify-center pt-28 px-4 lg:px-28"
         >
             <div className="w-full max-w-md bg-white rounded-[30px] shadow-lg p-8 space-y-6">
                 {loading ? (

@@ -12,12 +12,12 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Nidejia",
-  description: "Find Glorious Living And Loving Space",
+  title: 'HerFit Ladies Gym',
+  description: 'Ladies Gym',
   icons: {
-    icon: "/favicon.svg",
+      icon: '/logo.png',
   },
-};
+}
 
 export default function RootLayout({
   children,

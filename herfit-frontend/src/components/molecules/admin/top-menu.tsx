@@ -52,9 +52,6 @@ function TopMenu() {
             Dashboard
           </DropdownMenuItem>
           <DropdownMenuItem>
-            Settings
-          </DropdownMenuItem>
-          <DropdownMenuItem>
             Logout
           </DropdownMenuItem>
         </DropdownMenuContent>
