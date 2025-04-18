@@ -20,7 +20,8 @@ class Transaction extends Model
         'end_date',
         'total_days',
         'price',
-        'status'
+        'status',
+        'qr_code_path'
     ];
 
     // Automatically calculate total_days before saving

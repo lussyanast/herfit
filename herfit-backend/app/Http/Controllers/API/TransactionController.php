@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Transaction\Store;
 use App\Models\Listing;
 use App\Models\Transaction;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TransactionController extends Controller
 {
@@ -73,7 +77,17 @@ class TransactionController extends Controller
             'user_id' => auth()->id()
         ]);
 
-        $transaction->Listing;
+        // Buat QR Code (isi bebas, bisa ID transaksi atau info lengkap)
+        $qrData = route('transaction.show', $transaction->id);
+        $qrCode = QrCode::create($qrData);
+        $writer = new PngWriter();
+        $qrImage = $writer->write($qrCode);
+
+        $fileName = 'qr_codes/transaction_' . $transaction->id . '_' . Str::random(6) . '.png';
+        Storage::disk('public')->put($fileName, $qrImage->getString());
+
+        // Simpan path ke database
+        $transaction->update(['qr_code_path' => $fileName]);
 
         return response()->json([
             'success' => true,
@@ -91,12 +105,47 @@ class TransactionController extends Controller
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        $transaction->Listing;
+        // 🔒 Cek masa berlaku QR code
+        if (Carbon::now()->gt(Carbon::parse($transaction->end_date))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'QR code sudah kadaluarsa.',
+            ], 400);
+        }
+
+        $transaction->load('listing');
+
+        $data = $transaction->toArray();
+        $data['qr_code_url'] = $transaction->qr_code_path
+            ? asset('storage/' . $transaction->qr_code_path)
+            : null;
 
         return response()->json([
             'success' => true,
             'message' => 'Mengambil detail transaksi.',
-            'data' => $transaction
+            'data' => $data
+        ]);
+    }
+
+    public function scan(Transaction $transaction)
+    {
+        // Validasi tanggal
+        if (Carbon::now()->gt(Carbon::parse($transaction->end_date))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'QR code sudah kadaluarsa.',
+            ], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'QR code masih berlaku.',
+            'data' => [
+                'transaction_id' => $transaction->id,
+                'user' => $transaction->user->only(['id', 'name']),
+                'listing' => $transaction->listing->only(['id', 'listing_name']),
+                'end_date' => $transaction->end_date,
+            ]
         ]);
     }
 }
