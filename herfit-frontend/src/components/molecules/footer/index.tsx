@@ -23,41 +23,37 @@ function Footer() {
             <h4 className="font-semibold text-lg mb-4">Menu</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <button
-                  onClick={() => scrollToSection("about-section")}
+                <Link href="/#about-section"
                   className="hover:underline text-left"
                 >
                   Tentang Kami
-                </button>
+                </Link>
               </li>
               <li>
-                <button onClick={() => scrollToSection("benefits-section")} className="hover:underline text-left">
+                <Link href="/#benefits-section" className="hover:underline text-left">
                   Fasilitas
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => scrollToSection("membership-listing")}
+                <Link href="/#membership-listing"
                   className="hover:underline text-left"
                 >
                   Membership
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => scrollToSection("other-listing")}
+                <Link href="/#other-listing"
                   className="hover:underline text-left"
                 >
                   Produk Lainnya
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => scrollToSection("location-section")}
+                <Link href="/#location-section"
                   className="hover:underline text-left"
                 >
                   Lokasi
-                </button>
+                </Link>
               </li>
               <li>
                 <Link href="/chat" className="hover:underline text-left">
@@ -72,14 +68,14 @@ function Footer() {
             <h4 className="font-semibold text-lg mb-4">Bantuan</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <button onClick={() => scrollToSection("faq-section")} className="hover:underline text-left">
+                <Link href="/#faq-section" className="hover:underline text-left">
                   FAQ
-                </button>
+                </Link>
               </li>
               <li>
-                <button onClick={() => scrollToSection("contact-section")} className="hover:underline text-left">
+                <Link href="/#contact-section" className="hover:underline text-left">
                   Hubungi Kami
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
