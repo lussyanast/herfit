@@ -80,6 +80,7 @@ function SignUp() {
           email: user.email,
           name: user.name,
           token: user.token,
+          photo_profile: user.photo_profile,
           redirect: false,
         });
 

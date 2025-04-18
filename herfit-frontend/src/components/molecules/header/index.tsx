@@ -23,6 +23,7 @@ function Header() {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+  console.log("Session user 👤", session?.user);
 
   return (
     <header className="container mx-auto fixed inset-x-0 top-[20px] z-20">
@@ -65,17 +66,22 @@ function Header() {
             <div className="flex items-center space-x-2">
               <Title title={session?.user.name} section="header" />
               <Image
-                src="/images/avatar.webp"
+                key={session?.user?.photo_profile}
+                src={
+                  session?.user?.photo_profile
+                    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${session.user.photo_profile}`
+                    : "/images/avatar.png"
+                }
                 alt="avatar"
                 height={40}
                 width={40}
-                className="rounded-full"
+                unoptimized
+                className="rounded-full object-cover"
               />
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[220px] mr-8 space-y-4">
             <DropdownMenuItem><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

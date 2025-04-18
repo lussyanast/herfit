@@ -21,7 +21,7 @@ function SideMenu() {
             title="vouchers"
             url="/"
           /> */}
-          <ItemMenu image="/icons/setting.svg" title="pengaturan" url="/" />
+          <ItemMenu image="/icons/setting.svg" title="ubah data pribadi" url="/edit-profile" />
         </ul>
       </div>
     </nav>

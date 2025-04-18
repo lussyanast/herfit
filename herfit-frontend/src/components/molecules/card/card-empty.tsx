@@ -17,7 +17,7 @@ const CardEmpty = () => {
         <Title
           section='empty'
           title='Oops! No Transaction'
-          subtitle='You need to add at least one transaction today'
+          subtitle='Kamu tidak memiliki riwayat transaksi.'
         />
         <div className='!mt-20'>
         </div>

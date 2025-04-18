@@ -12,18 +12,11 @@ export const authOptions: AuthOptions = {
     providers: [
         Credentials({
             credentials: {
-                id: {
-                    type: "number",
-                },
-                email: {
-                    type: "text",
-                },
-                name: {
-                    type: "text",
-                },
-                token: {
-                    type: "text",
-                },
+                id: { type: "number" },
+                email: { type: "text" },
+                name: { type: "text" },
+                token: { type: "text" },
+                photo_profile: { type: "text" },
             },
             authorize: async (credentials, req) => {
                 return credentials || null;
@@ -34,14 +27,20 @@ export const authOptions: AuthOptions = {
         jwt: async ({ user, token }) => {
             if (user) {
                 token.id = +user.id;
+                token.name = user.name;
+                token.email = user.email;
                 token.token = user.token;
+                token.photo_profile = user.photo_profile;
             }
             return token;
         },
         session: async ({ session, token }) => {
             if (session?.user) {
                 session.user.id = token.id as number;
-                session.user.token = token.token as number;
+                session.user.name = token.name as string;
+                session.user.email = token.email as string;
+                session.user.token = token.token as string;
+                session.user.photo_profile = token.photo_profile as string;
             }
             return session;
         },

@@ -33,11 +33,17 @@ function TopMenu() {
               reverse
             />
             <Image
-              src='/images/avatar.webp'
-              alt='avatar'
-              height={48}
-              width={48}
-              className='rounded-full'
+              key={session?.user?.photo_profile}
+              src={
+                session?.user?.photo_profile
+                  ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${session.user.photo_profile}`
+                  : "/images/avatar.png"
+              }
+              alt="avatar"
+              height={40}
+              width={40}
+              unoptimized
+              className="rounded-full object-cover"
             />
           </div>
         </DropdownMenuTrigger>

@@ -21,12 +21,18 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        $user['token'] = $request->user()->createToken('auth')->plainTextToken;
+        $token = $user->createToken('auth')->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'Anda berhasil login!',
-            'data' => $user
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'photo_profile' => $user->photo_profile,
+                'token' => $token,
+            ]
         ]);
     }
 

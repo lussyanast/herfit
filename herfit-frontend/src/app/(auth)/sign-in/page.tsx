@@ -53,6 +53,7 @@ function SignIn() {
           email: user.email,
           name: user.name,
           token: user.token,
+          photo_profile: user.photo_profile,
           callbackUrl: searchParams.get("callbackUrl") || "/",
           redirect: false,
         });
