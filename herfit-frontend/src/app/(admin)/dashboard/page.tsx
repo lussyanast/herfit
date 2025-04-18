@@ -111,7 +111,7 @@ function Dashboard() {
                     image={transaction.listing?.attachments?.[0] || ""}
                     title={transaction.listing?.listing_name || "Tanpa Nama"}
                     days={transaction.total_days}
-                    price={transaction.price}
+                    price={transaction.listing?.price}
                     status={transaction.status}
                   />
                 ))

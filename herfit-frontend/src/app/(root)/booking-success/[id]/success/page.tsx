@@ -111,7 +111,7 @@ function BookingSuccess({ params }: { params: { id: string } }) {
             </Button>
           </Link>
 
-          <Link href="/dashboard/overview">
+          <Link href="/dashboard">
             <Button
               variant="third"
               size="header"

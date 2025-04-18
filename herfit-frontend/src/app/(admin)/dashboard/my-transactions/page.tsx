@@ -35,7 +35,7 @@ function MyTransactions() {
               image={transaction.listing?.attachments?.[0] || ''}
               title={transaction.listing.listing_name}
               days={transaction.total_days}
-              price={transaction.price}
+              price={transaction.listing?.price}
               status={transaction.status}
             />
           ))

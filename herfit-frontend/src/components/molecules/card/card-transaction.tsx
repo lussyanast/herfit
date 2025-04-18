@@ -10,7 +10,6 @@ function CardTransaction({
   id,
   image,
   title,
-  location,
   days,
   price,
   status
@@ -56,8 +55,7 @@ function CardTransaction({
                 {days} hari
               </div>
               <div className="flex items-center gap-1 text-sm font-semibold leading-[21px] text-gray-800">
-                <HiOutlineCurrencyDollar className="w-5 h-5" />
-                <span>
+                Rp. <span>
                   {price.toLocaleString('id-ID', {
                     style: 'currency',
                     currency: 'IDR',
