@@ -24,6 +24,12 @@ class WaitingTransactions extends BaseWidget
                     ->extraAttributes(['style' => 'font-weight: bold;']),
 
                 Tables\Columns\TextColumn::make('listing_id')
+                    ->sortable()
+                    ->hidden(),
+
+                Tables\Columns\TextColumn::make('listing.listing_name')
+                    ->label('Listing Name')
+                    ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('price')

@@ -51,7 +51,13 @@ class TransactionResource extends Resource
                 ->sortable()
                 ->weight(FontWeight::Bold),
             Tables\Columns\TextColumn::make('listing_id')
-                ->sortable(),
+                ->sortable()
+                ->hidden(),
+                Tables\Columns\TextColumn::make('listing.listing_name')
+                ->label('Listing Name')
+                ->searchable()
+                ->sortable()
+                ->weight(FontWeight::Bold),            
             Tables\Columns\TextColumn::make('start_date')
                 ->weight(FontWeight::Bold),
             Tables\Columns\TextColumn::make('end_date')
