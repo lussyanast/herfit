@@ -3,42 +3,69 @@
 namespace App\Filament\Pages;
 
 use App\Models\Transaction;
+use App\Models\TransactionScan;
 use Carbon\Carbon;
-use Filament\Forms;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
-use Livewire\Attributes\Reactive;
-use App\Models\TransactionScan;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 
 class ScanTransactionQR extends Page
 {
     public static ?string $navigationIcon = 'heroicon-o-qr-code';
     public static string $view = 'filament.pages.scan-transaction-q-r';
 
-    #[Reactive]
-    public ?string $qrContent = null;
-
     public ?Transaction $transaction = null;
 
-    public function scanQR()
+    // ✅ Langsung terima string QR content dari event JS
+    #[On('qrScanned')]
+    public function handleQrScanned($qrContent = null)
     {
-        if (!$this->qrContent) {
+        if (!is_string($qrContent)) {
+            \Log::error('QR gagal diparse', ['data' => $qrContent]);
+
             Notification::make()
                 ->danger()
-                ->title('QR Kosong')
-                ->body('Silakan scan QR code terlebih dahulu.')
+                ->title('QR Error')
+                ->body('QR code tidak valid.')
                 ->send();
             return;
         }
 
-        $transaction = Transaction::find($this->qrContent);
+        $this->scanQR($qrContent);
+    }
+
+    public function scanQR(?string $qrContent = null)
+    {
+        if (!$qrContent) {
+            Notification::make()
+                ->danger()
+                ->title('QR Kosong')
+                ->body('QR code tidak berisi data.')
+                ->send();
+            return;
+        }
+
+        // Ambil ID transaksi dari URL QR
+        preg_match('/\/(\d+)$/', $qrContent, $matches);
+        $transactionId = $matches[1] ?? null;
+
+        if (!$transactionId) {
+            Notification::make()
+                ->danger()
+                ->title('QR Tidak Valid')
+                ->body('QR tidak mengandung ID transaksi.')
+                ->send();
+            return;
+        }
+
+        $transaction = Transaction::find($transactionId);
 
         if (!$transaction) {
             Notification::make()
                 ->danger()
-                ->title('QR Tidak Ditemukan')
-                ->body('Transaksi dengan QR tersebut tidak ditemukan.')
+                ->title('Transaksi Tidak Ditemukan')
+                ->body("Transaksi dengan ID $transactionId tidak ditemukan.")
                 ->send();
             return;
         }
@@ -47,25 +74,33 @@ class ScanTransactionQR extends Page
             Notification::make()
                 ->warning()
                 ->title('QR Kadaluwarsa')
-                ->body('QR Code sudah melewati tanggal berlakunya.')
+                ->body('QR code sudah tidak berlaku.')
                 ->send();
             return;
         }
 
-        // ✅ Set transaksi yang ditemukan
-        $this->transaction = $transaction;
+        if (!Auth::check()) {
+            Notification::make()
+                ->danger()
+                ->title('Belum Login')
+                ->body('Silakan login terlebih dahulu.')
+                ->send();
+            return;
+        }
 
-        // ✅ Simpan log ke database
+        // Simpan hasil scan ke tabel
         TransactionScan::create([
             'transaction_id' => $transaction->id,
             'scanned_by' => Auth::id(),
             'scanned_at' => now()
         ]);
 
+        $this->transaction = $transaction;
+
         Notification::make()
             ->success()
-            ->title('QR Valid')
-            ->body('Transaksi ditemukan dan dicatat.')
+            ->title('Scan Berhasil')
+            ->body('Data transaksi berhasil dicatat.')
             ->send();
     }
 }

@@ -18,6 +18,5 @@ Route::resource('listing', ListingController::class)->only(['index', 'show']);
 Route::middleware(['auth:sanctum'])->post('/update-profile', [ProfileController::class, 'update']);
 Route::post('transaction/is-available', [TransactionController::class, 'isAvailable'])->middleware(['auth:sanctum']);
 Route::resource('transaction', TransactionController::class)->only(['store', 'index', 'show'])->middleware(['auth:sanctum']);
-Route::get('/scan-qr/{transaction}', [TransactionController::class, 'scan']);
 
 require __DIR__ . '/auth.php';

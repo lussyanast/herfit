@@ -1,23 +1,15 @@
 <x-filament::page>
-    <div class="flex flex-col items-center justify-center space-y-6">
+    <script>
+        window.csrfToken = '{{ csrf_token() }}';
+    </script>
 
-        {{-- Judul --}}
+    <div class="flex flex-col items-center justify-center space-y-6">
         <h2 class="text-2xl font-semibold text-center">Scan QR Transaksi</h2>
 
-        {{-- Kamera --}}
         <div id="qr-reader" class="rounded-lg border border-gray-300 p-4 shadow-md w-full max-w-md"></div>
 
-        {{-- Form --}}
-        <form wire:submit.prevent="scanQR" class="flex flex-col items-center space-y-4 w-full max-w-md mt-4">
-            <input type="hidden" wire:model="qrContent">
-            <x-filament::button type="submit" size="lg" color="primary">
-                Proses Transaksi
-            </x-filament::button>
-        </form>
-
-        {{-- Hasil transaksi --}}
         @if($transaction)
-            <x-filament::card class="w-full max-w-md">
+            <x-filament::card class="w-full max-w-md mt-6">
                 <x-slot name="header">
                     <h3 class="text-lg font-bold">Detail Transaksi</h3>
                 </x-slot>
@@ -42,17 +34,38 @@
             qrReader.start(
                 { facingMode: "environment" },
                 { fps: 10, qrbox: 250 },
-                (decodedText, decodedResult) => {
+                (decodedText) => {
                     console.log("QR Scanned:", decodedText);
-                    Livewire.find('{{ $this->getId() }}').set('qrContent', decodedText);
+
+                    // Kirim ke server Laravel
+                    fetch("/scan/save", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": window.csrfToken
+                        },
+                        body: JSON.stringify({ qr: decodedText })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("✅ Scan berhasil disimpan!");
+                            } else {
+                                alert("❌ Gagal: " + data.message);
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Error kirim:", err);
+                        });
+
                     qrReader.stop();
                 },
                 (errorMessage) => {
-                    // silent error
+                    // ignore
                 }
             ).catch(err => {
                 console.error("Kamera gagal dibuka:", err);
-                alert("Gagal membuka kamera. Coba izinkan kamera di browser.");
+                alert("Gagal membuka kamera.");
             });
         });
     </script>
