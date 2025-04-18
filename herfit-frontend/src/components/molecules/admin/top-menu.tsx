@@ -7,7 +7,7 @@ import {
 } from '@/components/atomics/dropdown-menu'
 import Title from '@/components/atomics/title'
 import Image from 'next/image'
-import { useSession } from 'next-auth/react'
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 function TopMenu() {
