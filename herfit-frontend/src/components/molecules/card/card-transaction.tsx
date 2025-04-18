@@ -66,12 +66,6 @@ function CardTransaction({
 
             </div>
             <div className='flex items-center space-x-3.5'>
-              <Button
-                variant='third'
-                size='header'
-              >
-                Manage
-              </Button>
               <Link href={`/booking-success/${id}/success`}>
                 <Button
                   variant='third'

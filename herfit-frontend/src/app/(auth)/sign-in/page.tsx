@@ -77,7 +77,7 @@ function SignIn() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-primary-foreground bg-no-repeat bg-cover bg-right px-4 lg:px-28"
+      className="fixed inset-0 z-0 flex items-center justify-center bg-primary-foreground bg-no-repeat bg-cover bg-right px-4 lg:px-28"
       style={{ backgroundImage: "url('/images/bg-image.png')" }}
     >
       <div className="w-full max-w-md bg-white rounded-[30px] shadow-lg p-8 space-y-6">

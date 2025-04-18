@@ -8,10 +8,10 @@ import {
 import Title from '@/components/atomics/title'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
+import Link from "next/link";
 
 function TopMenu() {
   const { data: session } = useSession();
-  console.log("~ Header ~ session:", session)
 
   return (
     <header className='w-full p-[30px] rounded-[30px] bg-white flex justify-between items-center'>
@@ -48,12 +48,8 @@ function TopMenu() {
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent className='w-[240px] mr-8 space-y-4'>
-          <DropdownMenuItem>
-            Dashboard
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            Logout
-          </DropdownMenuItem>
+          <DropdownMenuItem><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
+          <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
