@@ -79,7 +79,7 @@ class TransactionController extends Controller
 
         // Buat QR Code (isi bebas, bisa ID transaksi atau info lengkap)
         $qrData = route('transaction.show', $transaction->id);
-        $qrCode = QrCode::create($qrData);
+        $qrCode = new QrCode($qrData);
         $writer = new PngWriter();
         $qrImage = $writer->write($qrCode);
 
@@ -105,15 +105,8 @@ class TransactionController extends Controller
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        // 🔒 Cek masa berlaku QR code
-        if (Carbon::now()->gt(Carbon::parse($transaction->end_date))) {
-            return response()->json([
-                'success' => false,
-                'message' => 'QR code sudah kadaluarsa.',
-            ], 400);
-        }
-
-        $transaction->load('listing');
+        // Pastikan relasi listing tersedia
+        $transaction->loadMissing('listing');
 
         $data = $transaction->toArray();
         $data['qr_code_url'] = $transaction->qr_code_path

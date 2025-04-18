@@ -1,9 +1,9 @@
+"use client";
+
 import { Button } from "@/components/atomics/button";
-import Title from "@/components/atomics/title";
 import CardBooking from "@/components/molecules/card/card-booking";
 import { DatePickerDemo } from "@/components/molecules/date-picker";
 import { moneyFormat } from "@/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import moment from 'moment';
@@ -21,12 +21,12 @@ function BookingSection({ id, slug, price }: BookingSectionProps) {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [totalDays, setTotalDays] = useState<number>(0);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null); // ✅ Tambahkan QR state
 
   const { toast } = useToast();
   const router = useRouter();
   const [checkAvailability, { isLoading }] = useCheckAvailabilityMutation();
 
-  // Fungsi untuk menghitung jumlah hari antara startDate dan endDate
   useEffect(() => {
     if (startDate && endDate) {
       const start = moment(startDate);
@@ -45,7 +45,14 @@ function BookingSection({ id, slug, price }: BookingSectionProps) {
       };
 
       const res = await checkAvailability(data).unwrap();
+
       if (res.success) {
+        // ✅ Simpan QR code URL jika tersedia dari backend
+        if (res.qr_code_url) {
+          setQrCodeUrl(res.qr_code_url);
+        }
+
+        // Atau langsung redirect ke halaman checkout
         router.push(`/listing/${slug}/checkout?start_date=${data.start_date}&end_date=${data.end_date}`);
       }
 
@@ -74,7 +81,9 @@ function BookingSection({ id, slug, price }: BookingSectionProps) {
   return (
     <div className="w-full max-w-[360px] xl:max-w-[400px] h-fit space-y-5 bg-white border border-border rounded-[20px] p-[30px] shadow-indicator">
       <span className="leading-6">
-        <span className="font-bold text-4xl leading-[54px]">{moneyFormat.format(price)}</span>
+        <span className="font-bold text-4xl leading-[54px]">
+          {moneyFormat.format(price)}
+        </span>
       </span>
       <div className="space-y-5">
         <DatePickerDemo placeholder="Start Date" date={startDate} setDate={setStartDate} />
@@ -86,6 +95,14 @@ function BookingSection({ id, slug, price }: BookingSectionProps) {
       <Button variant="default" className="mt-4" onClick={handleBook} disabled={isLoading}>
         Pesan Sekarang
       </Button>
+
+      {/* ✅ Tampilkan QR Code jika tersedia */}
+      {qrCodeUrl && (
+        <div className="mt-6 text-center space-y-2">
+          <p className="font-medium">QR Code Transaksi:</p>
+          <img src={qrCodeUrl} alt="QR Code" className="mx-auto w-40 h-40 border rounded-xl shadow" />
+        </div>
+      )}
     </div>
   );
 }

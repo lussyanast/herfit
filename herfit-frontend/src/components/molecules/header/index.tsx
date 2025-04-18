@@ -23,7 +23,6 @@ function Header() {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
-  console.log("Session user 👤", session?.user);
 
   return (
     <header className="container mx-auto fixed inset-x-0 top-[20px] z-20">

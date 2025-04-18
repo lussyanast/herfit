@@ -15,6 +15,9 @@ function BookingSuccess({ params }: { params: { id: string } }) {
   const { data } = useGetDetailTransactionQuery(params.id);
   const booking: Transaction = useMemo(() => data?.data, [data]);
 
+  console.log("Booking data:", booking);
+
+
   return (
     <main>
       {/* Hero Title */}
@@ -28,39 +31,21 @@ function BookingSuccess({ params }: { params: { id: string } }) {
 
       {/* Card Section */}
       <section className="container mx-auto -mt-[98px] max-w-[650px] mb-[150px] space-y-5 rounded-[30px] bg-white border border-border shadow-indicator p-[30px]">
-        {/* Detail Pemesanan */}
-        <div className="flex items-center space-x-6">
-          {booking?.listing?.attachments?.[0] && (
-            <Image
-              src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${booking.listing.attachments[0]}`}
-              alt="Foto Tempat"
-              width={180}
-              height={130}
-              className="rounded-[28px] object-cover"
-              unoptimized
-            />
-          )}
-          <div className="space-y-2.5">
-            <h2 className="font-bold text-[22px] leading-[33px] text-secondary">
-              {booking?.listing?.title}
-            </h2>
-            <Badge variant="secondary">{booking?.status}</Badge>
-          </div>
-        </div>
-
-        {/* Info Tambahan */}
-        <div className="flex items-center font-semibold leading-6">
-          <Image
-            src="/icons/profile-2user-dark.svg"
-            alt="Jumlah Orang"
-            width={20}
-            height={20}
-            className="mr-1"
-          />
-          {booking?.listing?.max_person} Orang
-        </div>
-
         <Separator className="bg-border" />
+
+        {booking?.qr_code_url && (
+          <div className="mt-10 text-center">
+            <h3 className="text-lg font-semibold mb-2 text-secondary">QR Code Pemesanan</h3>
+            <img
+              src={booking.qr_code_url}
+              alt="QR Code Pemesanan"
+              className="mx-auto w-48 h-48 border rounded-lg shadow-md"
+            />
+            <p className="mt-2 text-sm text-muted-foreground">
+              Tunjukkan QR ini saat check-in
+            </p>
+          </div>
+        )}
 
         {/* Form Konfirmasi WhatsApp */}
         <section className="mt-10 rounded-[20px] border border-border bg-white p-6 shadow-sm">
