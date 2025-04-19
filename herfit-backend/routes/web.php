@@ -28,7 +28,15 @@ Route::post('/scan/save', function (Request $request) {
         return response()->json(['success' => false, 'message' => 'Transaksi tidak ditemukan'], 404);
     }
 
-    // ❗ Validasi apakah end_date sudah lewat
+    // ❗ Validasi status harus 'approved'
+    if ($transaction->status !== 'approved') {
+        return response()->json([
+            'success' => false,
+            'message' => 'QR code hanya berlaku untuk transaksi dengan status APPROVED.'
+        ]);
+    }
+
+    // ❗ Validasi apakah QR sudah kadaluarsa
     $now = Carbon::now();
     $endDate = Carbon::parse($transaction->end_date);
 
