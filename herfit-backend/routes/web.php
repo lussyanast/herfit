@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\TransactionScan;
+use Carbon\Carbon;
 
 Route::get('/', function () {
     return ['Laravel' => app()->version()];
@@ -13,6 +14,7 @@ Route::get('/', function () {
 Route::post('/scan/save', function (Request $request) {
     $url = $request->input('qr');
 
+    // Ambil ID dari akhir URL QR
     preg_match('/\/(\d+)$/', $url, $matches);
     $transactionId = $matches[1] ?? null;
 
@@ -26,9 +28,21 @@ Route::post('/scan/save', function (Request $request) {
         return response()->json(['success' => false, 'message' => 'Transaksi tidak ditemukan'], 404);
     }
 
+    // ❗ Validasi apakah end_date sudah lewat
+    $now = Carbon::now();
+    $endDate = Carbon::parse($transaction->end_date);
+
+    if ($now->gt($endDate)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'QR code sudah tidak berlaku karena melewati tanggal selesai transaksi.'
+        ]);
+    }
+
+    // Simpan data scan
     TransactionScan::create([
         'transaction_id' => $transaction->id,
-        'scanned_by' => auth()->id() ?? 11, // fallback kalau belum login
+        'scanned_by' => auth()->id() ?? 11, // fallback ID user jika belum login
         'scanned_at' => now(),
     ]);
 

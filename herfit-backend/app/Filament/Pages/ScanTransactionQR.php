@@ -17,7 +17,6 @@ class ScanTransactionQR extends Page
 
     public ?Transaction $transaction = null;
 
-    // ✅ Langsung terima string QR content dari event JS
     #[On('qrScanned')]
     public function handleQrScanned($qrContent = null)
     {
@@ -46,7 +45,7 @@ class ScanTransactionQR extends Page
             return;
         }
 
-        // Ambil ID transaksi dari URL QR
+        // Ambil ID transaksi dari URL QR (misal /transaksi/123)
         preg_match('/\/(\d+)$/', $qrContent, $matches);
         $transactionId = $matches[1] ?? null;
 
@@ -70,11 +69,16 @@ class ScanTransactionQR extends Page
             return;
         }
 
-        if (Carbon::now()->gt(Carbon::parse($transaction->end_date))) {
+        // Log untuk debugging
+        \Log::info('Waktu sekarang:', [Carbon::now()]);
+        \Log::info('End date transaksi:', [$transaction->end_date]);
+
+        // Cek apakah transaksi sudah kadaluarsa
+        if ($this->isExpired($transaction)) {
             Notification::make()
                 ->warning()
                 ->title('QR Kadaluwarsa')
-                ->body('QR code sudah tidak berlaku.')
+                ->body('QR code sudah tidak berlaku karena melebihi tanggal selesai transaksi.')
                 ->send();
             return;
         }
@@ -102,5 +106,10 @@ class ScanTransactionQR extends Page
             ->title('Scan Berhasil')
             ->body('Data transaksi berhasil dicatat.')
             ->send();
+    }
+
+    protected function isExpired(Transaction $transaction): bool
+    {
+        return Carbon::now()->gt(Carbon::parse($transaction->end_date));
     }
 }
