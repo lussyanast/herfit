@@ -1,18 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/atomics/button";
 import ReactMarkdown from "react-markdown";
 
+type ChatEntry = {
+    question: string;
+    answer: string;
+};
+
 export default function ChatGemini() {
     const [chat, setChat] = useState<string>("");
-    const [response, setResponse] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
+    const [history, setHistory] = useState<ChatEntry[]>([]);
+    const bottomRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const saved = localStorage.getItem("geminiChatHistory");
+        if (saved) {
+            setHistory(JSON.parse(saved));
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("geminiChatHistory", JSON.stringify(history));
+        scrollToBottom();
+    }, [history]);
+
+    const scrollToBottom = () => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     const sendMessage = async () => {
         if (!chat.trim()) return;
         setLoading(true);
-        setResponse("");
+        const currentQuestion = chat;
+
+        setHistory((prev) => [...prev, { question: currentQuestion, answer: "" }]);
+        setChat("");
 
         try {
             const res = await fetch(
@@ -26,7 +51,7 @@ export default function ChatGemini() {
                         contents: [
                             {
                                 role: "user",
-                                parts: [{ text: chat }],
+                                parts: [{ text: currentQuestion }],
                             },
                         ],
                     }),
@@ -34,66 +59,84 @@ export default function ChatGemini() {
             );
 
             const data = await res.json();
-            const result = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            setResponse(result || "Tidak ada respons.");
-        } catch (error) {
-            setResponse("Terjadi kesalahan saat mengambil respons.");
+            const result = data.candidates?.[0]?.content?.parts?.[0]?.text || "Tidak ada respons.";
+
+            setHistory((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1].answer = result;
+                return updated;
+            });
+        } catch {
+            setHistory((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1].answer = "Terjadi kesalahan saat mengambil respons.";
+                return updated;
+            });
         } finally {
             setLoading(false);
         }
     };
 
-    return (
-        <div className="max-w-xl mx-auto mt-10 p-6 border rounded-2xl bg-white shadow-md relative">
-            <h2 className="text-2xl font-bold mb-6 text-center text-primary">Chat dengan Gemini</h2>
+    const clearHistory = () => {
+        setHistory([]);
+        localStorage.removeItem("geminiChatHistory");
+    };
 
-            <div className="mb-4">
-                <label htmlFor="chat" className="block text-sm font-medium text-gray-700 mb-1">
-                    Pesan
-                </label>
+    return (
+        <div className="w-full h-[90vh] max-w-5xl mx-auto p-6 flex flex-col bg-white border rounded-2xl shadow-lg">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-primary">💬 Chat Gemini AI</h2>
+                <button
+                    onClick={clearHistory}
+                    className="text-sm text-red-600 hover:underline focus:outline-none"
+                >
+                    Hapus Riwayat
+                </button>
+            </div>
+
+            {/* Chat window */}
+            <div className="flex-1 overflow-y-auto bg-gray-100 rounded-xl p-4 space-y-4">
+                {history.map((entry, idx) => (
+                    <div key={idx} className="space-y-2">
+                        {/* User bubble - kanan */}
+                        <div className="flex justify-end">
+                            <div className="bg-primary text-white p-4 rounded-2xl max-w-lg text-sm shadow-md">
+                                {entry.question}
+                            </div>
+                        </div>
+                        {/* Gemini bubble - kiri */}
+                        <div className="flex justify-start">
+                            <div className="bg-white p-4 border rounded-2xl max-w-lg text-sm text-gray-900 shadow-sm">
+                                <ReactMarkdown>{entry.answer}</ReactMarkdown>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                <div ref={bottomRef}></div>
+            </div>
+
+            {/* Chat input */}
+            <div className="mt-4">
                 <textarea
-                    id="chat"
-                    rows={4}
-                    required
-                    className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm p-3"
-                    placeholder="Ketik pertanyaan..."
+                    rows={3}
                     value={chat}
                     onChange={(e) => setChat(e.target.value)}
+                    placeholder="Tulis pertanyaan di sini..."
+                    className="w-full p-4 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     disabled={loading}
                 />
-            </div>
-
-            <div className="text-center relative">
-                <Button
-                    variant="default"
-                    size="header"
-                    onClick={sendMessage}
-                    disabled={loading}
-                >
-                    Kirim
-                </Button>
-
-                {loading && (
-                    <div className="absolute left-1/2 -translate-x-1/2 mt-3 flex items-center space-x-2 text-sm text-gray-600">
-                        <div className="w-4 h-4 border-2 border-gray-300 border-t-primary rounded-full animate-spin"></div>
-                        <span>Sedang mencari jawaban...</span>
-                    </div>
-                )}
-            </div>
-
-            {response && (
-                <div className="mt-8 p-5 border rounded-xl bg-gray-50 shadow-sm">
-                    <div className="flex items-start gap-3 mb-2">
-                        <div className="bg-primary text-white rounded-full p-2 text-sm font-bold w-8 h-8 flex items-center justify-center">
-                            G
-                        </div>
-                        <h3 className="font-semibold text-gray-700 text-base mt-1">Gemini</h3>
-                    </div>
-                    <div className="text-sm text-gray-800 leading-relaxed prose prose-sm max-w-none">
-                        <ReactMarkdown>{response}</ReactMarkdown>
-                    </div>
+                <div className="text-right mt-2">
+                    <Button
+                        variant="default"
+                        size="header"
+                        onClick={sendMessage}
+                        disabled={loading}
+                    >
+                        {loading ? "Menjawab..." : "Kirim"}
+                    </Button>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

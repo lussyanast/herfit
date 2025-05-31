@@ -11,7 +11,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->string('qr_code_path')->nullable();
+            if (!Schema::hasColumn('transactions', 'qr_code_path')) {
+                $table->string('qr_code_path')->nullable();
+            }
         });
     }
 
@@ -21,7 +23,9 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('transactions', 'qr_code_path')) {
+                $table->dropColumn('qr_code_path');
+            }
         });
     }
 };

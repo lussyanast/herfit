@@ -31,6 +31,7 @@ function SignIn() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+
   const form = useForm<FormData>({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -48,13 +49,14 @@ function SignIn() {
       if (res.success) {
         const user = res.data;
 
-        const loginRes = await signIn("credentials", {
+        localStorage.setItem("token", user.token);
+
+        await signIn("credentials", {
           id: user.id,
           email: user.email,
           name: user.name,
           token: user.token,
           photo_profile: user.photo_profile,
-          callbackUrl: searchParams.get("callbackUrl") || "/",
           redirect: false,
         });
 
@@ -64,12 +66,12 @@ function SignIn() {
           open: true,
         });
 
-        router.push(loginRes?.url || "/");
+        router.push(searchParams.get("callbackUrl") || "/dashboard");
       }
     } catch (error: any) {
       toast({
         title: "Something went wrong.",
-        description: error.data.message,
+        description: error?.data?.message || "Terjadi kesalahan.",
         variant: "destructive",
       });
     }
@@ -123,7 +125,9 @@ function SignIn() {
                         icon="/icons/lock-circle.svg"
                         variant="auth"
                         className={
-                          form.formState.errors.password ? "border-destructive" : ""
+                          form.formState.errors.password
+                            ? "border-destructive"
+                            : ""
                         }
                         {...field}
                       />

@@ -5,6 +5,7 @@ use App\Http\Controllers\API\TransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\ProfileController;
+use App\Http\Controllers\WorkoutTemplateController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return response()->json([
@@ -12,6 +13,13 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
         'message' => 'Detail akun yang terdaftar.',
         'data' => $request->user()
     ]);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/workout-templates', [WorkoutTemplateController::class, 'index']);
+    Route::post('/workout-templates', [WorkoutTemplateController::class, 'store']);
+    Route::get('/workout-templates/{id}', [WorkoutTemplateController::class, 'show']);
+    Route::delete('/workout-templates/{id}', [WorkoutTemplateController::class, 'destroy']);
 });
 
 Route::resource('listing', ListingController::class)->only(['index', 'show']);

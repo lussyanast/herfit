@@ -21,12 +21,16 @@ function SideMenu() {
             title="riwayat transaksi"
             url="/dashboard/my-transactions"
           />
-          {/* <ItemMenu
-            image="/icons/ticket-discount.svg"
-            title="vouchers"
-            url="/"
-          /> */}
-          <ItemMenu image="/icons/setting.svg" title="ubah data pribadi" url="/dashboard/edit-profile" />
+          <ItemMenu
+            image="/icons/list-check.svg"
+            title="template latihan"
+            url="/dashboard/workout-templates"
+          />
+          <ItemMenu
+            image="/icons/setting.svg"
+            title="ubah data pribadi"
+            url="/dashboard/edit-profile"
+          />
         </ul>
       </div>
     </nav>
