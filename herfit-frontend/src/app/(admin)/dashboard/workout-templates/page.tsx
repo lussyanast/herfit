@@ -217,32 +217,40 @@ export default function WorkoutTemplatesPage() {
             </div>
 
             {/* LIST TEMPLATE */}
-            {loading ? (
-                <p>Memuat data...</p>
-            ) : templates.length === 0 ? (
-                <p>Belum ada template latihan.</p>
-            ) : (
-                <div className="space-y-4">
-                    {templates.map((template) => (
-                        <div key={template.id} className="p-6 rounded-xl border bg-white shadow-sm">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-lg font-semibold">{template.template_name}</h2>
-                                    <p className="text-sm text-gray-600 capitalize">
-                                        Tipe: {template.type} | {template.days.length} hari latihan
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => handleDelete(template.id)}
-                                    className="text-red-600 hover:underline text-sm"
-                                >
-                                    Hapus
-                                </button>
-                            </div>
+            {templates.map((template) => (
+                <div key={template.id} className="p-6 rounded-xl border bg-white shadow-sm">
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h2 className="text-lg font-semibold">{template.template_name}</h2>
+                            <p className="text-sm text-gray-600 capitalize">
+                                Tipe: {template.type} | {template.days.length} hari latihan
+                            </p>
                         </div>
-                    ))}
+                        <button
+                            onClick={() => handleDelete(template.id)}
+                            className="text-red-600 hover:underline text-sm"
+                        >
+                            Hapus
+                        </button>
+                    </div>
+
+                    {/* DETAIL TEMPLATE */}
+                    <div className="mt-6 space-y-5">
+                        {template.days.map((day, idx) => (
+                            <div key={idx} className="space-y-6">
+                                <h4 className="text-sm font-semibold text-gray-800 mt-2">{day.day}</h4>
+                                <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                    {day.workouts.map((workout, widx) => (
+                                        <li key={widx} className="leading-relaxed">
+                                            {workout.name} – {workout.reps}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            )}
+            ))}
         </div>
     );
 }

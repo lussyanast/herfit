@@ -22,9 +22,14 @@ function SideMenu() {
             url="/dashboard/my-transactions"
           />
           <ItemMenu
-            image="/icons/list-check.svg"
+            image="/icons/sms.svg"
             title="template latihan"
             url="/dashboard/workout-templates"
+          />
+          <ItemMenu
+            image="/icons/sms.svg"
+            title="riwayat konsumsi"
+            url="/dashboard/food-consumed"
           />
           <ItemMenu
             image="/icons/setting.svg"
