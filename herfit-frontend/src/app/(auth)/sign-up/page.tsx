@@ -69,7 +69,7 @@ function SignUp() {
     try {
       const res = await register({
         ...values,
-        photo_profile: null, // Kirim null untuk foto profil
+        photo_profile: null,
         password_confirmation: values.password,
       }).unwrap();
 
@@ -90,7 +90,7 @@ function SignUp() {
           open: true,
         });
 
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch (error: any) {
       toast({

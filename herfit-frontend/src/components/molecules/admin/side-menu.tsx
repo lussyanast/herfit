@@ -12,6 +12,11 @@ function SideMenu() {
       <div className="mt-[37.5px]">
         <ul className="mt-3.5 flex flex-col space-y-6">
           <ItemMenu
+            image="/icons/building-4.svg"
+            title="beranda"
+            url="/"
+          />
+          <ItemMenu
             image="/icons/building.svg"
             title="dashboard"
             url="/dashboard"
