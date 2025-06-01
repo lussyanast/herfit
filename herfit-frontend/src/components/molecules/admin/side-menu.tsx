@@ -27,7 +27,7 @@ function SideMenu() {
             url="/dashboard/workout-templates"
           />
           <ItemMenu
-            image="/icons/sms.svg"
+            image="/icons/coffee.svg"
             title="riwayat konsumsi"
             url="/dashboard/food-consumed"
           />

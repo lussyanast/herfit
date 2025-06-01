@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\ProfileController;
 use App\Http\Controllers\WorkoutTemplateController;
 use App\Http\Controllers\FoodConsumedController;
+use App\Http\Controllers\FitnessPostController;
+use App\Http\Controllers\FitnessCommentController;
+use App\Http\Controllers\FitnessLikeController;
+
+
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return response()->json([
@@ -14,6 +19,21 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
         'message' => 'Detail akun yang terdaftar.',
         'data' => $request->user()
     ]);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/herfeed-posts', [FitnessPostController::class, 'index']);
+    Route::post('/herfeed-posts', [FitnessPostController::class, 'store']);
+    Route::delete('/herfeed-posts/{id}', [FitnessPostController::class, 'destroy']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/herfeed-comments', [FitnessCommentController::class, 'store']);
+    Route::delete('/herfeed-comments/{id}', [FitnessCommentController::class, 'destroy']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/herfeed-likes/toggle', [FitnessLikeController::class, 'toggle']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
