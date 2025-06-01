@@ -27,6 +27,11 @@ function SideMenu() {
             url="/dashboard/my-transactions"
           />
           <ItemMenu
+            image="/icons/sun-fog.svg"
+            title="herFeed"
+            url="/dashboard/feed"
+          />
+          <ItemMenu
             image="/icons/sms.svg"
             title="template latihan"
             url="/dashboard/workout-templates"
