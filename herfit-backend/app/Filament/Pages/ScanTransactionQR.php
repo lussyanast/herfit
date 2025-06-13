@@ -14,6 +14,10 @@ class ScanTransactionQR extends Page
 {
     public static ?string $navigationIcon = 'heroicon-o-qr-code';
     public static string $view = 'filament.pages.scan-transaction-q-r';
+    protected static ?string $navigationLabel = 'Scan QR';
+    protected static ?string $pluralModelLabel = 'Scan QR';
+    protected static ?string $navigationGroup = 'Manajemen Transaksi';
+    protected static ?int $navigationSort = 2;
 
     public ?Transaction $transaction = null;
 

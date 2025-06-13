@@ -16,7 +16,8 @@ class TransactionScanResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-qr-code';
     protected static ?string $navigationLabel = 'Riwayat Scan QR';
     protected static ?string $pluralModelLabel = 'Riwayat Scan QR';
-    protected static ?string $navigationGroup = 'Transaksi';
+    protected static ?string $navigationGroup = 'Manajemen Transaksi';
+    protected static ?int $navigationSort = 2;
 
     public static function table(Table $table): Table
     {
