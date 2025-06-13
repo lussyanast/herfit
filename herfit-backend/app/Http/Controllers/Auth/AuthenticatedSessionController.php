@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class AuthenticatedSessionController extends Controller
@@ -20,6 +21,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
+        $token = $user->createToken('auth')->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -29,6 +31,7 @@ class AuthenticatedSessionController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'photo_profile' => $user->photo_profile,
+                'token' => $token,
             ]
         ]);
     }
@@ -41,6 +44,8 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
 
         return response()->json([
             'success' => true,
