@@ -30,7 +30,7 @@ const getSubtitleStyle = (section: string) => {
     case 'facility':
       return 'text-base leading-6 text-subtitle'
     case 'detail':
-      return 'text-base leading-[30px] text-white pt-2.5'
+      return 'text-base leading-[30px] text-black pt-2.5'
     case 'booking':
       return 'text-base leading-[30px] text-subtitle pt-2.5'
     case 'empty':

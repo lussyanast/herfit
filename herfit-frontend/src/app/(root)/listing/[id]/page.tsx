@@ -2,7 +2,6 @@
 import Breadcrumbs from "@/components/molecules/breadcrumbs";
 import Title from "@/components/atomics/title";
 import Image from "next/image";
-import Map from "@/components/molecules/map";
 import ListingShowcase from "@/components/molecules/listing/listing-showcase";
 import PhotoGallery from "./photo-gallery";
 import BookingSection from "./booking-section";
