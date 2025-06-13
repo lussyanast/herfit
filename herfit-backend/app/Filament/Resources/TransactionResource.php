@@ -53,11 +53,11 @@ class TransactionResource extends Resource
             Tables\Columns\TextColumn::make('listing_id')
                 ->sortable()
                 ->hidden(),
-                Tables\Columns\TextColumn::make('listing.listing_name')
+            Tables\Columns\TextColumn::make('listing.listing_name')
                 ->label('Listing Name')
                 ->searchable()
                 ->sortable()
-                ->weight(FontWeight::Bold),            
+                ->weight(FontWeight::Bold),
             Tables\Columns\TextColumn::make('start_date')
                 ->weight(FontWeight::Bold),
             Tables\Columns\TextColumn::make('end_date')
@@ -103,7 +103,22 @@ class TransactionResource extends Resource
                             ->icon('heroicon-o-check')
                             ->send();
                     })
-                    ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting')
+                    ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting'),
+
+                Action::make('cancel')
+                    ->button()
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->action(function (Transaction $transaction) {
+                        $transaction->update(['status' => 'canceled']);
+                        Notification::make()
+                            ->warning()
+                            ->title('Transaksi Dibatalkan')
+                            ->body('Transaksi telah dibatalkan.')
+                            ->icon('heroicon-o-x-circle')
+                            ->send();
+                    })
+                    ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
