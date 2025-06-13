@@ -67,7 +67,22 @@ class WaitingTransactions extends BaseWidget
                             ->icon('heroicon-o-check')
                             ->send();
                     })
-                    ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting')
+                    ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting'),
+
+                Action::make('cancel')
+                    ->button()
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->action(function (Transaction $transaction) {
+                        $transaction->update(['status' => 'canceled']);
+                        Notification::make()
+                            ->warning()
+                            ->title('Transaksi Dibatalkan')
+                            ->body('Transaksi telah dibatalkan.')
+                            ->icon('heroicon-o-x-circle')
+                            ->send();
+                    })
+                    ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting'),
             ])
         ;
     }
