@@ -17,7 +17,7 @@ class ScanTransactionQR extends Page
     protected static ?string $navigationLabel = 'Scan QR';
     protected static ?string $pluralModelLabel = 'Scan QR';
     protected static ?string $navigationGroup = 'Manajemen Transaksi';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     public ?Transaction $transaction = null;
 

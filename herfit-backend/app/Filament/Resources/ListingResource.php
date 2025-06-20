@@ -26,7 +26,6 @@ class ListingResource extends Resource
     protected static ?string $navigationLabel = 'Kelola Listing';
     protected static ?string $pluralModelLabel = 'Kelola Listing';
     protected static ?string $navigationGroup = 'Manajemen Internal';
-    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
