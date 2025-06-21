@@ -30,7 +30,7 @@ class TransactionController extends Controller
     {
         $listing = Listing::find($request->listing_id);
         $runningTransactionCount = Transaction::whereListingId($listing->id)
-            ->whereNot('status', 'canceled')
+            ->whereNot('status', 'rejected')
             ->where(function ($query) use ($request) {
                 $query->whereBetween('start_date', [
                     $request->start_date,

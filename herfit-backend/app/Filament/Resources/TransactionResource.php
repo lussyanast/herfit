@@ -76,7 +76,7 @@ class TransactionResource extends Resource
                 ->color(fn(string $state) => match ($state) {
                     'waiting' => 'gray',
                     'approved' => 'info',
-                    'canceled' => 'danger',
+                    'rejected' => 'danger',
                 }),
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime()
@@ -90,7 +90,7 @@ class TransactionResource extends Resource
                 SelectFilter::make('status')->options([
                     'waiting' => 'Menunggu',
                     'approved' => 'Disetujui',
-                    'canceled' => 'Dibatalkan',
+                    'rejected' => 'Ditolak',
                 ]),
             ])
             ->actions([
@@ -109,12 +109,12 @@ class TransactionResource extends Resource
                     })
                     ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting'),
 
-                Action::make('cancel')
+                Action::make('reject')
                     ->button()
                     ->color('danger')
                     ->requiresConfirmation()
                     ->action(function (Transaction $transaction) {
-                        $transaction->update(['status' => 'canceled']);
+                        $transaction->update(['status' => 'rejected']);
                         Notification::make()
                             ->warning()
                             ->title('Transaksi Dibatalkan')
