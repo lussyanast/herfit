@@ -117,17 +117,12 @@ class TransactionResource extends Resource
                         $transaction->update(['status' => 'rejected']);
                         Notification::make()
                             ->warning()
-                            ->title('Transaksi Dibatalkan')
-                            ->body('Transaksi telah dibatalkan.')
+                            ->title('Transaksi Ditolak')
+                            ->body('Transaksi telah ditolak.')
                             ->icon('heroicon-o-x-circle')
                             ->send();
                     })
                     ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting'),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

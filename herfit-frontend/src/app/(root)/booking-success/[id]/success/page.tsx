@@ -1,13 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import Image from "next/image";
 import Link from "next/link";
 
 import { useGetDetailTransactionQuery } from "@/services/transaction.service";
 import { Transaction } from "@/interfaces/transaction";
-
-import { Badge } from "@/components/atomics/badge";
 import { Button } from "@/components/atomics/button";
 import { Separator } from "@/components/atomics/separator";
 
@@ -47,57 +44,59 @@ function BookingSuccess({ params }: { params: { id: string } }) {
           </div>
         )}
 
-        {/* Form Konfirmasi WhatsApp */}
-        <section className="mt-10 rounded-[20px] border border-border bg-white p-6 shadow-sm">
-          <h3 className="text-xl font-bold mb-3 text-secondary text-center">
-            Konfirmasi Pembayaran
-          </h3>
-          <p className="text-muted-foreground text-center mb-6">
-            Setelah melakukan pembayaran, silakan konfirmasi dan lampirkan bukti pembayaran melalui WhatsApp agar pemesananmu segera diproses.
-          </p>
+        {/* Form Konfirmasi WhatsApp, hanya tampil jika belum approved */}
+        {booking?.status !== "approved" && (
+          <section className="mt-10 rounded-[20px] border border-border bg-white p-6 shadow-sm">
+            <h3 className="text-xl font-bold mb-3 text-secondary text-center">
+              Konfirmasi Pembayaran
+            </h3>
+            <p className="text-muted-foreground text-center mb-6">
+              Setelah melakukan pembayaran, silakan konfirmasi dan lampirkan bukti pembayaran melalui WhatsApp agar pemesananmu segera diproses.
+            </p>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const name = (document.getElementById("name") as HTMLInputElement).value;
-              const message = (document.getElementById("message") as HTMLTextAreaElement).value;
-              const text = `Halo, saya ${name}. Saya ingin mengonfirmasi pembayaran untuk pemesanan "${booking?.listing?.title}".\nPesan: ${message}`;
-              const encodedText = encodeURIComponent(text);
-              window.open(`https://wa.me/6282261291606?text=${encodedText}`, "_blank");
-            }}
-            className="max-w-xl mx-auto space-y-4"
-          >
-            <div>
-              <label htmlFor="name" className="block text-sm font-semibold mb-1">
-                Nama
-              </label>
-              <input
-                type="text"
-                id="name"
-                required
-                className="w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
-              />
-            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const name = (document.getElementById("name") as HTMLInputElement).value;
+                const message = (document.getElementById("message") as HTMLTextAreaElement).value;
+                const text = `Halo, saya ${name}. Saya ingin mengonfirmasi pembayaran untuk pemesanan "${booking?.listing?.title}".\nPesan: ${message}`;
+                const encodedText = encodeURIComponent(text);
+                window.open(`https://wa.me/6282261291606?text=${encodedText}`, "_blank");
+              }}
+              className="max-w-xl mx-auto space-y-4"
+            >
+              <div>
+                <label htmlFor="name" className="block text-sm font-semibold mb-1">
+                  Nama
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  required
+                  className="w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
+                />
+              </div>
 
-            <div>
-              <label htmlFor="message" className="block text-sm font-semibold mb-1">
-                Pesan
-              </label>
-              <textarea
-                id="message"
-                required
-                rows={3}
-                className="w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
-              />
-            </div>
+              <div>
+                <label htmlFor="message" className="block text-sm font-semibold mb-1">
+                  Pesan
+                </label>
+                <textarea
+                  id="message"
+                  required
+                  rows={3}
+                  className="w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
+                />
+              </div>
 
-            <div className="text-center">
-              <Button type="submit" variant="default" size="header">
-                Konfirmasi via WhatsApp
-              </Button>
-            </div>
-          </form>
-        </section>
+              <div className="text-center">
+                <Button type="submit" variant="default" size="header">
+                  Konfirmasi via WhatsApp
+                </Button>
+              </div>
+            </form>
+          </section>
+        )}
 
         {/* Aksi */}
         <div className="mt-5 flex flex-wrap justify-center gap-2.5">
