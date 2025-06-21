@@ -41,7 +41,7 @@ class WaitingTransactions extends BaseWidget
                 Tables\Columns\TextColumn::make('status')->badge()->color(fn(string $state): string => match ($state) {
                     'waiting' => 'gray',
                     'approved' => 'info',
-                    'canceled' => 'danger',
+                    'rejected' => 'danger',
                 }),
 
                 Tables\Columns\TextColumn::make('created_at')
@@ -69,12 +69,12 @@ class WaitingTransactions extends BaseWidget
                     })
                     ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting'),
 
-                Action::make('cancel')
+                Action::make('reject')
                     ->button()
                     ->color('danger')
                     ->requiresConfirmation()
                     ->action(function (Transaction $transaction) {
-                        $transaction->update(['status' => 'canceled']);
+                        $transaction->update(['status' => 'rejected']);
                         Notification::make()
                             ->warning()
                             ->title('Transaksi Dibatalkan')
