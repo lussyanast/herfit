@@ -62,6 +62,24 @@ class TransactionResource extends Resource
                 ->searchable()
                 ->sortable()
                 ->weight(FontWeight::Bold),
+            Tables\Columns\TextColumn::make('bukti_bayar')
+                ->label('Bukti Bayar')
+                ->html()
+                ->formatStateUsing(function ($state, $record) {
+                    return $record->bukti_bayar
+                        ? '<span class="text-primary underline hover:text-blue-700 font-medium">👁️ Lihat Bukti</span>'
+                        : '<span class="text-gray-400 italic">Tidak ada</span>';
+                })
+                ->action(
+                    Tables\Actions\Action::make('preview-bukti')
+                        ->modalHeading('Bukti Pembayaran')
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel('Tutup')
+                        ->modalContent(fn($record) => view('filament.preview-bukti', [
+                            'url' => asset('storage/' . $record->bukti_bayar),
+                        ]))
+                        ->visible(fn($record) => filled($record->bukti_bayar))
+                ),
             Tables\Columns\TextColumn::make('start_date')
                 ->weight(FontWeight::Bold),
             Tables\Columns\TextColumn::make('end_date')
