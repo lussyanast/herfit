@@ -20,9 +20,11 @@ function BookingSuccess({ params }: { params: { id: string } }) {
       {/* Hero Title */}
       <section className="bg-gray-light pt-[190px] pb-[148px]">
         <div className="container mx-auto flex items-center justify-center">
+          {booking?.status !== "approved" && (
           <h1 className="max-w-[360px] font-bold text-[32px] text-center leading-[48px] text-secondary">
             Pemesanan Berhasil 🎉
           </h1>
+          )}
         </div>
       </section>
 
