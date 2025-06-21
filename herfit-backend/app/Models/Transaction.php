@@ -21,7 +21,8 @@ class Transaction extends Model
         'total_days',
         'price',
         'status',
-        'qr_code_path'
+        'qr_code_path',
+        'bukti_bayar',
     ];
 
     // Automatically calculate total_days before saving
@@ -44,7 +45,7 @@ class Transaction extends Model
     // Mutator to set 'status' attribute
     public function setStatusAttribute($value)
     {
-        $this->attributes['status'] = strtoupper($value);
+        $this->attributes['status'] = strtolower($value);
     }
 
     public function user(): BelongsTo

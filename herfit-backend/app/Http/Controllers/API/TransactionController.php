@@ -141,4 +141,67 @@ class TransactionController extends Controller
             ]
         ]);
     }
+
+    public function uploadBukti(Request $request, $id)
+    {
+        $transaction = Transaction::findOrFail($id);
+
+        // Cek apakah user berhak
+        if ($transaction->user_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        // Hanya bisa upload kalau status "waiting"
+        if (strtolower($transaction->status) !== 'waiting') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak bisa upload bukti karena status bukan waiting.',
+            ], 422);
+        }
+
+        // Validasi file
+        $validator = \Validator::make($request->all(), [
+            'bukti_bayar' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            logger('Validasi gagal saat upload bukti bayar', $validator->errors()->toArray());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        // Simpan file ke storage
+        $path = $request->file('bukti_bayar')->store('bukti-bayar', 'public');
+
+        logger('Mencoba update bukti_bayar', [
+            'id' => $transaction->id,
+            'path' => $path,
+            'user_id' => auth()->id(),
+            'status' => $transaction->status,
+            'has_file' => $request->hasFile('bukti_bayar')
+        ]);
+
+        $transaction->bukti_bayar = $path;
+        $transaction->save();
+
+        logger('Selesai simpan bukti_bayar', [
+            'id' => $transaction->id,
+            'bukti_bayar' => $transaction->bukti_bayar,
+            'saved?' => $transaction->wasChanged('bukti_bayar')
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bukti pembayaran berhasil diunggah.',
+            'data' => [
+                'bukti_bayar' => asset('storage/' . $path),
+            ],
+        ]);
+    }
 }
