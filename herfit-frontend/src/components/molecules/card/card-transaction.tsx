@@ -41,8 +41,8 @@ function CardTransaction({
                 {status}
               </Badge>
             }
-            {status === 'canceled' &&
-              <Badge variant={'canceled'}>
+            {status === 'rejected' &&
+              <Badge variant={'rejected'}>
                 {status}
               </Badge>
             }

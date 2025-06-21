@@ -12,7 +12,7 @@ const badgeVariants = cva(
         secondary: 'bg-secondary text-white font-bold text-xs leading-[18px]',
         waiting: 'bg-white text-primary font-extrabold text-xs p-0 border border-primary',
         approved: 'bg-green-500 text-white font-extrabold text-xs leading-[18px]',
-        canceled: 'bg-red-500 text-white font-extrabold text-xs leading-[18px]',
+        rejected: 'bg-red-500 text-white font-extrabold text-xs leading-[18px]',
       },
     },
     defaultVariants: {

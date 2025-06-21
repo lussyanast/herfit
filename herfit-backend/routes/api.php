@@ -48,8 +48,18 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::resource('listing', ListingController::class)->only(['index', 'show']);
+
 Route::middleware(['auth:sanctum'])->post('/update-profile', [ProfileController::class, 'update']);
+
 Route::post('transaction/is-available', [TransactionController::class, 'isAvailable'])->middleware(['auth:sanctum']);
-Route::resource('transaction', TransactionController::class)->only(['store', 'index', 'show'])->middleware(['auth:sanctum']);
+Route::resource('transaction', TransactionController::class)
+    ->only(['store', 'index', 'show'])
+    ->names([
+        'index' => 'transaction.index',
+        'store' => 'transaction.store',
+        'show' => 'transaction.show',
+    ])
+    ->middleware(['auth:sanctum']);
+Route::middleware('auth:sanctum')->post('/transaction/{id}/upload-bukti', [TransactionController::class, 'uploadBukti'])->name('transaction.upload-bukti');
 
 require __DIR__ . '/auth.php';
