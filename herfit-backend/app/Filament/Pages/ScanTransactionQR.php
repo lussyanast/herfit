@@ -49,7 +49,6 @@ class ScanTransactionQR extends Page
             return;
         }
 
-        // Ambil ID transaksi dari URL QR (misal /transaksi/123)
         preg_match('/\/(\d+)$/', $qrContent, $matches);
         $transactionId = $matches[1] ?? null;
 
@@ -73,12 +72,20 @@ class ScanTransactionQR extends Page
             return;
         }
 
-        // Log untuk debugging
-        \Log::info('Waktu sekarang:', [Carbon::now()]);
-        \Log::info('End date transaksi:', [$transaction->end_date]);
+        $now = Carbon::now();
+        $startDate = Carbon::parse($transaction->start_date);
+        $endDate = Carbon::parse($transaction->end_date);
 
-        // Cek apakah transaksi sudah kadaluarsa
-        if ($this->isExpired($transaction)) {
+        if ($now->lt($startDate)) {
+            Notification::make()
+                ->warning()
+                ->title('QR Belum Aktif')
+                ->body('QR code hanya bisa digunakan mulai ' . $startDate->format('d M Y') . '.')
+                ->send();
+            return;
+        }
+
+        if ($now->gt($endDate)) {
             Notification::make()
                 ->warning()
                 ->title('QR Kadaluwarsa')
@@ -96,7 +103,7 @@ class ScanTransactionQR extends Page
             return;
         }
 
-        // Simpan hasil scan ke tabel
+        // Simpan hasil scan HANYA jika valid
         TransactionScan::create([
             'transaction_id' => $transaction->id,
             'scanned_by' => Auth::id(),

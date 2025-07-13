@@ -1,6 +1,6 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Server version:               8.0.30 - MySQL Community Server - GPL
+-- Server version:               10.4.27-MariaDB - mariadb.org binary distribution
 -- Server OS:                    Win64
 -- HeidiSQL Version:             12.1.0.6537
 -- --------------------------------------------------------
@@ -16,77 +16,145 @@
 
 
 -- Dumping database structure for herfit
-CREATE DATABASE IF NOT EXISTS `herfit` /*!40100 DEFAULT CHARACTER SET armscii8 COLLATE armscii8_bin */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE IF NOT EXISTS `herfit` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci */;
 USE `herfit`;
 
 -- Dumping structure for table herfit.cache
 CREATE TABLE IF NOT EXISTS `cache` (
   `key` varchar(255) NOT NULL,
   `value` mediumtext NOT NULL,
-  `expiration` int NOT NULL,
+  `expiration` int(11) NOT NULL,
   PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
--- Dumping data for table herfit.cache: ~6 rows (approximately)
+-- Dumping data for table herfit.cache: ~2 rows (approximately)
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-	('17ba0791499db908433b80f37c5fbc89b870084b', 'i:1;', 1747397331),
-	('17ba0791499db908433b80f37c5fbc89b870084b:timer', 'i:1747397331;', 1747397331),
-	('livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3', 'i:1;', 1747396907),
-	('livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3:timer', 'i:1747396907;', 1747396907),
-	('rkutch@example.org|127.0.0.1', 'i:1;', 1744898006),
-	('rkutch@example.org|127.0.0.1:timer', 'i:1744898006;', 1744898006);
+	('livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3', 'i:1;', 1750726093),
+	('livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3:timer', 'i:1750726093;', 1750726093);
 
--- Dumping structure for table herfit.cache_locks
-CREATE TABLE IF NOT EXISTS `cache_locks` (
-  `key` varchar(255) NOT NULL,
-  `owner` varchar(255) NOT NULL,
-  `expiration` int NOT NULL,
-  PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+-- Dumping structure for table herfit.fitness_comments
+CREATE TABLE IF NOT EXISTS `fitness_comments` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `fitness_post_id` int(10) unsigned NOT NULL,
+  `comment` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fitness_comments_fitness_post_id_foreign` (`fitness_post_id`),
+  KEY `fitness_comments_user_id_foreign` (`user_id`),
+  CONSTRAINT `fitness_comments_fitness_post_id_foreign` FOREIGN KEY (`fitness_post_id`) REFERENCES `fitness_posts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fitness_comments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
--- Dumping data for table herfit.cache_locks: ~0 rows (approximately)
+-- Dumping data for table herfit.fitness_comments: ~3 rows (approximately)
+INSERT INTO `fitness_comments` (`id`, `user_id`, `fitness_post_id`, `comment`, `created_at`, `updated_at`) VALUES
+	(1, 1, 3, 'hii', '2025-06-01 05:52:34', '2025-06-01 05:52:34'),
+	(2, 22, 3, 'haloo', '2025-06-01 14:12:15', '2025-06-01 14:12:15'),
+	(3, 22, 4, 'hhehhe', '2025-06-01 14:17:57', '2025-06-01 14:17:57');
+
+-- Dumping structure for table herfit.fitness_likes
+CREATE TABLE IF NOT EXISTS `fitness_likes` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `fitness_post_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `fitness_likes_user_id_fitness_post_id_unique` (`user_id`,`fitness_post_id`),
+  KEY `fitness_likes_fitness_post_id_foreign` (`fitness_post_id`),
+  CONSTRAINT `fitness_likes_fitness_post_id_foreign` FOREIGN KEY (`fitness_post_id`) REFERENCES `fitness_posts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fitness_likes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- Dumping data for table herfit.fitness_likes: ~3 rows (approximately)
+INSERT INTO `fitness_likes` (`id`, `user_id`, `fitness_post_id`, `created_at`, `updated_at`) VALUES
+	(3, 1, 3, '2025-06-01 05:47:47', '2025-06-01 05:47:47'),
+	(4, 22, 3, '2025-06-01 14:12:05', '2025-06-01 14:12:05'),
+	(5, 22, 4, '2025-06-01 14:17:52', '2025-06-01 14:17:52');
+
+-- Dumping structure for table herfit.fitness_posts
+CREATE TABLE IF NOT EXISTS `fitness_posts` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `caption` text NOT NULL,
+  `image_url` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fitness_posts_user_id_foreign` (`user_id`),
+  CONSTRAINT `fitness_posts_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- Dumping data for table herfit.fitness_posts: ~4 rows (approximately)
+INSERT INTO `fitness_posts` (`id`, `user_id`, `caption`, `image_url`, `created_at`, `updated_at`) VALUES
+	(1, 1, 'halo', 'feeds/99zTEZUd8hmRAX6atm9Ru30FmQrcu8voirfJzlxQ.png', '2025-06-01 05:14:07', '2025-06-01 05:14:07'),
+	(2, 1, 'halo', 'feeds/zfWMzB47P2YGk8wkREP1FFW6KMZd4KWs33qRazda.png', '2025-06-01 05:15:07', '2025-06-01 05:15:07'),
+	(3, 1, 'halo', 'feeds/lXV2YfhVn3GnQje6wEvEzmgk3nmBjq8S4HaOzZM6.png', '2025-06-01 05:22:57', '2025-06-01 05:22:57'),
+	(4, 22, 'haii semuanya', NULL, '2025-06-01 14:17:22', '2025-06-01 14:17:22');
+
+-- Dumping structure for table herfit.food_consumeds
+CREATE TABLE IF NOT EXISTS `food_consumeds` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `food_name` varchar(150) NOT NULL,
+  `calories` int(10) NOT NULL,
+  `date` date NOT NULL DEFAULT curdate(),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `food_consumeds_user_id_foreign` (`user_id`),
+  CONSTRAINT `food_consumeds_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- Dumping data for table herfit.food_consumeds: ~3 rows (approximately)
+INSERT INTO `food_consumeds` (`id`, `user_id`, `food_name`, `calories`, `date`, `created_at`, `updated_at`) VALUES
+	(2, 22, 's', 2, '2025-06-01', '2025-06-01 13:47:25', '2025-06-01 13:47:25'),
+	(3, 22, 'ds', 22, '2025-06-27', '2025-06-01 13:47:38', '2025-06-01 13:47:38'),
+	(5, 22, 'ds', 2, '2025-05-07', '2025-06-01 13:57:18', '2025-06-01 13:57:18'),
+	(6, 24, 'Matcha', 50, '2025-06-23', '2025-06-23 12:51:48', '2025-06-23 12:51:48');
 
 -- Dumping structure for table herfit.listings
 CREATE TABLE IF NOT EXISTS `listings` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `listing_name` varchar(255) NOT NULL,
-  `slug` varchar(255) NOT NULL,
-  `category` varchar(255) NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `listing_name` varchar(150) NOT NULL,
+  `slug` varchar(200) NOT NULL,
+  `category` varchar(20) NOT NULL,
   `description` text NOT NULL,
-  `max_person` smallint unsigned NOT NULL DEFAULT '0',
-  `price` text NOT NULL,
-  `attachments` longtext,
+  `max_person` int(5) unsigned NOT NULL DEFAULT 0,
+  `price` int(11) NOT NULL DEFAULT 0,
+  `attachments` longtext DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `listings_listing_name_unique` (`listing_name`),
   UNIQUE KEY `listings_slug_unique` (`slug`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
--- Dumping data for table herfit.listings: ~10 rows (approximately)
+-- Dumping data for table herfit.listings: ~11 rows (approximately)
 INSERT INTO `listings` (`id`, `listing_name`, `slug`, `category`, `description`, `max_person`, `price`, `attachments`, `created_at`, `updated_at`, `deleted_at`) VALUES
-	(1, 'Quisquam Dolores', 'quisquam-dolores', 'Lainnya', 'Eius qui voluptatem quas commodi aliquid. Neque eos expedita fugit ipsum mollitia rerum. Voluptatem sit expedita voluptatum sequi fugiat sed. A qui et autem. Facere quas ut dicta et.', 9, '10', NULL, '2025-04-17 13:24:28', '2025-05-16 12:22:43', '2025-05-16 12:22:43'),
-	(2, 'Aut Voluptatum', 'aut-voluptatum', 'Lainnya', 'Libero et accusantium soluta autem autem qui. Voluptatem quos ullam laudantium molestiae ratione. Et inventore impedit minima blanditiis qui iusto inventore. Rerum aut provident tempore. Delectus alias natus quod. Accusantium corrupti commodi ut est aut et.', 3, '1', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28', NULL),
-	(3, 'Velit Minima', 'velit-minima', 'Membership', 'Enim vitae fugiat facilis. Saepe recusandae est ut aut. Debitis omnis ducimus ea quo ratione. Iusto possimus neque nisi quas. Necessitatibus voluptatem repellat molestias minus dolor magni. Modi molestiae aperiam a aut quasi praesentium.', 10, '3', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28', NULL),
-	(4, 'Dolores Iusto', 'dolores-iusto', 'Membership', 'Rem quis aut reprehenderit eaque dolorum rerum quas. Voluptates consequatur repellendus reprehenderit sed. Quo et quia recusandae sit consectetur hic sunt. Omnis amet qui voluptates tempora odit provident veniam. Veritatis totam mollitia doloribus quo. Nemo ipsum nemo recusandae porro qui aut. Voluptates veniam illo laboriosam porro quo qui ut. Officia non provident labore nesciunt officia veniam.', 9, '8', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28', NULL),
-	(5, 'Eaque Minus', 'eaque-minus', 'Membership', 'Quae harum vero sint amet quod nobis. Id dolor at placeat sequi illum. Sit excepturi ea corrupti doloremque. Voluptatem et ab suscipit nihil hic cupiditate officiis.', 7, '9', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28', NULL),
-	(6, 'Perferendis Qui', 'perferendis-qui', 'Lainnya', 'Id recusandae ipsum libero earum saepe totam consequatur. Ut et ea recusandae voluptate nulla et. Est est tenetur et quos iste. Sunt at nemo eos mollitia iste.', 2, '10', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28', NULL),
-	(7, 'Itaque Voluptatem', 'itaque-voluptatem', 'Membership', 'Omnis officiis quia autem veritatis. Ipsa repudiandae accusantium porro omnis rem impedit officia eum. Sed et commodi ea ratione blanditiis vero nulla laborum. Perspiciatis quasi voluptatem quis minus esse.', 1, '3', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28', NULL),
-	(8, 'Repellat Voluptatem', 'repellat-voluptatem', 'Membership', 'Ullam harum laborum in ea. Enim qui voluptas veritatis ad assumenda. Ut dignissimos consectetur nihil explicabo quos unde et. Dolor harum dolor ea. Repudiandae eveniet laborum illum corporis architecto alias porro. Reiciendis dolores nobis voluptas beatae itaque. Vel eveniet dolor deserunt et.', 4, '6', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28', NULL),
-	(9, 'Cum Perspiciatis', 'cum-perspiciatis', 'Membership', 'Ratione id rem ratione ut ut expedita. Non aut qui quibusdam asperiores fugit sequi totam vel. Aut dolorum id animi ratione aut eligendi. Tempora et qui molestiae corporis ipsum voluptate. Ut excepturi natus qui praesentium sequi.', 3, '2', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28', NULL),
-	(10, 'Labore Reprehenderit', 'labore-reprehenderit', 'Lainnya', 'Quia molestiae accusantium aspernatur qui velit accusantium. Non fuga sed cupiditate consequatur doloremque iste. Omnis a et vel dolores sit cupiditate sunt. Necessitatibus ut incidunt aspernatur porro magni voluptate. Quae molestiae nemo rerum odio et a consequuntur.', 7, '6', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28', NULL),
-	(11, 'Member 1 Bulan', 'member-1-bulan', 'Membership', 'Keanggotaan selama 1 bulan, tidak ada batas kunjungan.', 200, '235000', '["listings\\/01JVCFWWXTS67Z50FZ4GGKGC3G.png"]', '2025-05-16 12:07:56', '2025-05-16 12:07:56', NULL);
+	(1, 'Aut Expedita', 'aut-expedita', 'Membership', 'Ullam magni sunt mollitia voluptatem quia. Assumenda possimus et quia. Laudantium voluptatem ullam rem delectus libero perferendis consequatur porro. Laborum architecto rem occaecati voluptas dolorem. Inventore sunt placeat eligendi. Omnis corrupti molestias et ut voluptas aut.', 9, 8, NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL),
+	(2, 'Sunt Quod', 'sunt-quod', 'Lainnya', 'Quos pariatur quia excepturi. Necessitatibus nam labore odio pariatur. Pariatur maiores ullam ut nisi delectus aut. Natus ratione quasi quod quibusdam rerum consequuntur. Exercitationem aliquam repellat ratione quia.', 6, 2, NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL),
+	(3, 'Magni Quae', 'magni-quae', 'Lainnya', 'Nisi reprehenderit deleniti fugit odio vel odit eos. Id ut voluptas animi harum veritatis. Nulla dolorem itaque vero minus autem. Unde natus tempore quibusdam dolorem quidem omnis quaerat quaerat. Omnis vitae aut perspiciatis inventore.', 3, 9, NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL),
+	(4, 'Error Quia', 'error-quia', 'Membership', 'Consequatur similique unde quod sit animi quaerat. Magnam harum aspernatur est et odit quibusdam sunt. Laudantium vel ea est atque voluptates. Velit dolor molestiae aperiam voluptas est incidunt.', 6, 1, NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL),
+	(5, 'Optio Amet', 'optio-amet', 'Lainnya', 'Consectetur voluptatem magnam unde esse. Unde rerum molestiae laudantium ratione. Architecto rem est amet debitis velit. Voluptatem iure rerum aspernatur eos.', 3, 3, NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL),
+	(6, 'Aut Aut', 'aut-aut', 'Membership', 'Assumenda aliquam aliquam numquam sit porro autem velit. Consequatur voluptates necessitatibus nisi deserunt. Unde corporis id beatae perferendis dicta tenetur vero. Illum rerum voluptas voluptatem delectus assumenda consequatur voluptatibus. Consequatur harum et sed. Cupiditate aut ea quos cumque harum qui iure. Voluptas distinctio vel et veniam sunt aut.', 9, 4, NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL),
+	(7, 'Aut Iusto', 'aut-iusto', 'Membership', 'Possimus ad occaecati fugiat dolor quisquam. Eos aliquam libero quia repellendus minima ipsam. Qui praesentium minima similique explicabo animi possimus aliquid. Nulla eum et earum. Atque itaque magni at ut natus.', 7, 1, NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL),
+	(8, 'Non Et', 'non-et', 'Membership', 'Libero doloremque est sunt corporis qui repellendus. Inventore voluptatibus omnis culpa et. Illo voluptatibus dicta perspiciatis ad voluptatem iure. Corrupti ut quo quia numquam quisquam eum. Voluptatem voluptatem magni distinctio hic et qui.', 1, 4, NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL),
+	(9, 'Molestiae Architecto', 'molestiae-architecto', 'Lainnya', 'Eveniet facere officia ut fuga. Ea porro non est et est. Sequi nulla non placeat aut qui. Et voluptas voluptatem eum consequatur eum quidem hic. Fuga aut nostrum ab quo fugiat. Maiores est asperiores cum aliquid.', 10, 4, NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL),
+	(10, 'Eum Assumenda', 'eum-assumenda', 'Membership', 'Ex aspernatur eius tenetur quia accusamus nisi voluptas. Doloribus a consequatur consequatur doloremque hic minus. Exercitationem molestiae porro quaerat blanditiis sed recusandae. Ab quasi delectus sequi quia tenetur architecto neque expedita.', 2, 7, NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL),
+	(11, 'Member 1 Tahun', 'member-1-tahun', 'Membership', 'Membership 1 tahun include card', 200, 4000000, '["listings\\/01JXM0ECFF72X45Z83081ZXWWJ.png"]', '2025-06-13 06:43:11', '2025-06-13 06:43:11', NULL);
 
 -- Dumping structure for table herfit.migrations
 CREATE TABLE IF NOT EXISTS `migrations` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `migration` varchar(255) NOT NULL,
-  `batch` int NOT NULL,
+  `batch` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
--- Dumping data for table herfit.migrations: ~8 rows (approximately)
+-- Dumping data for table herfit.migrations: ~12 rows (approximately)
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(1, '0001_01_01_000000_create_users_table', 1),
 	(2, '0001_01_01_000001_create_cache_table', 1),
@@ -94,29 +162,23 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(4, '2025_03_15_043843_create_listings_table', 1),
 	(5, '2025_03_20_011428_create_transactions_table', 1),
 	(6, '2025_03_20_103318_create_personal_access_tokens_table', 1),
-	(7, '2025_04_18_131316_add_qr_code_to_transactions_table', 2),
-	(8, '2025_04_18_132314_create_attendances_table', 3),
-	(9, '2025_04_18_143847_add_qr_code_to_transactions', 4),
-	(10, '2025_04_18_150128_create_transaction_scans_table', 5);
-
--- Dumping structure for table herfit.password_reset_tokens
-CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
-  `email` varchar(255) NOT NULL,
-  `token` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
--- Dumping data for table herfit.password_reset_tokens: ~0 rows (approximately)
+	(10, '2025_04_18_143847_add_qr_code_to_transactions', 2),
+	(11, '2025_04_18_150128_create_transaction_scans_table', 2),
+	(12, '2025_05_31_151948_create_workout_templates_table', 2),
+	(13, '2025_05_31_175739_add_user_id_to_workout_templates_table', 2),
+	(15, '2025_05_31_184131_food_consumed_table', 3),
+	(16, '2025_06_01_111409_create_fitness_posts_table', 4),
+	(17, '2025_06_01_112218_create_fitness_comments_table', 5),
+	(18, '2025_06_01_112540_create_fitness_likes_table', 6);
 
 -- Dumping structure for table herfit.personal_access_tokens
 CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `tokenable_type` varchar(255) NOT NULL,
-  `tokenable_id` bigint unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tokenable_type` varchar(50) NOT NULL,
+  `tokenable_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(30) NOT NULL,
   `token` varchar(64) NOT NULL,
-  `abilities` text,
+  `abilities` text DEFAULT NULL,
   `last_used_at` timestamp NULL DEFAULT NULL,
   `expires_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -124,155 +186,201 @@ CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
   KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
--- Dumping data for table herfit.personal_access_tokens: ~13 rows (approximately)
+-- Dumping data for table herfit.personal_access_tokens: ~38 rows (approximately)
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES
-	(1, 'App\\Models\\User', 22, 'auth', '15d63167fe4bf3cc855768d6871280e4de3738a52d9c5ea9d82ce4b3b06f7aeb', '["*"]', '2025-04-18 03:34:04', NULL, '2025-04-17 13:25:08', '2025-04-18 03:34:04'),
-	(2, 'App\\Models\\User', 23, 'auth', 'ccf368c7cd1924facfb9956cf5937bc5ed4db514a11be96ad6f9eecc9c81f0d7', '["*"]', NULL, NULL, '2025-04-17 13:52:40', '2025-04-17 13:52:40'),
-	(3, 'App\\Models\\User', 22, 'auth', '1f9f1616a196b80f0a4d17c0c70f276a0ef6da54db3948024b8dc1a12edb8927', '["*"]', '2025-04-18 03:55:16', NULL, '2025-04-18 03:36:13', '2025-04-18 03:55:16'),
-	(4, 'App\\Models\\User', 22, 'auth', 'de6f01c01c4af04ab57d79e1fde6abd6b909706bd61f76c07efcf18f90aa88c2', '["*"]', NULL, NULL, '2025-04-18 04:07:55', '2025-04-18 04:07:55'),
-	(5, 'App\\Models\\User', 22, 'auth', 'db2a48e57f95a6d194d4348d516ee10af35ae547d0d2771910c96045bc3bc3ce', '["*"]', NULL, NULL, '2025-04-18 04:20:44', '2025-04-18 04:20:44'),
-	(6, 'App\\Models\\User', 22, 'auth', '7a01a2a7637afe82ffa8a48c95fb5320e31f7ed848a53b5a032c7f993ae8295d', '["*"]', NULL, NULL, '2025-04-18 04:22:20', '2025-04-18 04:22:20'),
-	(7, 'App\\Models\\User', 22, 'auth', '6b7f3a9e114dab5c8c450eaaa0eaef95384b8cd3357ff9fb4d34ab336248265e', '["*"]', NULL, NULL, '2025-04-18 04:26:47', '2025-04-18 04:26:47'),
-	(8, 'App\\Models\\User', 22, 'auth', '08e4033eb738f736aff064f37db120e1df814766df28abf3fea5a9e82ecb4e42', '["*"]', '2025-04-18 05:20:19', NULL, '2025-04-18 04:37:56', '2025-04-18 05:20:19'),
-	(9, 'App\\Models\\User', 22, 'auth', '430b74d06f9396179a7821acb24be8f50b57aa31ac3a3d459f46a77123d6e4ff', '["*"]', '2025-04-18 05:22:53', NULL, '2025-04-18 05:22:05', '2025-04-18 05:22:53'),
-	(10, 'App\\Models\\User', 22, 'auth', 'a432ebcaa8ae1a2ad41db4bdc70a4c6ac195511d798dca3388895bad0bc90f79', '["*"]', '2025-04-18 11:54:28', NULL, '2025-04-18 05:23:11', '2025-04-18 11:54:28'),
-	(11, 'App\\Models\\User', 22, 'auth', '955796624cad5460dd37d295bca603a245c2775aec16a18d7de729095ca56129', '["*"]', NULL, NULL, '2025-04-18 12:09:24', '2025-04-18 12:09:24'),
-	(12, 'App\\Models\\User', 22, 'auth', 'eb0ea1a875770918f25e6b3ff83df5cc0a93ae488487ffe2e06f7412ce9ac10b', '["*"]', NULL, NULL, '2025-04-18 12:26:17', '2025-04-18 12:26:17'),
-	(13, 'App\\Models\\User', 22, 'auth', 'dd22fee221ff018c1c1cc7e6855f7f1ea7f18d20ef0d145b44c32a568723e8d6', '["*"]', '2025-04-18 12:46:09', NULL, '2025-04-18 12:28:28', '2025-04-18 12:46:09'),
-	(14, 'App\\Models\\User', 22, 'auth', 'a42ea1a2a056f5345f10d45b1c832e4b609b24b34e475792ecf0a1e595d5a08c', '["*"]', '2025-04-18 15:02:48', NULL, '2025-04-18 12:48:20', '2025-04-18 15:02:48'),
-	(15, 'App\\Models\\User', 22, 'auth', '21b712faf2758df4a7ef19a73a145f7f034699aed9c72fe0ddd78a472e4114f9', '["*"]', '2025-04-18 15:24:27', NULL, '2025-04-18 15:14:12', '2025-04-18 15:24:27'),
-	(16, 'App\\Models\\User', 23, 'auth', '05fb119d5d20ea2907afe05f292ff911b1c3a7f85ffdecd86f8dd2b11fe6611d', '["*"]', '2025-04-19 13:53:49', NULL, '2025-04-19 13:30:23', '2025-04-19 13:53:49'),
-	(17, 'App\\Models\\User', 22, 'auth', '6ac2f199915f30ac92db6d46c75936feee9692398cbed5c93941ca82df73a27a', '["*"]', '2025-04-24 04:49:57', NULL, '2025-04-24 04:48:52', '2025-04-24 04:49:57'),
-	(18, 'App\\Models\\User', 22, 'auth', 'd3ce82de8a44dbb8154a571cb90ba8a95df34b2f01e1b56bc468c4293a393bb5', '["*"]', NULL, NULL, '2025-05-02 01:24:33', '2025-05-02 01:24:33'),
-	(19, 'App\\Models\\User', 22, 'auth', 'edd0fe8ac93535e9351219add0df9f652f94fc1b3f2af7800ee1f747cb0f2074', '["*"]', '2025-05-02 02:03:43', NULL, '2025-05-02 01:24:37', '2025-05-02 02:03:43');
+	(1, 'App\\Models\\User', 9, 'auth', 'ed6bbded9c4cabac20ef376a97ae7435cd0bc438f62abd7b910d50c3becf4ef0', '["*"]', '2025-04-16 10:49:41', NULL, '2025-04-16 10:37:20', '2025-04-16 10:49:41'),
+	(2, 'App\\Models\\User', 1, 'auth', 'c4e75e064977b84245187e390105cf7d21acfcba09ebdb3791a10f1c2537ef06', '["*"]', '2025-05-31 08:46:34', NULL, '2025-05-31 08:17:02', '2025-05-31 08:46:34'),
+	(3, 'App\\Models\\User', 1, 'auth', 'e224d71290d8fd2e3e2b76d26d7b3cbb74e1370ec27e84a0b9385d0bfdeab7b4', '["*"]', '2025-05-31 10:41:50', NULL, '2025-05-31 08:27:48', '2025-05-31 10:41:50'),
+	(4, 'App\\Models\\User', 1, 'auth', '86fa5584a41e697433b34a7903fba56a92a90ce60346aba470e217a35be03718', '["*"]', NULL, NULL, '2025-05-31 08:58:11', '2025-05-31 08:58:11'),
+	(5, 'App\\Models\\User', 1, 'auth', '40adee6118466f8ca54ad1c288cf9d295874d779eb828d108d496495767bd647', '["*"]', NULL, NULL, '2025-05-31 09:19:50', '2025-05-31 09:19:50'),
+	(6, 'App\\Models\\User', 1, 'auth', 'a409dd6a58aa423c6aaf9c685a847991c850fe8e2dacb5beab7d6f62237d5799', '["*"]', NULL, NULL, '2025-05-31 09:20:12', '2025-05-31 09:20:12'),
+	(7, 'App\\Models\\User', 1, 'auth', '4f7a7d0e80e5f18e59bf9266200bffa24c88884c02768336502e2683604078a9', '["*"]', NULL, NULL, '2025-05-31 09:24:29', '2025-05-31 09:24:29'),
+	(8, 'App\\Models\\User', 1, 'auth', 'd0fea80064c9c8baee94e79db888fe3aa5c387f50334f480651eb76bbd761d86', '["*"]', NULL, NULL, '2025-05-31 09:25:24', '2025-05-31 09:25:24'),
+	(9, 'App\\Models\\User', 1, 'auth', 'b8a44139ad2ecf3947fe31b76fa8d63b96dedacbae24aa91d91f469f82a94996', '["*"]', '2025-05-31 09:37:36', NULL, '2025-05-31 09:37:00', '2025-05-31 09:37:36'),
+	(10, 'App\\Models\\User', 1, 'auth', 'ea70724f7c7f6b9fd6f750036767882b0cf9de24a1c6b455e5be9671376b9ee9', '["*"]', NULL, NULL, '2025-05-31 10:04:13', '2025-05-31 10:04:13'),
+	(11, 'App\\Models\\User', 1, 'auth', '6b97cd8bdec54e2d51971b6aa2ccabf92d7b3dcf5c1ba2e7ec862f4989665194', '["*"]', NULL, NULL, '2025-05-31 10:13:39', '2025-05-31 10:13:39'),
+	(12, 'App\\Models\\User', 1, 'auth', 'cd399e22b7895f2b8eb34c27a6d9cd6b4b72e1ec91297c3d5b410767da9be197', '["*"]', NULL, NULL, '2025-05-31 10:14:58', '2025-05-31 10:14:58'),
+	(13, 'App\\Models\\User', 1, 'auth', 'ebb2f4a294f905d1213b3e1641790c57519d86b591706c731902feb675595a97', '["*"]', NULL, NULL, '2025-05-31 10:15:11', '2025-05-31 10:15:11'),
+	(14, 'App\\Models\\User', 1, 'auth', '6061fa26d6a31f5d67436e18586841cc0940e7ebf4a0f26d67b733e5208f320d', '["*"]', NULL, NULL, '2025-05-31 10:18:49', '2025-05-31 10:18:49'),
+	(15, 'App\\Models\\User', 1, 'auth', 'b76fd3800be9f28bf36aa6bd695312baa2e4666e42c8d0169a8e8fe60b9fb972', '["*"]', NULL, NULL, '2025-05-31 10:20:40', '2025-05-31 10:20:40'),
+	(16, 'App\\Models\\User', 1, 'auth', 'a38b97f42bc5313d1f30414cd893b6a7fc6e4d6310ac752890dd4c7cae778231', '["*"]', NULL, NULL, '2025-05-31 10:22:40', '2025-05-31 10:22:40'),
+	(17, 'App\\Models\\User', 1, 'auth', '83b48917f0d9a19e4f8da533b92f01e16ce736a16b973dcba6903b5c7cac2169', '["*"]', '2025-05-31 10:31:35', NULL, '2025-05-31 10:23:54', '2025-05-31 10:31:35'),
+	(18, 'App\\Models\\User', 1, 'auth', '4045d30a18513aaf6a1cae7f11f7f0e9b5f16b56f5857abfbe121ca9a25c361e', '["*"]', '2025-05-31 11:08:17', NULL, '2025-05-31 10:46:26', '2025-05-31 11:08:17'),
+	(19, 'App\\Models\\User', 2, 'auth', '71a6f08d9f114da274c87f1c8e873004b57e9345698e97f494a69bb62c151d4e', '["*"]', '2025-05-31 11:12:09', NULL, '2025-05-31 11:08:37', '2025-05-31 11:12:09'),
+	(20, 'App\\Models\\User', 1, 'auth', '7f753a88599d29d995de272986c6ecb660d7d6174ba39a04572ea80ef9488f5a', '["*"]', '2025-06-01 05:52:37', NULL, '2025-05-31 11:26:08', '2025-06-01 05:52:37'),
+	(21, 'App\\Models\\User', 22, 'auth', '36cad79482337215b43b05256b71aad4dc28ebfdeaa2324e6040db5d5b79df9f', '["*"]', '2025-06-01 13:40:39', NULL, '2025-06-01 13:39:32', '2025-06-01 13:40:39'),
+	(22, 'App\\Models\\User', 22, 'auth', 'e439754762582b0f7ce859f323c7f4df8a3b3b675e501b90074b7b37a427feaa', '["*"]', '2025-06-01 14:19:57', NULL, '2025-06-01 13:40:45', '2025-06-01 14:19:57'),
+	(23, 'App\\Models\\User', 1, 'auth', 'a0ae6e5a92a97dccb0d4133daab69852eab781e9605ff61c20d46affeebd2425', '["*"]', '2025-06-13 09:09:13', NULL, '2025-06-11 00:51:22', '2025-06-13 09:09:13'),
+	(24, 'App\\Models\\User', 23, 'auth', 'efeefef7bcdd297d05778c2c6f9a08d7390cd8c33e08f68a1e3ca110a7cf5ae3', '["*"]', '2025-06-13 07:02:58', NULL, '2025-06-13 06:44:38', '2025-06-13 07:02:58'),
+	(25, 'App\\Models\\User', 24, 'auth', '0122cfc49959b93f543f4827959ef0ae9650afedcfcc7546920ca79b4c883702', '["*"]', '2025-06-13 07:04:55', NULL, '2025-06-13 07:03:37', '2025-06-13 07:04:55'),
+	(26, 'App\\Models\\User', 26, 'auth', '333a8482ca0ba8def1d663954762f32c06f012e9dfa4b6842d5f746b8d7250fe', '["*"]', '2025-06-13 07:37:34', NULL, '2025-06-13 07:12:58', '2025-06-13 07:37:34'),
+	(27, 'App\\Models\\User', 27, 'auth', '080376c9b82b17f279a4fabc99becf93285bdf5c8f89b8ece509f97d15df8701', '["*"]', '2025-06-13 09:08:24', NULL, '2025-06-13 09:08:00', '2025-06-13 09:08:24'),
+	(28, 'App\\Models\\User', 24, 'auth', 'f1ec67d6618f52a8f6942b4fa4773f6a4e595fa9bbe89019d25c4a9099579c8a', '["*"]', '2025-06-21 02:10:13', NULL, '2025-06-20 07:05:44', '2025-06-21 02:10:13'),
+	(29, 'App\\Models\\User', 24, 'auth', '0a8d542626e3c64bd364ccaf9fa558dfe49ebde80c821c48cdcbbe2a8324f0e2', '["*"]', '2025-06-21 04:58:36', NULL, '2025-06-21 02:10:56', '2025-06-21 04:58:36'),
+	(30, 'App\\Models\\User', 24, 'auth', '66b3819556300903a41b33e966583db7be9e0553f569801394dcfc07232924cf', '["*"]', NULL, NULL, '2025-06-21 04:59:03', '2025-06-21 04:59:03'),
+	(31, 'App\\Models\\User', 24, 'auth', '89ac7fd344d43d84587d63b4c2b841189aafac0511f97ec19d44281cf7784ce9', '["*"]', NULL, NULL, '2025-06-21 04:59:51', '2025-06-21 04:59:51'),
+	(32, 'App\\Models\\User', 24, 'auth', '86760dec32b1202d4c6998eecd1dec4885ff590b7dbaf72ffb9e318893823164', '["*"]', NULL, NULL, '2025-06-21 05:01:37', '2025-06-21 05:01:37'),
+	(33, 'App\\Models\\User', 24, 'auth', 'fd52dc4a0fdd06703886fde47429f0ff8222ba3f3e29f9822dc86bae47824846', '["*"]', NULL, NULL, '2025-06-21 05:02:19', '2025-06-21 05:02:19'),
+	(34, 'App\\Models\\User', 24, 'auth', '9dedd9886263247d38c9909272bff0af7863e9d886b8f6225f2eca1b172f124c', '["*"]', NULL, NULL, '2025-06-21 05:04:45', '2025-06-21 05:04:45'),
+	(35, 'App\\Models\\User', 24, 'auth', '18b86640d821c5509120b4d466bf833eaaf7a8ca50e124812bba4fcc86bf62bf', '["*"]', '2025-06-21 05:05:39', NULL, '2025-06-21 05:05:08', '2025-06-21 05:05:39'),
+	(36, 'App\\Models\\User', 24, 'auth', '6f80e14d7cfed201e5ff1823037b90ce195a9f6194d304d2510e41524e39b3ba', '["*"]', '2025-06-21 08:46:54', NULL, '2025-06-21 05:08:44', '2025-06-21 08:46:54'),
+	(37, 'App\\Models\\User', 24, 'auth', '4c329fa12bce9ce5add28b8bfbec8ee06d5babe06e1f04c7128bd2f423912fae', '["*"]', '2025-06-23 12:58:49', NULL, '2025-06-23 12:41:23', '2025-06-23 12:58:49'),
+	(38, 'App\\Models\\User', 24, 'auth', 'b7229b93c4a686b3e71707383833506f8489cbb3688f9d4380f7af0493074627', '["*"]', '2025-06-24 00:33:07', NULL, '2025-06-23 23:56:14', '2025-06-24 00:33:07');
 
 -- Dumping structure for table herfit.transactions
 CREATE TABLE IF NOT EXISTS `transactions` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` bigint unsigned NOT NULL,
-  `listing_id` bigint unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `listing_id` int(10) unsigned NOT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
-  `total_days` int unsigned NOT NULL DEFAULT '0',
-  `price` int unsigned NOT NULL DEFAULT '0',
-  `status` enum('waiting','approved','canceled') NOT NULL DEFAULT 'waiting',
-  `qr_code_path` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `total_days` int(10) unsigned NOT NULL DEFAULT 0,
+  `price` int(10) unsigned NOT NULL DEFAULT 0,
+  `status` enum('waiting','approved','rejected') NOT NULL DEFAULT 'waiting',
+  `bukti_bayar` varchar(255) DEFAULT NULL,
+  `qr_code_path` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `transactions_user_id_foreign` (`user_id`),
   KEY `transactions_listing_id_foreign` (`listing_id`),
+  KEY `transactions_user_id_foreign` (`user_id`),
   CONSTRAINT `transactions_listing_id_foreign` FOREIGN KEY (`listing_id`) REFERENCES `listings` (`id`),
   CONSTRAINT `transactions_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
--- Dumping data for table herfit.transactions: ~32 rows (approximately)
-INSERT INTO `transactions` (`id`, `user_id`, `listing_id`, `start_date`, `end_date`, `total_days`, `price`, `status`, `qr_code_path`, `created_at`, `updated_at`) VALUES
-	(1, 15, 9, NULL, NULL, 0, 0, 'waiting', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(2, 21, 6, NULL, NULL, 0, 0, 'waiting', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(3, 20, 4, NULL, NULL, 0, 0, 'canceled', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(4, 21, 9, NULL, NULL, 0, 0, 'approved', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(5, 16, 3, NULL, NULL, 0, 0, 'approved', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(6, 14, 4, NULL, NULL, 0, 0, 'canceled', NULL, '2025-04-17 13:24:28', '2025-05-16 12:28:18'),
-	(7, 20, 10, NULL, NULL, 0, 0, 'waiting', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(8, 19, 6, NULL, NULL, 0, 0, 'approved', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(9, 20, 7, NULL, NULL, 0, 0, 'approved', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(10, 17, 10, NULL, NULL, 0, 0, 'waiting', NULL, '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(11, 22, 9, '2025-04-01', '2025-04-30', 30, 0, 'waiting', NULL, '2025-04-18 06:50:52', '2025-04-18 06:50:52'),
-	(12, 22, 4, '2025-04-01', '2025-04-30', 30, 0, 'waiting', NULL, '2025-04-18 07:17:32', '2025-04-18 07:17:32'),
-	(13, 22, 4, '2025-04-01', '2025-04-30', 30, 0, 'waiting', NULL, '2025-04-18 07:17:37', '2025-04-18 07:17:37'),
-	(14, 22, 4, '2025-04-01', '2025-04-30', 30, 0, 'waiting', NULL, '2025-04-18 07:27:32', '2025-04-18 07:27:32'),
-	(15, 22, 7, '2025-04-09', '2025-04-30', 22, 0, 'waiting', NULL, '2025-04-18 07:27:55', '2025-04-18 07:27:55'),
-	(16, 22, 4, '2025-04-01', '2025-04-30', 30, 0, 'waiting', NULL, '2025-04-18 08:16:54', '2025-04-18 08:16:54'),
-	(17, 22, 4, '2025-04-01', '2025-04-18', 18, 0, 'waiting', 'qr_codes/transaction_17_TWUv2R.png', '2025-04-18 08:19:01', '2025-04-18 08:19:02'),
-	(18, 22, 4, '2025-04-01', '2025-04-17', 17, 0, 'waiting', 'qr_codes/transaction_18_dF95oa.png', '2025-04-18 08:28:12', '2025-04-18 08:28:12'),
-	(19, 22, 4, '2025-04-01', '2025-04-19', 19, 0, 'waiting', 'qr_codes/transaction_19_L2hXMk.png', '2025-04-18 08:29:29', '2025-04-18 08:29:29'),
-	(20, 22, 4, '2025-04-01', '2025-04-19', 19, 0, 'waiting', 'qr_codes/transaction_20_Rmtykr.png', '2025-04-18 08:30:49', '2025-04-18 08:30:49'),
-	(21, 22, 3, '2025-04-01', '2025-04-18', 18, 0, 'waiting', 'qr_codes/transaction_21_dhOOxQ.png', '2025-04-18 08:42:37', '2025-04-18 08:42:37'),
-	(22, 22, 1, '2025-04-01', '2025-04-18', 18, 0, 'waiting', 'qr_codes/transaction_22_sQxBs3.png', '2025-04-18 09:41:19', '2025-04-18 09:41:19'),
-	(23, 22, 1, '2025-04-09', '2025-04-18', 10, 0, 'waiting', 'qr_codes/transaction_23_x1jaKQ.png', '2025-04-18 09:56:37', '2025-04-18 09:56:38'),
-	(24, 22, 1, '2025-04-09', '2025-04-18', 10, 0, 'waiting', 'qr_codes/transaction_24_3sThoP.png', '2025-04-18 11:44:49', '2025-04-18 11:44:49'),
-	(25, 22, 9, '2025-04-01', '2025-04-18', 18, 0, 'waiting', NULL, '2025-04-18 12:28:55', '2025-04-18 12:28:55'),
-	(26, 22, 9, '2025-04-01', '2025-04-18', 18, 0, 'waiting', NULL, '2025-04-18 12:32:34', '2025-04-18 12:32:34'),
-	(27, 22, 3, '2020-04-01', '2020-04-18', 18, 0, 'waiting', NULL, '2025-04-18 12:37:55', '2025-04-18 12:37:55'),
-	(28, 22, 3, '2020-04-01', '2020-04-18', 18, 0, 'waiting', NULL, '2025-04-18 12:40:18', '2025-04-18 12:40:18'),
-	(29, 22, 3, '2020-04-01', '2020-04-18', 18, 0, 'waiting', NULL, '2025-04-18 12:40:34', '2025-04-18 12:40:34'),
-	(30, 22, 3, '2020-04-01', '2020-04-18', 18, 0, 'waiting', NULL, '2025-04-18 12:46:10', '2025-04-18 12:46:10'),
-	(31, 22, 3, '2020-04-01', '2020-04-18', 18, 0, 'waiting', NULL, '2025-04-18 12:48:31', '2025-04-18 12:48:31'),
-	(32, 22, 3, '2020-04-01', '2020-04-18', 18, 0, 'waiting', NULL, '2025-04-18 12:51:53', '2025-04-18 12:51:53'),
-	(33, 22, 10, '2020-04-01', '2020-04-18', 18, 0, 'waiting', NULL, '2025-04-18 12:52:22', '2025-04-18 12:52:22'),
-	(34, 22, 10, '2025-04-01', '2025-04-17', 17, 0, 'waiting', NULL, '2025-04-18 12:55:51', '2025-04-18 12:55:51'),
-	(35, 22, 10, '2025-04-01', '2025-04-17', 17, 0, 'waiting', NULL, '2025-04-18 12:58:35', '2025-04-18 12:58:35'),
-	(36, 22, 10, '2025-04-01', '2025-04-17', 17, 0, 'approved', 'qr_codes/transaction_36_uE58YN.png', '2025-04-18 12:59:36', '2025-04-18 13:25:45'),
-	(37, 23, 1, '2025-04-01', '2025-04-17', 17, 0, 'waiting', 'qr_codes/transaction_37_kH6UD7.png', '2025-04-19 13:38:55', '2025-04-19 13:38:56'),
-	(38, 22, 3, '2025-04-01', '2025-05-01', 31, 0, 'approved', 'qr_codes/transaction_38_regXHf.png', '2025-04-24 04:49:51', '2025-04-24 04:49:53');
+-- Dumping data for table herfit.transactions: ~20 rows (approximately)
+INSERT INTO `transactions` (`id`, `user_id`, `listing_id`, `start_date`, `end_date`, `total_days`, `price`, `status`, `bukti_bayar`, `qr_code_path`, `created_at`, `updated_at`) VALUES
+	(1, 13, 9, NULL, NULL, 0, 0, 'approved', '', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20'),
+	(2, 20, 1, NULL, NULL, 0, 0, 'waiting', '', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20'),
+	(3, 18, 1, NULL, NULL, 0, 0, 'waiting', '', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20'),
+	(4, 20, 10, NULL, NULL, 0, 0, 'waiting', '', NULL, '2025-04-06 13:25:20', '2025-06-13 06:41:13'),
+	(5, 20, 2, NULL, NULL, 0, 0, 'approved', '', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20'),
+	(6, 20, 7, NULL, NULL, 0, 0, 'waiting', '', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20'),
+	(7, 20, 7, NULL, NULL, 0, 0, 'waiting', '', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20'),
+	(8, 18, 5, NULL, NULL, 0, 0, 'approved', '', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20'),
+	(9, 16, 1, NULL, NULL, 0, 0, 'rejected', '', NULL, '2025-04-06 13:25:20', '2025-06-21 02:29:46'),
+	(10, 12, 7, NULL, NULL, 0, 0, 'approved', '', NULL, '2025-04-06 13:25:20', '2025-06-13 06:34:21'),
+	(11, 9, 1, '2025-04-01', '2025-05-01', 31, 0, 'waiting', '', NULL, '2025-04-16 10:46:13', '2025-04-16 10:46:13'),
+	(12, 26, 11, '2025-06-01', '2025-06-30', 30, 0, 'approved', '', 'qr_codes/transaction_12_BFgTcH.png', '2025-06-13 07:21:24', '2025-06-13 07:23:42'),
+	(13, 24, 11, '2025-06-01', '2025-06-30', 30, 0, 'approved', '', 'qr_codes/transaction_13_0lyU94.png', '2025-06-20 07:16:59', '2025-06-21 02:37:31'),
+	(14, 24, 11, '2025-06-01', '2025-06-30', 30, 0, 'waiting', NULL, NULL, '2025-06-21 02:48:57', '2025-06-21 02:48:57'),
+	(15, 24, 11, '2025-06-01', '2025-06-30', 30, 0, 'rejected', NULL, 'qr_codes/transaction_15_S5MLVE.png', '2025-06-21 02:49:39', '2025-06-21 02:49:41'),
+	(16, 24, 11, '2025-06-01', '2025-06-21', 21, 0, 'waiting', NULL, 'qr_codes/transaction_16_mZLhjf.png', '2025-06-21 05:26:36', '2025-06-21 05:26:36'),
+	(17, 24, 11, '2025-06-23', '2025-06-30', 7, 0, 'approved', 'bukti-bayar/KrSiCclpntizJ8ayLhnv0U4XcSg7dGo6FUZjEZQM.jpg', 'qr_codes/transaction_17_HfHew8.png', '2025-06-21 05:28:53', '2025-06-21 06:25:09'),
+	(18, 24, 11, '2025-06-01', '2025-06-15', 15, 0, 'approved', 'bukti-bayar/tURp9GOX8ZfDZ0OTB07SvFrVL6d6CH51KUlCOOlB.jpg', 'qr_codes/transaction_18_LJryDU.png', '2025-06-21 06:34:33', '2025-06-21 06:35:01'),
+	(19, 24, 11, '2025-07-01', '2025-07-31', 31, 0, 'approved', 'bukti-bayar/YiV3kc5botEjTmzxI6jToznY2l5yR10jVZIlJvQk.jpg', 'qr_codes/transaction_19_2IruXz.png', '2025-06-21 06:37:07', '2025-06-21 06:38:37'),
+	(20, 24, 1, '2025-07-01', '2025-07-31', 31, 0, 'approved', 'bukti-bayar/IyfwXemdDvxjFBl6b8R113Rga4rEKf7ALwQY4lzl.jpg', 'qr_codes/transaction_20_9V0Vee.png', '2025-06-21 08:46:04', '2025-06-21 08:46:50');
 
 -- Dumping structure for table herfit.transaction_scans
 CREATE TABLE IF NOT EXISTS `transaction_scans` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `transaction_id` bigint unsigned NOT NULL,
-  `scanned_by` bigint unsigned NOT NULL,
-  `scanned_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `transaction_id` int(10) unsigned NOT NULL,
+  `scanned_by` int(10) unsigned NOT NULL,
+  `scanned_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `transaction_scans_transaction_id_foreign` (`transaction_id`),
   KEY `transaction_scans_scanned_by_foreign` (`scanned_by`),
   CONSTRAINT `transaction_scans_scanned_by_foreign` FOREIGN KEY (`scanned_by`) REFERENCES `users` (`id`),
   CONSTRAINT `transaction_scans_transaction_id_foreign` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
--- Dumping data for table herfit.transaction_scans: ~4 rows (approximately)
+-- Dumping data for table herfit.transaction_scans: ~25 rows (approximately)
 INSERT INTO `transaction_scans` (`id`, `transaction_id`, `scanned_by`, `scanned_at`) VALUES
-	(1, 36, 11, '2025-04-18 13:36:04'),
-	(2, 36, 11, '2025-04-18 14:42:18'),
-	(3, 37, 11, '2025-04-19 13:39:24'),
-	(4, 37, 11, '2025-04-19 13:45:08'),
-	(5, 38, 11, '2025-04-24 04:52:56');
+	(1, 12, 11, '2025-06-13 07:24:35'),
+	(2, 12, 11, '2025-06-13 07:24:59'),
+	(3, 17, 11, '2025-06-21 06:32:12'),
+	(4, 17, 11, '2025-06-21 06:33:14'),
+	(5, 17, 11, '2025-06-21 06:33:41'),
+	(6, 19, 11, '2025-06-21 06:38:55'),
+	(7, 19, 11, '2025-06-21 06:46:17'),
+	(8, 19, 11, '2025-06-21 06:47:14'),
+	(9, 19, 11, '2025-06-21 07:12:25'),
+	(10, 19, 11, '2025-06-21 07:13:50'),
+	(11, 19, 11, '2025-06-21 07:18:56'),
+	(12, 19, 11, '2025-06-21 07:20:41'),
+	(13, 19, 11, '2025-06-21 07:39:10'),
+	(14, 19, 11, '2025-06-21 07:49:11'),
+	(15, 19, 11, '2025-06-21 07:53:32'),
+	(16, 17, 11, '2025-06-21 07:55:45'),
+	(17, 19, 11, '2025-06-21 08:06:56'),
+	(18, 19, 11, '2025-06-21 08:08:40'),
+	(19, 19, 11, '2025-06-21 08:11:00'),
+	(20, 19, 11, '2025-06-21 08:26:11'),
+	(21, 19, 11, '2025-06-21 08:27:46'),
+	(22, 20, 11, '2025-06-21 08:47:11'),
+	(23, 20, 11, '2025-06-21 08:48:31'),
+	(24, 20, 11, '2025-06-21 08:51:42'),
+	(25, 20, 11, '2025-06-21 08:52:07');
 
 -- Dumping structure for table herfit.users
 CREATE TABLE IF NOT EXISTS `users` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `email_verified_at` timestamp NULL DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `role` enum('admin','customer') NOT NULL DEFAULT 'customer',
-  `no_identitas` varchar(255) DEFAULT NULL,
+  `email` varchar(100) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `no_identitas` varchar(20) DEFAULT NULL,
+  `no_telp` varchar(20) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
   `photo_profile` varchar(255) DEFAULT NULL,
-  `no_telp` varchar(255) DEFAULT NULL,
-  `remember_token` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `remember_token` varchar(50) DEFAULT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- Dumping data for table herfit.users: ~27 rows (approximately)
+INSERT INTO `users` (`id`, `role`, `email`, `name`, `no_identitas`, `no_telp`, `password`, `photo_profile`, `created_at`, `updated_at`, `remember_token`, `email_verified_at`) VALUES
+	(1, 'customer', 'yjacobi@example.com', 'Amalia Gusikowski', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(2, 'customer', 'buster.strosin@example.com', 'Mr. Hyman Daniel', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(3, 'customer', 'jast.hailee@example.net', 'Ruth Hettinger', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(4, 'customer', 'ignacio53@example.net', 'Bennie Cummerata', '8273823', '0888', '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-06-20 05:57:12', NULL, NULL),
+	(5, 'customer', 'stokes.tyra@example.com', 'Mrs. Antonietta Schowalter', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(6, 'customer', 'muller.ruthie@example.com', 'May Doyle', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(7, 'customer', 'astamm@example.net', 'Elda Tromp', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(8, 'customer', 'ashley89@example.org', 'Shayna Bode', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(9, 'customer', 'tkutch@example.com', 'Erwin Stanton', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(10, 'customer', 'helmer.cormier@example.org', 'Gerda Gusikowski', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(11, 'admin', 'lussyanast@gmail.com', 'Admin Lussy', NULL, NULL, '$2y$12$vmsM0aYhiJ/2FXoA/.042Opu9EOFH6BO2Sw2jdEdOOPYRzKlZ.tD6', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(12, 'customer', 'pjenkins@example.com', 'Ms. Era Feeney Jr.', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(13, 'customer', 'qgutkowski@example.com', 'Isai Heller', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(14, 'customer', 'fay04@example.org', 'Jeff Pfeffer PhD', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(15, 'customer', 'windler.alfonzo@example.net', 'Dr. Dean Eichmann DVM', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(16, 'customer', 'awilliamson@example.net', 'Thurman Kling I', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(17, 'customer', 'dean.kreiger@example.net', 'Prof. Wilfrid Lind PhD', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(18, 'customer', 'wyman.trudie@example.com', 'Cleta Kub', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(19, 'customer', 'mabel97@example.org', 'Prof. Denis Schulist I', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(20, 'customer', 'khalid97@example.net', 'Dr. Furman Runolfsson IV', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(21, 'customer', 'aiden62@example.com', 'Jeffry Howell', NULL, NULL, '$2y$12$N704guQ9k056WIixNuALmOjo4CAX03Wmma.z5YoiISv1Orer3QYhS', NULL, '2025-04-06 13:25:20', '2025-04-06 13:25:20', NULL, NULL),
+	(22, 'customer', 'enengk247@gmail.com', 'Eneng Komalasari', NULL, NULL, '$2y$12$FvPzyfRuoAkaT6qAoVBSq.VDOSnGUFsCrU8dESP8Sic/eTpcfy2tS', NULL, '2025-06-01 13:39:31', '2025-06-01 13:39:31', NULL, NULL),
+	(23, 'customer', 'lightpewter@gmail.com', 'Lussy Triana', '1234567890123456', '085772492505', '$2y$12$vqoCr/wEloV1LDiSOMbTCeGW7vHu5czB.PE2E/qXruzoPm03dvq9C', NULL, '2025-06-13 06:44:37', '2025-06-13 06:50:50', NULL, NULL),
+	(24, 'customer', 'athaa@gmail.com', 'Athallah', '9876578902387645', '085772492502', '$2y$12$Rj5VWf.yoxhzOloZczHxSevfDQYzCYUSkVUfBRti12NeGK74GgD5O', 'profile/A3Geb8Nh3keJcrbaPgu6lgtI6aknDZJOpnJovc6w.jpg', '2025-06-13 07:03:37', '2025-06-20 08:14:13', NULL, NULL),
+	(25, 'customer', 'annedwi@gmail.com', 'Anne Dwi Aryani', '1876437895234567', '085772492505', '$2y$12$mbhshZeTCE5iLUATZOxj0e0iNaDEKbRhFONOSuUrKV/wZBmKX/HHO', NULL, '2025-06-13 07:08:52', '2025-06-13 07:08:52', NULL, NULL),
+	(26, 'customer', 'lilyaan@gmail.com', 'Lilyaanaa', '4534567834567345', '085772492505', '$2y$12$NYv6Dg.5pwwg.u/gjKQTM./TbcWYu1aoYaJQJJQ6NXotgRRCkr9GG', NULL, '2025-06-13 07:12:58', '2025-06-13 07:14:05', NULL, NULL),
+	(27, 'customer', 'atharriz@gmail.com', 'Atharriz', '3678909876789346', '123456784567', '$2y$12$rTRYNKvV/cpIvsLGlMidnuHuD/v1e5fPKf/9wIAbN/RuQLiky09ta', NULL, '2025-06-13 09:08:00', '2025-06-13 09:08:00', NULL, NULL);
+
+-- Dumping structure for table herfit.workout_templates
+CREATE TABLE IF NOT EXISTS `workout_templates` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `template_name` varchar(150) NOT NULL,
+  `type` enum('harian','mingguan') NOT NULL,
+  `days` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`days`)),
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb3;
+  KEY `workout_templates_user_id_foreign` (`user_id`),
+  CONSTRAINT `workout_templates_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
--- Dumping data for table herfit.users: ~21 rows (approximately)
-INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `role`, `no_identitas`, `photo_profile`, `no_telp`, `remember_token`, `created_at`, `updated_at`) VALUES
-	(1, 'Palma Bashirian', 'qhartmann@example.net', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '9114789888541692', NULL, '+1-845-376-2260', 'TdeP6EhwXx', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(2, 'Mrs. Nicolette Harvey IV', 'ernestine.harris@example.org', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '9536062550570728', NULL, '+1-458-546-7888', 'Z9WlLv4Ppt', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(3, 'Mr. Grady Johns', 'flangworth@example.com', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '9061130236044327', NULL, '+1 (423) 240-3442', 'YzArQ0p9wJ', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(4, 'Jacky O\'Conner', 'dante.ward@example.org', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '7491204701240530', NULL, '+1-248-808-1792', 'Vc6TUN34ow', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(5, 'Keagan Kling', 'bwintheiser@example.net', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '1735703142461792', NULL, '+1 (520) 946-6206', '1c79dbFhaP', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(6, 'Grayce Crist', 'maybelle09@example.com', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '4330412311010042', NULL, '1-424-510-1239', 'oPOqKbSOGj', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(7, 'Prof. Eldred Ortiz DDS', 'keara.rohan@example.com', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '3280380639737333', NULL, '480-647-5132', 'XuQcyutBYT', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(8, 'Ms. Lois Goyette DVM', 'bturner@example.org', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '7308201898949625', NULL, '+12693127414', 'erdHECozx3', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(9, 'Rosalind Goyette', 'istrosin@example.org', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '9135799667005588', NULL, '541-967-3075', 'qwJwm1cp8A', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(10, 'Ms. Martine Murray', 'alena61@example.net', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '0046091967319323', NULL, '838.846.0774', 'k3CPQo1oZ9', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(11, 'Admin Lussy', 'lussyanast@gmail.com', '2025-04-17 13:24:28', '$2y$12$k9XU2gKxuDsOSEyCDeD74uelEOzpSGgB33rCVoaKnSzsrLQ59AZ.S', 'admin', '2864269370575384', NULL, '248.621.9252', 'haExXbX8PYTtpFICv5w7iWYTFDsyl4cQgrIrafFYfi8wTNrCetW9Go646cLA', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(12, 'Sophie Denesik III', 'erdman.lorena@example.net', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '8186765745755961', NULL, '+1 (661) 766-3115', 'hvvsHcZnPM', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(13, 'Caleigh Reichert', 'mdenesik@example.net', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '5730011594167432', NULL, '+1-763-999-0703', 'UY3dfcxJL1', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(14, 'Isabella Lubowitz', 'nicola.labadie@example.com', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '4284409315743702', NULL, '551.425.5579', 'Gyl36aggkz', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(15, 'Heaven Abernathy', 'lkessler@example.com', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '9214054463741876', NULL, '+1-702-283-4229', 'm41xnyaOJy', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(16, 'Alia Crist', 'aracely68@example.com', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '6626074749004159', NULL, '640-964-6399', 'Vni0QZNL24', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(17, 'Elisabeth Torp', 'umonahan@example.org', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '6520088338589505', NULL, '(269) 237-8996', 'svJfOuOQhr', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(18, 'Prof. Leonora Rau II', 'billy33@example.org', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '2722351049322238', NULL, '+1.952.782.6522', 'zAueTRd3MR', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(19, 'Miss Marisol Howell', 'tony.morar@example.com', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '4129630022333013', NULL, '+1 (862) 203-8748', 'DPcWhSvFuF', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(20, 'Mr. Devonte Hoppe MD', 'elmore.renner@example.com', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '3345641311666638', NULL, '+19282553556', 'NKQX48d9OH', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(21, 'Lizzie Eichmann', 'keenan85@example.net', '2025-04-17 13:24:28', '$2y$12$Nkv6sJh3Pc87PrTLesvbm.99gG3d8R9pJHzq4aAoflpZ14ckpOUh6', 'customer', '7628159696555194', NULL, '+1-380-313-4887', 'aLwvXrEPgo', '2025-04-17 13:24:28', '2025-04-17 13:24:28'),
-	(22, 'test aja sih ya', 'abbie67@example.net', NULL, '$2y$12$XjD2sZu159WiUlJyIz1Pmez.dTYqva53l7Tu9GLDeWU6nmMCVPfNW', 'customer', '1234567890123456', 'profile/i3TfUPfnCyxKyLMljyFWF2AAesDb24BvKMR5iwgo.jpg', '542345678974', NULL, '2025-04-17 13:25:08', '2025-04-18 15:23:26'),
-	(23, 'Lussy Triana', 'lussyanast03@gmail.com', NULL, '$2y$12$jC6Bj/dF2XuwyP5GKh01d.KQRT3pPXT2FSn7Phab599Vi5Mr1BEK2', 'customer', '5432123456789123', 'profile/uoCHSKdVRgiNkg4gjjPux9IvgBewWOVJFcnaWikR.jpg', '085772492505', NULL, '2025-04-17 13:52:40', '2025-04-19 13:31:32');
+-- Dumping data for table herfit.workout_templates: ~2 rows (approximately)
+INSERT INTO `workout_templates` (`id`, `user_id`, `template_name`, `type`, `days`, `created_at`, `updated_at`) VALUES
+	(1, 1, 'ss', 'harian', '[{"day":"Senin","workouts":[{"name":"d","reps":"2"}]}]', '2025-05-31 11:07:52', '2025-05-31 11:07:52'),
+	(2, 1, 's', 'mingguan', '[{"day":"Senin","workouts":[{"name":"dd","reps":"222"},{"name":"333","reps":"44"},{"name":"2","reps":"3"}]},{"day":"Selasa","workouts":[{"name":"dsd","reps":"2"}]}]', '2025-05-31 11:08:17', '2025-05-31 11:08:17'),
+	(3, 24, 'Lower', 'harian', '[{"day":"Senin","workouts":[{"name":"Back","reps":"2"},{"name":"Test","reps":"3"}]}]', '2025-06-23 12:43:06', '2025-06-23 12:43:06');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -13,6 +13,7 @@ use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
@@ -26,9 +27,11 @@ class TransactionController extends Controller
             'data' => $transactions
         ]);
     }
+
     private function _fullyBookedChecker(Store $request)
     {
         $listing = Listing::find($request->listing_id);
+
         $runningTransactionCount = Transaction::whereListingId($listing->id)
             ->whereNot('status', 'rejected')
             ->where(function ($query) use ($request) {
@@ -77,7 +80,6 @@ class TransactionController extends Controller
             'user_id' => auth()->id()
         ]);
 
-        // Buat QR Code (isi bebas, bisa ID transaksi atau info lengkap)
         $qrData = route('transaction.show', $transaction->id);
         $qrCode = new QrCode($qrData);
         $writer = new PngWriter();
@@ -86,7 +88,6 @@ class TransactionController extends Controller
         $fileName = 'qr_codes/transaction_' . $transaction->id . '_' . Str::random(6) . '.png';
         Storage::disk('public')->put($fileName, $qrImage->getString());
 
-        // Simpan path ke database
         $transaction->update(['qr_code_path' => $fileName]);
 
         return response()->json([
@@ -105,7 +106,6 @@ class TransactionController extends Controller
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        // Pastikan relasi listing tersedia
         $transaction->loadMissing('listing');
 
         $data = $transaction->toArray();
@@ -122,13 +122,30 @@ class TransactionController extends Controller
 
     public function scan(Transaction $transaction)
     {
-        // Validasi tanggal
-        if (Carbon::now()->gt(Carbon::parse($transaction->end_date))) {
+        $now = \Carbon\Carbon::now();
+        $startDate = \Carbon\Carbon::parse($transaction->start_date);
+        $endDate = \Carbon\Carbon::parse($transaction->end_date);
+
+        if ($now->lt($startDate)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'QR code belum aktif. Hanya berlaku mulai ' . $startDate->format('d M Y') . '.',
+            ], 403);
+        }
+
+        if ($now->gt($endDate)) {
             return response()->json([
                 'success' => false,
                 'message' => 'QR code sudah kadaluarsa.',
-            ], 400);
+            ], 403);
         }
+
+        // Catat riwayat scan di database kalau perlu, misalnya:
+        QRScanHistory::create([
+            'transaction_id' => $transaction->id,
+            'scanned_at' => $now,
+            'scanned_by' => auth()->id(), // atau user admin scanner
+        ]);
 
         return response()->json([
             'success' => true,
@@ -137,6 +154,7 @@ class TransactionController extends Controller
                 'transaction_id' => $transaction->id,
                 'user' => $transaction->user->only(['id', 'name']),
                 'listing' => $transaction->listing->only(['id', 'listing_name']),
+                'start_date' => $transaction->start_date,
                 'end_date' => $transaction->end_date,
             ]
         ]);
@@ -146,7 +164,6 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::findOrFail($id);
 
-        // Cek apakah user berhak
         if ($transaction->user_id !== auth()->id()) {
             return response()->json([
                 'success' => false,
@@ -154,7 +171,6 @@ class TransactionController extends Controller
             ], 403);
         }
 
-        // Hanya bisa upload kalau status "waiting"
         if (strtolower($transaction->status) !== 'waiting') {
             return response()->json([
                 'success' => false,
@@ -162,13 +178,11 @@ class TransactionController extends Controller
             ], 422);
         }
 
-        // Validasi file
         $validator = \Validator::make($request->all(), [
             'bukti_bayar' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($validator->fails()) {
-            logger('Validasi gagal saat upload bukti bayar', $validator->errors()->toArray());
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal.',
@@ -176,25 +190,10 @@ class TransactionController extends Controller
             ], 422);
         }
 
-        // Simpan file ke storage
         $path = $request->file('bukti_bayar')->store('bukti-bayar', 'public');
-
-        logger('Mencoba update bukti_bayar', [
-            'id' => $transaction->id,
-            'path' => $path,
-            'user_id' => auth()->id(),
-            'status' => $transaction->status,
-            'has_file' => $request->hasFile('bukti_bayar')
-        ]);
 
         $transaction->bukti_bayar = $path;
         $transaction->save();
-
-        logger('Selesai simpan bukti_bayar', [
-            'id' => $transaction->id,
-            'bukti_bayar' => $transaction->bukti_bayar,
-            'saved?' => $transaction->wasChanged('bukti_bayar')
-        ]);
 
         return response()->json([
             'success' => true,
