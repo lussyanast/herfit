@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Transaction;
+use App\Models\Transaksi;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
@@ -11,79 +11,81 @@ use Filament\Widgets\TableWidget as BaseWidget;
 class WaitingTransactions extends BaseWidget
 {
     protected static ?int $sort = 3;
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Tables\Table $table): Tables\Table
     {
         return $table
             ->query(
-                Transaction::query()->whereStatus('waiting')
+                Transaksi::query()->where('status_transaksi', 'waiting')->latest()
             )
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Nama Pengguna')
                     ->sortable()
-                    ->extraAttributes(['style' => 'font-weight: bold;']),
-
-                Tables\Columns\TextColumn::make('listing_id')
-                    ->sortable()
-                    ->hidden(),
+                    ->searchable()
+                    ->weight('bold'),
 
                 Tables\Columns\TextColumn::make('listing.listing_name')
-                    ->label('Listing Name')
-                    ->searchable()
-                    ->sortable(),
+                    ->label('Nama Produk')
+                    ->sortable()
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('price')
-                    ->getStateUsing(function ($record) {
-                        return 'Rp. ' . number_format($record->price, 0, ',', '.');
-                    })
-                    ->extraAttributes(['style' => 'font-weight: bold;']),
+                    ->label('Harga')
+                    ->getStateUsing(fn($record) => 'Rp. ' . number_format($record->price, 0, ',', '.'))
+                    ->weight('bold'),
 
-                Tables\Columns\TextColumn::make('status')->badge()->color(fn(string $state): string => match ($state) {
-                    'waiting' => 'gray',
-                    'approved' => 'info',
-                    'rejected' => 'danger',
-                }),
+                Tables\Columns\BadgeColumn::make('status_transaksi')
+                    ->label('Status')
+                    ->colors([
+                        'gray' => 'waiting',
+                        'info' => 'approved',
+                        'danger' => 'rejected',
+                    ])
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Dibuat')
+                    ->dateTime('d M Y H:i')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Diperbarui')
+                    ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->actions([
                 Action::make('approve')
-                    ->button()
+                    ->label('Setujui')
                     ->color('success')
+                    ->icon('heroicon-o-check')
                     ->requiresConfirmation()
-                    ->action(function (Transaction $transaction) {
-                        $transaction->update(['status' => 'approved']);
+                    ->action(fn(Transaksi $record) => $record->update(['status_transaksi' => 'approved']))
+                    ->after(function () {
                         Notification::make()
+                            ->title('Transaksi Disetujui')
+                            ->body('Status transaksi berhasil diubah menjadi "approved".')
                             ->success()
-                            ->title('Transaksi Disetujui!')
-                            ->body('Transaksi berhasil disetujui.')
-                            ->icon('heroicon-o-check')
                             ->send();
                     })
-                    ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting'),
+                    ->visible(fn(Transaksi $record) => $record->status_transaksi === 'waiting'),
 
                 Action::make('reject')
-                    ->button()
+                    ->label('Tolak')
                     ->color('danger')
+                    ->icon('heroicon-o-x-circle')
                     ->requiresConfirmation()
-                    ->action(function (Transaction $transaction) {
-                        $transaction->update(['status' => 'rejected']);
+                    ->action(fn(Transaksi $record) => $record->update(['status_transaksi' => 'rejected']))
+                    ->after(function () {
                         Notification::make()
-                            ->warning()
                             ->title('Transaksi Ditolak')
-                            ->body('Transaksi telah ditolak.')
-                            ->icon('heroicon-o-x-circle')
+                            ->body('Status transaksi berhasil diubah menjadi "rejected".')
+                            ->warning()
                             ->send();
                     })
-                    ->hidden(fn(Transaction $transaction) => $transaction->status !== 'waiting'),
-            ])
-        ;
+                    ->visible(fn(Transaksi $record) => $record->status_transaksi === 'waiting'),
+            ]);
     }
 }

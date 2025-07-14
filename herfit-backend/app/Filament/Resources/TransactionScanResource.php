@@ -2,16 +2,16 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TransactionScanResource\Pages;
-use App\Models\TransactionScan;
+use App\Models\TransaksiScan;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use App\Filament\Resources\TransactionScanResource\Pages;
 
 class TransactionScanResource extends Resource
 {
-    protected static ?string $model = TransactionScan::class;
+    protected static ?string $model = TransaksiScan::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-qr-code';
     protected static ?string $navigationLabel = 'Riwayat Scan QR';
@@ -23,15 +23,15 @@ class TransactionScanResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('transaction.id')
+                Tables\Columns\TextColumn::make('transaksi.id_transaksi')
                     ->label('ID Transaksi')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('transaction.user.name')
-                    ->label('Nama User')
+                Tables\Columns\TextColumn::make('transaksi.pengguna.nama_lengkap')
+                    ->label('Pemesan')
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('scannedBy.name')
+                Tables\Columns\TextColumn::make('pengguna.nama_lengkap')
                     ->label('Discan Oleh')
                     ->searchable(),
 

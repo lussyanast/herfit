@@ -2,9 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Transaksi;
+use Illuminate\Support\Carbon;
 use Filament\Widgets\ChartWidget;
-use App\Models\Transaction;
-use Carbon\Carbon;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 
@@ -15,24 +15,11 @@ class MonthlyTransactionsChart extends ChartWidget
 
     protected function getData(): array
     {
-        $startOfYear = Carbon::now()->startOfYear();
-        $endOfYear = Carbon::now()->endOfYear();
-
-        $transactions = Transaction::query()
-            ->whereBetween('created_at', [$startOfYear, $endOfYear])
-            ->get()
-            ->groupBy(function ($date) {
-                return Carbon::parse($date->created_at)->format('M');
-            });
-
-        $monthlyCounts = $transactions->mapWithKeys(function ($transactions, $month) {
-            return [
-                $month => count($transactions)
-            ];
-        });
-
-        $data = Trend::model(Transaction::class)
-            ->between(start: now()->startOfYear(), end: now()->endOfYear())
+        $data = Trend::model(Transaksi::class)
+            ->between(
+                start: Carbon::now()->startOfYear(),
+                end: Carbon::now()->endOfYear()
+            )
             ->perMonth()
             ->count();
 
@@ -43,7 +30,7 @@ class MonthlyTransactionsChart extends ChartWidget
                     'data' => $data->map(fn(TrendValue $value) => $value->aggregate)->values(),
                 ],
             ],
-            'labels' => $data->map(fn(TrendValue $value) => $value->date)->values(),
+            'labels' => $data->map(fn(TrendValue $value) => Carbon::parse($value->date)->translatedFormat('F'))->values(),
         ];
     }
 

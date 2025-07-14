@@ -2,75 +2,75 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Listing;
-use App\Models\Transaction;
+use App\Models\Produk;
+use App\Models\Transaksi;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverview extends BaseWidget
 {
-    private function getPercentage(int $from, int $to): float
+    private function getPercentage(int|float $from, int|float $to): float
     {
-        // Prevent division by zero
-        if ($from == 0) {
-            return 0;
+        if ($from === 0) {
+            return $to === 0 ? 0 : 100;
         }
 
-        return ($to - $from) / $from * 100;
+        return (($to - $from) / $from) * 100;
     }
 
     protected function getStats(): array
     {
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
+        $now = Carbon::now();
+        $currentMonth = $now->month;
+        $currentYear = $now->year;
+        $lastMonth = $now->copy()->subMonth();
 
-        // Fetch transaction counts for the current and previous month
-        $newListing = Listing::whereMonth('created_at', $currentMonth)
-            ->whereYear('created_at', $currentYear)
-            ->count();
-        $transactions = Transaction::whereStatus('approved')->whereMonth('created_at', $currentMonth)
-            ->whereYear('created_at', $currentYear)
-            ->count();
-        $prevTransactions = Transaction::whereStatus('approved')->whereMonth('created_at', Carbon::now()->subMonth()->month)
+        // Item/produk baru bulan ini
+        $newListing = Produk::whereMonth('created_at', $currentMonth)
             ->whereYear('created_at', $currentYear)
             ->count();
 
-        // Calculate the percentage change
-        $transactionPercentage = $this->getPercentage($prevTransactions, $transactions);
-        $revenue = Transaction::whereStatus('approved')->whereMonth('created_at', $currentMonth)
+        // Jumlah transaksi disetujui bulan ini
+        $currentTransactions = Transaksi::where('status_transaksi', 'approved')
+            ->whereMonth('created_at', $currentMonth)
             ->whereYear('created_at', $currentYear)
-            ->sum('price');
-        $prevRevenue = Transaction::whereStatus('approved')->whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->count();
+
+        // Jumlah transaksi disetujui bulan lalu
+        $lastTransactions = Transaksi::where('status_transaksi', 'approved')
+            ->whereMonth('created_at', $lastMonth->month)
+            ->whereYear('created_at', $lastMonth->year)
+            ->count();
+
+        $transactionPercentage = $this->getPercentage($lastTransactions, $currentTransactions);
+
+        // Total revenue bulan ini
+        $currentRevenue = Transaksi::where('status_transaksi', 'approved')
+            ->whereMonth('created_at', $currentMonth)
             ->whereYear('created_at', $currentYear)
-            ->sum('price');
+            ->sum('jumlah_bayar');
 
-        // Calculate the revenue percentage change
-        $revenuePercentage = $this->getPercentage($prevRevenue, $revenue);
+        // Total revenue bulan lalu
+        $lastRevenue = Transaksi::where('status_transaksi', 'approved')
+            ->whereMonth('created_at', $lastMonth->month)
+            ->whereYear('created_at', $lastMonth->year)
+            ->sum('jumlah_bayar');
 
-        // Set color and icon based on transaction percentage
-        $color = $transactionPercentage > 0 ? 'success' : 'danger';
-        $icon = $transactionPercentage > 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down';
-
-        $revenueColor = $revenuePercentage > 0 ? 'success' : 'danger';
-        $revenueIcon = $revenuePercentage > 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down';
+        $revenuePercentage = $this->getPercentage($lastRevenue, $currentRevenue);
 
         return [
-            Stat::make('Item baru per bulan', $newListing),
-            Stat::make('Transaksi per bulan', $transactions)
-                ->description($transactionPercentage > 0
-                    ? "{$transactionPercentage}% meningkat"
-                    : "{$transactionPercentage}% menurun")
-                ->color($color)
-                ->icon($icon),
-            Stat::make('Revenue per bulan', 'Rp. ' . number_format($revenue, 0, ',', '.'))
-                ->description($revenuePercentage > 0
-                    ? "{$revenuePercentage}% meningkat"
-                    : "{$revenuePercentage}% menurun")
-                ->descriptionIcon($revenuePercentage > 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
-                ->color($revenuePercentage > 0 ? 'success' : 'danger')
-                ->icon($revenuePercentage > 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down'),
+            Stat::make('Item Baru Bulan Ini', $newListing),
 
+            Stat::make('Transaksi Bulan Ini', $currentTransactions)
+                ->description(abs($transactionPercentage) . '% ' . ($transactionPercentage >= 0 ? 'meningkat' : 'menurun'))
+                ->icon($transactionPercentage >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
+                ->color($transactionPercentage >= 0 ? 'success' : 'danger'),
+
+            Stat::make('Revenue Bulan Ini', 'Rp. ' . number_format($currentRevenue, 0, ',', '.'))
+                ->description(abs($revenuePercentage) . '% ' . ($revenuePercentage >= 0 ? 'meningkat' : 'menurun'))
+                ->icon($revenuePercentage >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
+                ->color($revenuePercentage >= 0 ? 'success' : 'danger'),
         ];
     }
 }
