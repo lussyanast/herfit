@@ -2,13 +2,14 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\Transaction;
-use App\Models\TransactionScan;
+use App\Models\Transaksi;
+use App\Models\Absensi;
 use Carbon\Carbon;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
+use Illuminate\Support\Str;
 
 class ScanTransactionQR extends Page
 {
@@ -19,7 +20,7 @@ class ScanTransactionQR extends Page
     protected static ?string $navigationGroup = 'Manajemen Transaksi';
     protected static ?int $navigationSort = 1;
 
-    public ?Transaction $transaction = null;
+    public ?Transaksi $transaksi = null;
 
     #[On('qrScanned')]
     public function handleQrScanned($qrContent = null)
@@ -50,9 +51,9 @@ class ScanTransactionQR extends Page
         }
 
         preg_match('/\/(\d+)$/', $qrContent, $matches);
-        $transactionId = $matches[1] ?? null;
+        $idTransaksi = $matches[1] ?? null;
 
-        if (!$transactionId) {
+        if (!$idTransaksi) {
             Notification::make()
                 ->danger()
                 ->title('QR Tidak Valid')
@@ -61,35 +62,35 @@ class ScanTransactionQR extends Page
             return;
         }
 
-        $transaction = Transaction::find($transactionId);
+        $transaksi = Transaksi::find($idTransaksi);
 
-        if (!$transaction) {
+        if (!$transaksi) {
             Notification::make()
                 ->danger()
                 ->title('Transaksi Tidak Ditemukan')
-                ->body("Transaksi dengan ID $transactionId tidak ditemukan.")
+                ->body("Transaksi dengan ID $idTransaksi tidak ditemukan.")
                 ->send();
             return;
         }
 
         $now = Carbon::now();
-        $startDate = Carbon::parse($transaction->start_date);
-        $endDate = Carbon::parse($transaction->end_date);
+        $start = Carbon::parse($transaksi->tanggal_mulai);
+        $end = Carbon::parse($transaksi->tanggal_selesai);
 
-        if ($now->lt($startDate)) {
+        if ($now->lt($start)) {
             Notification::make()
                 ->warning()
                 ->title('QR Belum Aktif')
-                ->body('QR code hanya bisa digunakan mulai ' . $startDate->format('d M Y') . '.')
+                ->body('QR hanya dapat digunakan mulai ' . $start->format('d M Y') . '.')
                 ->send();
             return;
         }
 
-        if ($now->gt($endDate)) {
+        if ($now->gt($end)) {
             Notification::make()
                 ->warning()
                 ->title('QR Kadaluwarsa')
-                ->body('QR code sudah tidak berlaku karena melebihi tanggal selesai transaksi.')
+                ->body('QR code sudah tidak berlaku.')
                 ->send();
             return;
         }
@@ -103,24 +104,24 @@ class ScanTransactionQR extends Page
             return;
         }
 
-        // Simpan hasil scan HANYA jika valid
-        TransactionScan::create([
-            'transaction_id' => $transaction->id,
-            'scanned_by' => Auth::id(),
-            'scanned_at' => now()
+        Absensi::create([
+            'id_transaksi' => $transaksi->id_transaksi,
+            'id_pengguna' => Auth::id(),
+            'kode_absensi' => 'ABS' . now()->format('YmdHis'),
+            'waktu_scan' => now(),
         ]);
 
-        $this->transaction = $transaction;
+        $this->transaksi = $transaksi;
 
         Notification::make()
             ->success()
             ->title('Scan Berhasil')
-            ->body('Data transaksi berhasil dicatat.')
+            ->body('Transaksi berhasil diverifikasi dan dicatat.')
             ->send();
     }
 
-    protected function isExpired(Transaction $transaction): bool
+    protected function isExpired(Transaksi $transaksi): bool
     {
-        return Carbon::now()->gt(Carbon::parse($transaction->end_date));
+        return Carbon::now()->gt(Carbon::parse($transaksi->tanggal_selesai));
     }
 }

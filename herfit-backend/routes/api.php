@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Http\Controllers\API\ListingController;
-use App\Http\Controllers\API\TransactionController;
+use App\Http\Controllers\API\ProdukController;
+use App\Http\Controllers\API\TransaksiController;
 use App\Http\Controllers\API\ProfileController;
 use App\Http\Controllers\PostinganController;
 use App\Http\Controllers\InteraksiController;
@@ -21,14 +21,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // ✅ Profil
 Route::middleware('auth:sanctum')->post('/update-profile', [ProfileController::class, 'update']);
 
-// ✅ Listing Produk
-Route::resource('listing', ListingController::class)->only(['index', 'show']);
+// ✅ Produk
+Route::resource('produk', ProdukController::class)->only(['index', 'show']);
 
 // ✅ Transaksi
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/transaction/is-available', [TransactionController::class, 'isAvailable']);
-    Route::post('/transaction/{id}/upload-bukti', [TransactionController::class, 'uploadBukti'])->name('transaction.upload-bukti');
-    Route::resource('transaction', TransactionController::class)->only(['index', 'store', 'show']);
+    Route::post('/transaksi/is-available', [TransaksiController::class, 'isAvailable']);
+    Route::post('/transaksi/{id}/upload-bukti', [TransaksiController::class, 'uploadBukti'])->name('transaksi.upload-bukti');
+    Route::resource('transaksi', TransaksiController::class)->only(['index', 'store', 'show']);
 });
 
 // ✅ HerFeed: Postingan

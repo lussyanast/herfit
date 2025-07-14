@@ -2,39 +2,32 @@
 
 namespace Database\Seeders;
 
-use App\Models\Transaction;
-use App\Models\User;
-use App\Models\Listing;
-use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
+use App\Models\Pengguna;
+use App\Models\Produk;
+use App\Models\Transaksi;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Admin Lussy',
-            'email' => 'lussyanast@gmail.com',
-            'password' => 'admin',
-            'role' => 'admin'
+        // ✅ Admin user
+        Pengguna::create([
+            'peran_pengguna' => 'admin',
+            'nama_lengkap' => 'Admin Lussy',
+            'email' => 'adminlussy@gmail.com',
+            'kata_sandi' => Hash::make('admin123'),
+            'no_telp' => '085772492505',
+            'no_identitas' => '1234567890123456',
         ]);
 
-        $users = User::factory(10)->create();
-        $listings = Listing::factory(10)->create();
+        // ✅ Member users dummy
+        Pengguna::factory()->count(10)->create([
+            'peran_pengguna' => 'member',
+        ]);
 
-        Transaction::factory(10)
-            ->state(
-                new Sequence(
-                    fn(Sequence $sequence) => [
-                        'user_id' => $users->random(),
-                        'listing_id' => $listings->random(),
-                    ],
-                )
-            )->create();
+        // ✅ Produk dummy
+        Produk::factory()->count(10)->create();
     }
 }
