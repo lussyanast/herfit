@@ -11,35 +11,37 @@ use Illuminate\Validation\ValidationException;
 class Store extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Hanya mengizinkan user dengan role 'member' untuk melakukan request ini
      */
     public function authorize(): bool
     {
-        return auth()->user()->role === 'customer';
+        return auth()->check() && auth()->user()->peran_pengguna === 'member';
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * Validasi input dari form transaksi
      */
     public function rules(): array
     {
         return [
-            'listing_id' => 'required|exists:listings,id',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date'
+            'id_produk' => 'required|exists:produk,id_produk',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
         ];
     }
 
+    /**
+     * Override bawaan Laravel agar validasi error dikembalikan sebagai JSON API
+     */
     protected function failedValidation(Validator $validator)
     {
         $errors = (new ValidationException($validator))->errors();
+
         throw new HttpResponseException(
             response()->json([
                 'success' => false,
-                'message' => 'Validasi Error',
-                'data' => $errors
+                'message' => 'Validasi gagal.',
+                'data' => $errors,
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }

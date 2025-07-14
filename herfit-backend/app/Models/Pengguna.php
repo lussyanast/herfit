@@ -32,4 +32,9 @@ class Pengguna extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function getAuthPassword()
+    {
+        return $this->kata_sandi;
+    }
 }

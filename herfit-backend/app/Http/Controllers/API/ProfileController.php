@@ -17,24 +17,22 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'nama_lengkap' => 'required|string|max:50',
             'no_identitas' => 'required|string|size:16',
-            'no_telp' => 'required|string|min:10|max:12',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'photo_profile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'no_telp' => 'required|string|min:10|max:15',
+            'email' => 'required|email|unique:pengguna,email,' . $user->id_pengguna . ',id_pengguna',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $data = $request->only(['name', 'no_identitas', 'no_telp', 'email']);
+        $data = $request->only(['nama_lengkap', 'no_identitas', 'no_telp', 'email']);
 
-        if ($request->hasFile('photo_profile')) {
-            // Hapus foto lama jika ada
-            if ($user->photo_profile && Storage::disk('public')->exists($user->photo_profile)) {
-                Storage::disk('public')->delete($user->photo_profile);
+        if ($request->hasFile('foto_profil')) {
+            if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+                Storage::disk('public')->delete($user->foto_profil);
             }
 
-            // Simpan foto baru
-            $path = $request->file('photo_profile')->store('profile', 'public');
-            $data['photo_profile'] = $path;
+            $path = $request->file('foto_profil')->store('profil', 'public');
+            $data['foto_profil'] = $path;
         }
 
         $user->update($data);

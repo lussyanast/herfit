@@ -24,10 +24,18 @@ class Aktivitas extends Model
         'tanggal' => 'date',
     ];
 
+    public function scopeMakanan($query)
+    {
+        return $query->where('jenis_aktivitas', 'makanan');
+    }
+
+    public function scopeLatihan($query)
+    {
+        return $query->where('jenis_aktivitas', 'latihan');
+    }
+
     public function pengguna()
     {
         return $this->belongsTo(Pengguna::class, 'id_pengguna');
     }
 }
-
-

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Pengguna;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,17 +17,17 @@ class RegisteredUserController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'nama_lengkap' => ['required', 'string', 'max:50'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:pengguna,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'no_identitas' => ['required', 'string', 'max:20'],
-            'no_telp' => ['required', 'string', 'max:15'],
+            'no_identitas' => ['nullable', 'string', 'max:16'],
+            'no_telp' => ['nullable', 'string', 'max:15'],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
+        $user = Pengguna::create([
+            'nama_lengkap' => $request->nama_lengkap,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'kata_sandi' => Hash::make($request->password),
             'no_identitas' => $request->no_identitas,
             'no_telp' => $request->no_telp,
             'email_verified_at' => now(),
