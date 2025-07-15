@@ -9,7 +9,6 @@ use Filament\Pages\Page;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
-use Illuminate\Support\Str;
 
 class ScanTransactionQR extends Page
 {
