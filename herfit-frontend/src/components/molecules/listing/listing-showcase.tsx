@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Title from "@/components/atomics/title";
 import {
   Carousel,
@@ -10,8 +10,15 @@ import {
   CarouselPrevious,
 } from "@/components/atomics/carousel";
 import CardDeals from "@/components/molecules/card/card-deals";
-import { Listing } from "@/interfaces/listing";
-import { useGetAllListingQuery } from "@/services/listing.service";
+import axios from "@/lib/axios";
+
+interface Produk {
+  id_produk: number;
+  nama_produk: string;
+  harga_produk: number;
+  kategori: string;
+  foto_produk: string | null;
+}
 
 interface ListingShowcaseProps {
   id: string;
@@ -21,13 +28,26 @@ interface ListingShowcaseProps {
 }
 
 const ListingShowcase = ({ id, title, subtitle, category }: ListingShowcaseProps) => {
-  const { data: listings } = useGetAllListingQuery({});
+  const [produkList, setProdukList] = useState<Produk[]>([]);
 
-  const filteredListings = listings?.data?.data.filter((item: Listing) => {
+  useEffect(() => {
+    const fetchProduk = async () => {
+      try {
+        const res = await axios.get("/produk");
+        setProdukList(res.data?.data || []);
+      } catch (err) {
+        console.error("Gagal memuat data produk", err);
+      }
+    };
+
+    fetchProduk();
+  }, []);
+
+  const filtered = produkList.filter((item) => {
     if (category === "membership") {
-      return item.category?.toLowerCase() === "membership";
+      return item.kategori_produk.toLowerCase() === "membership";
     } else if (category === "others") {
-      return item.category?.toLowerCase() !== "membership";
+      return item.kategori_produk.toLowerCase() !== "membership";
     }
     return true;
   });
@@ -39,13 +59,17 @@ const ListingShowcase = ({ id, title, subtitle, category }: ListingShowcaseProps
       </div>
       <Carousel className="w-full mt-[30px]">
         <CarouselContent>
-          {filteredListings?.map((item: Listing, index: number) => (
-            <CarouselItem key={index} className="basis-1/4">
+          {filtered.map((item) => (
+            <CarouselItem key={item.id_produk} className="basis-1/4">
               <CardDeals
-                image={item.attachments?.[0] || ""}
-                title={item.listing_name}
-                slug={"/listing/" + item.slug}
-                price={item.price}
+                image={
+                  item.foto_produk
+                    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${item.foto_produk}`
+                    : "/images/no-image.png"
+                }
+                title={item.nama_produk}
+                slug={`/produk/${item.id_produk}`}
+                price={item.harga_produk}
               />
             </CarouselItem>
           ))}

@@ -22,4 +22,9 @@ class Produk extends Model
         'harga_produk',
         'foto_produk',
     ];
+
+    public function transaksi()
+    {
+        return $this->hasMany(Transaksi::class, 'id_produk', 'id_produk');
+    }
 }

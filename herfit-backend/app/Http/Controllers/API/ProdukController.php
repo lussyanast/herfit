@@ -10,7 +10,13 @@ class ProdukController extends Controller
 {
     public function index(): JsonResponse
     {
-        $produk = Produk::withCount('transaksi')->orderBy('transaksi_count', 'desc')->paginate();
+        $produk = Produk::select([
+            'id_produk',
+            'nama_produk',
+            'harga_produk',
+            'kategori_produk',
+            'foto_produk'
+        ])->get();
 
         return response()->json([
             'success' => true,
