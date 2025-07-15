@@ -21,7 +21,7 @@ import Image from "next/image";
 import ImageCropper from "@/components/molecules/ImageCropper";
 
 const schema = yup.object().shape({
-    name: yup.string().min(3).required("Nama wajib diisi"),
+    nama_lengkap: yup.string().min(3).required("Nama wajib diisi"),
     no_identitas: yup.string().length(16, "Harus 16 digit").required(),
     no_telp: yup.string().min(10).max(12).required(),
     email: yup.string().email().required(),
@@ -42,7 +42,7 @@ export default function EditProfilePage() {
     const form = useForm<FormData>({
         resolver: yupResolver(schema),
         defaultValues: {
-            name: "",
+            nama_lengkap: "",
             no_identitas: "",
             no_telp: "",
             email: "",
@@ -64,11 +64,17 @@ export default function EditProfilePage() {
 
                 if (res.ok) {
                     form.reset({
-                        name: result.data.name,
+                        nama_lengkap: result.data.nama_lengkap,
                         email: result.data.email,
                         no_identitas: result.data.no_identitas,
                         no_telp: result.data.no_telp,
                     });
+
+                    if (result.data.foto_profil) {
+                        setPreviewImage(
+                            `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${result.data.foto_profil}`
+                        );
+                    }
                 } else {
                     throw new Error(result.message);
                 }
@@ -89,12 +95,12 @@ export default function EditProfilePage() {
     async function onSubmit(values: FormData) {
         try {
             const formData = new FormData();
-            formData.append("name", values.name);
+            formData.append("nama_lengkap", values.nama_lengkap);
             formData.append("no_identitas", values.no_identitas);
             formData.append("no_telp", values.no_telp);
             formData.append("email", values.email);
             if (selectedFile) {
-                formData.append("photo_profile", selectedFile);
+                formData.append("foto_profil", selectedFile);
             }
 
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/update-profile`, {
@@ -108,18 +114,17 @@ export default function EditProfilePage() {
             const result = await res.json();
 
             if (res.ok) {
-                // 🔄 Refresh session user setelah update
                 await signIn("credentials", {
                     redirect: false,
-                    id: result.data.id,
-                    name: result.data.name,
+                    id: result.data.id_pengguna,
                     email: result.data.email,
+                    nama_lengkap: result.data.nama_lengkap,
+                    foto_profil: result.data.foto_profil,
                     token: session?.user.token,
-                    photo_profile: result.data.photo_profile, // penting!
                 });
 
                 toast({ title: "Berhasil", description: "Profil berhasil diperbarui!" });
-                router.refresh(); // opsional
+                router.refresh();
             } else {
                 throw new Error(result.message);
             }
@@ -156,9 +161,7 @@ export default function EditProfilePage() {
     };
 
     return (
-        <div
-            className="min-h-screen flex items-center justify-center pt-28 px-4 lg:px-28"
-        >
+        <div className="min-h-screen flex items-center justify-center pt-28 px-4 lg:px-28">
             <div className="w-full max-w-md bg-white rounded-[30px] shadow-lg p-8 space-y-6">
                 {loading ? (
                     <div className="text-center text-sm text-gray-500">Memuat profil...</div>
@@ -182,7 +185,7 @@ export default function EditProfilePage() {
                                     <div className="space-y-5">
                                         <FormField
                                             control={form.control}
-                                            name="name"
+                                            name="nama_lengkap"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
@@ -191,7 +194,7 @@ export default function EditProfilePage() {
                                                             placeholder="Nama lengkap"
                                                             icon="/icons/profile.svg"
                                                             variant="auth"
-                                                            className={form.formState.errors.name ? "border-destructive" : ""}
+                                                            className={form.formState.errors.nama_lengkap ? "border-destructive" : ""}
                                                             {...field}
                                                         />
                                                     </FormControl>

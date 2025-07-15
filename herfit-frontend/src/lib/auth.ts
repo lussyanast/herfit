@@ -4,43 +4,42 @@ import Credentials from "next-auth/providers/credentials";
 export const authOptions: AuthOptions = {
     session: {
         strategy: "jwt",
-        maxAge: 60 * 60 * 24, // 1 day
-    },
-    pages: {
-        signIn: "/sign-in",
+        maxAge: 60 * 60 * 24,
     },
     providers: [
         Credentials({
             credentials: {
                 id: { type: "number" },
                 email: { type: "text" },
-                name: { type: "text" },
+                nama_lengkap: { type: "text" },
+                foto_profil: { type: "text" },
                 token: { type: "text" },
-                photo_profile: { type: "text" },
             },
-            authorize: async (credentials, req) => {
+            authorize: async (credentials) => {
                 return credentials || null;
             },
         }),
     ],
     callbacks: {
-        jwt: async ({ user, token }) => {
+        jwt: async ({ token, user }) => {
             if (user) {
-                token.id = +user.id;
-                token.name = user.name;
+                token.id = user.id;
                 token.email = user.email;
+                token.nama_lengkap = user.nama_lengkap;
+                token.name = user.nama_lengkap;
+                token.foto_profil = user.foto_profil;
                 token.token = user.token;
-                token.photo_profile = user.photo_profile;
             }
             return token;
         },
         session: async ({ session, token }) => {
-            if (session?.user) {
+            if (session.user) {
                 session.user.id = token.id as number;
-                session.user.name = token.name as string;
                 session.user.email = token.email as string;
+                session.user.nama_lengkap = token.nama_lengkap as string;
+                session.user.name = token.name as string;
+                session.user.foto_profil = token.foto_profil as string;
                 session.user.token = token.token as string;
-                session.user.photo_profile = token.photo_profile as string;
             }
             return session;
         },

@@ -52,11 +52,11 @@ function SignIn() {
         localStorage.setItem("token", user.token);
 
         await signIn("credentials", {
-          id: user.id,
+          id: user.id_pengguna,
           email: user.email,
-          name: user.name,
+          name: user.nama_lengkap,
+          photo_profile: user.foto_profil,
           token: user.token,
-          photo_profile: user.photo_profile,
           redirect: false,
         });
 

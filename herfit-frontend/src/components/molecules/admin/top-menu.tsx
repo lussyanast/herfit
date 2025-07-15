@@ -31,7 +31,7 @@ function TopMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger data-login={!!session?.user} className="outline-none">
           <div className="flex items-center space-x-2">
-            <Title title={session?.user?.name || "-"} section="header" reverse />
+            <Title title={session?.user?.nama_lengkap|| "-"} section="header" reverse />
             <Image
               key={fotoProfil}
               src={fotoProfil}
