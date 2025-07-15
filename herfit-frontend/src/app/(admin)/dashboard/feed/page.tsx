@@ -5,17 +5,15 @@ import axios from '@/lib/axios';
 import dayjs from 'dayjs';
 import { X } from 'lucide-react';
 
-const POSTS_PER_PAGE = 5;
-
 type Post = {
-    id: number;
+    id_postingan: number;
     user_name: string;
     caption: string;
-    image_url: string | null;
+    foto_postingan: string | null;
     created_at: string;
     likes_count: number;
     is_liked: boolean;
-    comments: { id: number; user_name: string; content: string }[];
+    comments: { id_interaksi: number; user_name: string; isi_komentar: string }[];
 };
 
 export default function HerFeedPage() {
@@ -25,26 +23,19 @@ export default function HerFeedPage() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
     const [loading, setLoading] = useState(false);
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-    const [currentPage, setCurrentPage] = useState(1);
 
     const fetchPosts = async () => {
         try {
             const res = await axios.get('/herfeed-posts');
-            const sortedPosts = res.data.data.sort((a: Post, b: Post) => {
-                return sortOrder === 'asc'
-                    ? new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-                    : new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-            });
-            setPosts(sortedPosts);
+            setPosts(res.data.data);
         } catch (err) {
-            console.error('Fetch herfeed-posts error:', err);
+            console.error('Gagal memuat postingan', err);
         }
     };
 
     useEffect(() => {
         fetchPosts();
-    }, [sortOrder]);
+    }, []);
 
     const handlePostSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -61,8 +52,8 @@ export default function HerFeedPage() {
             setImage(null);
             setPreview(null);
             fetchPosts();
-        } catch (error) {
-            console.error('Post error:', error);
+        } catch (err) {
+            console.error('Gagal posting', err);
         } finally {
             setLoading(false);
         }
@@ -72,176 +63,134 @@ export default function HerFeedPage() {
         setImage(file);
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview(reader.result as string);
-            };
+            reader.onloadend = () => setPreview(reader.result as string);
             reader.readAsDataURL(file);
         } else {
             setPreview(null);
         }
     };
 
-    const handleRemoveImage = () => {
-        setImage(null);
-        setPreview(null);
-    };
-
-    const handleLike = async (postId: number) => {
+    const handleLike = async (id_postingan: number) => {
         try {
-            await axios.post('/herfeed-likes/toggle', { fitness_post_id: postId });
+            await axios.post('/herfeed-likes/toggle', { id_postingan });
             fetchPosts();
-        } catch (error) {
-            console.error('Like error:', error);
+        } catch (err) {
+            console.error('Gagal like postingan', err);
         }
     };
 
-    const handleComment = async (postId: number) => {
-        const content = commentInputs[postId];
+    const handleComment = async (id_postingan: number) => {
+        const content = commentInputs[id_postingan];
         if (!content?.trim()) return;
 
         try {
             await axios.post('/herfeed-comments', {
-                fitness_post_id: postId,
-                comment: content,
+                id_postingan,
+                isi_komentar: content,
             });
-            setCommentInputs((prev) => ({ ...prev, [postId]: '' }));
+            setCommentInputs((prev) => ({ ...prev, [id_postingan]: '' }));
             fetchPosts();
-        } catch (error) {
-            console.error('Comment error:', error);
+        } catch (err) {
+            console.error('Gagal komentar', err);
         }
     };
 
-    const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
-    const paginatedPosts = posts.slice(
-        (currentPage - 1) * POSTS_PER_PAGE,
-        currentPage * POSTS_PER_PAGE
-    );
-
     return (
-        <div className="min-h-screen py-10">
-            <div className="max-w-2xl mx-auto px-4 space-y-8">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-4xl font-extrabold text-pink-700">💖 HerFeed</h1>
-                    <select
-                        className="border text-sm rounded-md p-1"
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-                    >
-                        <option value="desc">Terbaru</option>
-                        <option value="asc">Terlama</option>
-                    </select>
-                </div>
+        <div className="max-w-2xl mx-auto p-6 space-y-10">
+            <h1 className="text-3xl font-bold text-center text-pink-600">HerFeed</h1>
 
-                <form onSubmit={handlePostSubmit} className="bg-white border shadow rounded-xl p-5 space-y-4">
-                    <textarea
-                        placeholder="Bagikan progres latihanmu..."
-                        value={caption}
-                        onChange={(e) => setCaption(e.target.value)}
-                        className="w-full border border-gray-300 p-3 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    />
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
-                        className="text-sm text-gray-600"
-                    />
-                    {preview && (
-                        <div className="relative w-full">
-                            <img src={preview} alt="Preview" className="rounded-lg w-full max-h-60 object-cover border" />
-                            <button
-                                type="button"
-                                onClick={handleRemoveImage}
-                                className="absolute top-1 right-1 bg-pink-600 text-white rounded-full p-1 shadow hover:bg-pink-700"
-                                aria-label="Remove preview image"
-                            >
-                                <X size={16} />
-                            </button>
-                        </div>
-                    )}
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded-lg font-semibold transition duration-200 disabled:opacity-50"
-                    >
-                        {loading ? 'Posting...' : 'Posting'}
-                    </button>
-                </form>
-
-                {paginatedPosts.map((post) => (
-                    <div key={post.id} className="bg-white border shadow rounded-lg p-5 space-y-3">
-                        <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-full bg-pink-100 flex items-center justify-center text-pink-700 font-bold text-sm uppercase">
-                                    {post.user_name[0]}
-                                </div>
-                                <div className="text-sm font-semibold text-gray-800">{post.user_name}</div>
-                            </div>
-                            <div className="text-xs text-gray-500">{dayjs(post.created_at).format('DD MMM YYYY HH:mm')}</div>
-                        </div>
-                        <p className="text-gray-700 text-sm">{post.caption}</p>
-                        {post.image_url && (
-                            <img
-                                src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${post.image_url}`}
-                                alt="Post"
-                                className="w-full max-h-80 object-cover rounded-lg border"
-                            />
-                        )}
-                        <div className="flex items-center gap-4 mt-2">
-                            <button
-                                onClick={() => handleLike(post.id)}
-                                className="text-sm text-pink-600 hover:underline"
-                            >
-                                {post.is_liked ? '💔 Unlike' : '❤️ Like'} ({post.likes_count})
-                            </button>
-                        </div>
-                        <div className="border-t pt-3 space-y-2 text-sm">
-                            {post.comments.map((c) => (
-                                <div key={c.id} className="text-gray-700">
-                                    <span className="font-semibold text-gray-800">{c.user_name}:</span> {c.content}
-                                </div>
-                            ))}
-                        </div>
-                        <div className="flex gap-2 pt-2">
-                            <input
-                                type="text"
-                                placeholder="Tulis komentar..."
-                                value={commentInputs[post.id] || ''}
-                                onChange={(e) =>
-                                    setCommentInputs((prev) => ({
-                                        ...prev,
-                                        [post.id]: e.target.value,
-                                    }))
-                                }
-                                className="flex-1 border border-gray-300 p-2 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:outline-none"
-                            />
-                            <button
-                                onClick={() => handleComment(post.id)}
-                                className="bg-pink-100 hover:bg-pink-200 text-pink-800 text-sm px-3 py-1 rounded-md"
-                            >
-                                Kirim
-                            </button>
-                        </div>
+            <form
+                onSubmit={handlePostSubmit}
+                className="space-y-4 bg-white p-6 rounded-lg shadow-md border"
+            >
+                <textarea
+                    placeholder="Bagikan progres latihanmu..."
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    className="w-full border p-3 rounded-md resize-none focus:outline-none focus:ring focus:ring-gray-400"
+                />
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
+                    className="text-sm text-gray-600"
+                />
+                {preview && (
+                    <div className="relative mt-2">
+                        <img src={preview} alt="preview" className="w-full rounded-md border" />
+                        <button
+                            type="button"
+                            onClick={() => handleImageChange(null)}
+                            className="absolute top-2 right-2 bg-gray-700 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                            <X size={16} />
+                        </button>
                     </div>
-                ))}
+                )}
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-orange-500 hover:bg-orange-700 text-white py-2 rounded-md transition"
+                >
+                    {loading ? 'Posting...' : 'Posting'}
+                </button>
+            </form>
 
-                <div className="flex justify-center gap-3 pt-6">
+            {posts.map((post) => (
+                <div
+                    key={post.id_postingan}
+                    className="bg-white p-5 rounded-lg shadow-sm border space-y-4"
+                >
+                    <div className="flex justify-between items-center text-sm text-gray-600">
+                        <span className="font-semibold text-gray-800">{post.user_name}</span>
+                        <span>{dayjs(post.created_at).format('DD MMM YYYY HH:mm')}</span>
+                    </div>
+                    <p className="text-gray-800">{post.caption}</p>
+                    {post.foto_postingan && (
+                        <img
+                            src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${post.foto_postingan}`}
+                            alt="post"
+                            className="w-full rounded-md border"
+                        />
+                    )}
+
                     <button
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="px-4 py-1 bg-pink-100 rounded-md text-pink-700 hover:bg-pink-200 disabled:opacity-50"
+                        onClick={() => handleLike(post.id_postingan)}
+                        className="text-sm text-gray-700 hover:underline"
                     >
-                        Prev
+                        {post.is_liked ? '💔 Unlike' : '❤️ Like'} ({post.likes_count})
                     </button>
-                    <span className="text-sm text-gray-600">Page {currentPage} of {totalPages}</span>
-                    <button
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-1 bg-pink-100 rounded-md text-pink-700 hover:bg-pink-200 disabled:opacity-50"
-                    >
-                        Next
-                    </button>
+
+                    <div className="pt-2 space-y-1">
+                        {post.comments.map((c) => (
+                            <div key={c.id_interaksi} className="text-sm text-gray-700">
+                                <span className="font-medium">{c.user_name}</span>: {c.isi_komentar}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex gap-2 pt-1">
+                        <input
+                            type="text"
+                            placeholder="Tulis komentar..."
+                            value={commentInputs[post.id_postingan] || ''}
+                            onChange={(e) =>
+                                setCommentInputs((prev) => ({
+                                    ...prev,
+                                    [post.id_postingan]: e.target.value,
+                                }))
+                            }
+                            className="flex-1 border p-2 rounded-md text-sm focus:outline-none focus:ring focus:ring-gray-400"
+                        />
+                        <button
+                            onClick={() => handleComment(post.id_postingan)}
+                            className="bg-orange-500 hover:bg-orange-300 text-white px-4 py-1 rounded-md text-sm"
+                        >
+                            Kirim
+                        </button>
+                    </div>
                 </div>
-            </div>
+            ))}
         </div>
     );
 }

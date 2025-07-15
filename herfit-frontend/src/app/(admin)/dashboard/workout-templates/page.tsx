@@ -10,7 +10,7 @@ type WorkoutTemplate = {
     durasi: number;
     jadwal: string;
     tanggal: string;
-    days: WorkoutDay[]; // untuk hasil parse dari jadwal
+    days: WorkoutDay[];
 };
 
 const defaultForm = {
@@ -117,7 +117,7 @@ export default function WorkoutTemplatesPage() {
 
     return (
         <div className="p-6 max-w-6xl mx-auto space-y-10">
-            <h1 className="text-3xl font-bold text-center text-primary">Template Latihan</h1>
+            <h1 className="text-3xl font-bold text-center text-pink-600">Template Latihan</h1>
 
             {/* Form Input */}
             <div className="p-6 bg-gray-100 rounded-xl shadow-sm space-y-6">
@@ -161,7 +161,7 @@ export default function WorkoutTemplatesPage() {
                             <button
                                 type="button"
                                 onClick={addNewDay}
-                                className="bg-blue-600 text-white px-4 py-2 rounded-md"
+                                className="bg-orange-600 text-white px-4 py-2 rounded-md"
                             >
                                 + Hari
                             </button>
@@ -201,7 +201,7 @@ export default function WorkoutTemplatesPage() {
                                 <button
                                     type="button"
                                     onClick={() => addWorkout(idx)}
-                                    className="text-sm text-blue-600 mt-1"
+                                    className="text-sm text-orange-600 mt-1"
                                 >
                                     + Tambah Latihan
                                 </button>
@@ -209,7 +209,7 @@ export default function WorkoutTemplatesPage() {
                         ))}
                     </div>
 
-                    <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md">
+                    <button type="submit" className="w-full bg-orange-600 text-white py-2 rounded-md">
                         Simpan Template
                     </button>
                 </form>

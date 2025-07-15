@@ -112,7 +112,7 @@ export default function FoodConsumedPage() {
 
     return (
         <div className="p-6 max-w-6xl mx-auto space-y-10">
-            <h1 className="text-3xl font-bold text-center text-primary">Jurnal Konsumsi Makanan</h1>
+            <h1 className="text-3xl font-bold text-center text-pink-600">Jurnal Konsumsi Makanan</h1>
 
             {/* Form Tambah */}
             <form onSubmit={handleSubmit} className="bg-gray-100 p-6 rounded-xl shadow space-y-4">
@@ -141,7 +141,7 @@ export default function FoodConsumedPage() {
                 </div>
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition"
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-md transition"
                 >
                     Tambah Makanan
                 </button>
