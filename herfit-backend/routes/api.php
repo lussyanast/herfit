@@ -22,7 +22,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->post('/update-profile', [ProfileController::class, 'update']);
 
 // ✅ Produk
-Route::resource('produk', ProdukController::class)->only(['index', 'show']);
+Route::get('/produk', [ProdukController::class, 'index']);
+Route::get('/produk/{kode}', [ProdukController::class, 'show']);
 
 // ✅ Transaksi
 Route::middleware('auth:sanctum')->group(function () {

@@ -1,4 +1,4 @@
-import { Listing } from "./listing";
+import { Listing } from "./produk";
 
 export interface Transaction {
     id:         number;

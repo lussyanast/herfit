@@ -3,11 +3,14 @@ import Image from "next/image";
 import React from "react";
 
 function PhotoGallery({ photos }: { photos: string[] }) {
+  const getFullUrl = (path: string) =>
+    `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${path}`;
+
   return (
     <div className="mt-[30px] grid grid-cols-3 xl:grid-cols-4 gap-x-5">
       <div className="col-span-2 xl:col-span-3 relative">
         <Image
-          src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${photos[0]}`}
+          src={photos[0] ? getFullUrl(photos[0]) : "/images/no-image.png"}
           alt="image-1"
           height={0}
           width={0}
@@ -28,11 +31,12 @@ function PhotoGallery({ photos }: { photos: string[] }) {
           </Button>
         </div>
       </div>
+
       {photos.length > 1 && (
         <div className="space-y-5">
-          {photos?.[1] && (
+          {photos[1] && (
             <Image
-              src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${photos[1]}`}
+              src={getFullUrl(photos[1])}
               alt="image-2"
               height={0}
               width={0}
@@ -40,9 +44,9 @@ function PhotoGallery({ photos }: { photos: string[] }) {
               unoptimized
             />
           )}
-          {photos?.[2] && (
+          {photos[2] && (
             <Image
-              src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${photos[1]}`}
+              src={getFullUrl(photos[2])}
               alt="image-3"
               height={0}
               width={0}
@@ -50,9 +54,9 @@ function PhotoGallery({ photos }: { photos: string[] }) {
               unoptimized
             />
           )}
-          {photos?.[3] && (
+          {photos[3] && (
             <Image
-              src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${photos[1]}`}
+              src={getFullUrl(photos[3])}
               alt="image-4"
               height={0}
               width={0}

@@ -6,18 +6,18 @@ import { DatePickerDemo } from "@/components/molecules/date-picker";
 import { moneyFormat } from "@/lib/utils";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import moment from 'moment';
+import moment from "moment";
 import { useCheckAvailabilityMutation } from "@/services/transaction.service";
 import { useToast } from "@/components/atomics/use-toast";
 import { useRouter } from "next/navigation";
 
 interface BookingSectionProps {
   id: number;
-  slug: string;
+  kode: string;
   price: number;
 }
 
-function BookingSection({ id, slug, price }: BookingSectionProps) {
+function BookingSection({ id, kode, price }: BookingSectionProps) {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [totalDays, setTotalDays] = useState<number>(0);
@@ -31,40 +31,60 @@ function BookingSection({ id, slug, price }: BookingSectionProps) {
       const start = moment(startDate);
       const end = moment(endDate);
       const daysDifference = end.diff(start, "days");
-      setTotalDays(daysDifference);
+      setTotalDays(daysDifference > 0 ? daysDifference : 0);
     }
   }, [startDate, endDate]);
 
   const handleBook = async () => {
+    if (!startDate || !endDate || totalDays <= 0) {
+      toast({
+        title: "Tanggal tidak valid",
+        description: "Silakan pilih tanggal mulai dan akhir yang benar",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const data = {
-        listing_id: id,
-        start_date: moment(startDate).format("YY-MM-DD"),
-        end_date: moment(endDate).format("YY-MM-DD"),
+        id_produk: id,
+        tanggal_mulai: moment(startDate).format("YYYY-MM-DD"),
+        tanggal_selesai: moment(endDate).format("YYYY-MM-DD"),
       };
 
       const res = await checkAvailability(data).unwrap();
 
       if (res.success) {
-        router.push(`/listing/${slug}/checkout?start_date=${data.start_date}&end_date=${data.end_date}`);
-      }
+        // Simpan ke localStorage (jika dibutuhkan di checkout)
+        localStorage.setItem("tanggal_mulai", data.tanggal_mulai);
+        localStorage.setItem("tanggal_selesai", data.tanggal_selesai);
 
+        router.push(
+          `/produk/${kode}/checkout?start_date=${data.tanggal_mulai}&end_date=${data.tanggal_selesai}`
+        );
+      }
     } catch (error: any) {
       if (error.status === 401) {
         toast({
-          title: "Something went wrong",
-          description: "Silahkan login terlebih dahulu",
+          title: "Tidak dapat melanjutkan",
+          description: "Silakan login terlebih dahulu",
           variant: "destructive",
           action: (
             <Link href={`/sign-in?callbackUrl=${window.location.href}`}>
               Sign in
             </Link>
-          )
+          ),
         });
       } else if (error.status === 404) {
         toast({
-          title: "Something went wrong",
-          description: error.data.message,
+          title: "Produk tidak ditemukan",
+          description: error?.data?.message || "Data tidak tersedia",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Terjadi kesalahan",
+          description: "Silakan coba lagi nanti",
           variant: "destructive",
         });
       }
@@ -86,7 +106,7 @@ function BookingSection({ id, slug, price }: BookingSectionProps) {
         <CardBooking title="Total hari" value={`${totalDays} hari`} />
       </div>
       <Button variant="default" className="mt-4" onClick={handleBook} disabled={isLoading}>
-        Pesan Sekarang
+        {isLoading ? "Memeriksa..." : "Pesan Sekarang"}
       </Button>
     </div>
   );

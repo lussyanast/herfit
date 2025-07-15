@@ -8,10 +8,14 @@ use Illuminate\Http\JsonResponse;
 
 class ProdukController extends Controller
 {
+    /**
+     * Ambil semua produk (untuk listing).
+     */
     public function index(): JsonResponse
     {
         $produk = Produk::select([
             'id_produk',
+            'kode_produk',
             'nama_produk',
             'harga_produk',
             'kategori_produk',
@@ -25,8 +29,13 @@ class ProdukController extends Controller
         ]);
     }
 
-    public function show(Produk $produk): JsonResponse
+    /**
+     * Ambil detail produk berdasarkan kode_produk.
+     */
+    public function show($kode): JsonResponse
     {
+        $produk = Produk::where('kode_produk', $kode)->firstOrFail();
+
         return response()->json([
             'success' => true,
             'message' => 'Mengambil detail produk.',
@@ -34,5 +43,3 @@ class ProdukController extends Controller
         ]);
     }
 }
-
-

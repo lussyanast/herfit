@@ -1,0 +1,198 @@
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import moment from "moment";
+import Image from "next/image";
+import Breadcrumbs from "@/components/molecules/breadcrumbs";
+import CardBooking from "@/components/molecules/card/card-booking";
+import { Button } from "@/components/atomics/button";
+import { Separator } from "@/components/atomics/separator";
+import { Checkbox } from "@/components/atomics/checkbox";
+import { DatePickerDemo } from "@/components/molecules/date-picker";
+import Produk from "./produk";
+import { useGetDetailProdukQuery } from "@/services/produk.service";
+import { moneyFormat } from "@/lib/utils";
+import { useToast } from "@/components/atomics/use-toast";
+
+function Checkout({ params }: { params: { kode: string } }) {
+  const { data: produk } = useGetDetailProdukQuery(params.kode);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+  const [totalDays, setTotalDays] = useState<number>(0);
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const start = searchParams.get("start_date");
+    const end = searchParams.get("end_date");
+    if (start) setStartDate(moment(start, "YYYY-MM-DD").toDate());
+    if (end) setEndDate(moment(end, "YYYY-MM-DD").toDate());
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      const days = moment(endDate).diff(moment(startDate), "days");
+      setTotalDays(days > 0 ? days : 0);
+    }
+  }, [startDate, endDate]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) setProofFile(e.target.files[0]);
+  };
+
+  const handlePayment = async () => {
+    if (!startDate || !endDate || !proofFile) {
+      toast({
+        title: "Validasi Gagal",
+        description: "Tanggal dan bukti pembayaran harus diisi.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+      const res = await fetch(`${apiBase}/transaksi`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_produk: produk?.data?.id_produk,
+          tanggal_mulai: moment(startDate).format("YYYY-MM-DD"),
+          tanggal_selesai: moment(endDate).format("YYYY-MM-DD"),
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      const transactionId = data.data.id_transaksi;
+
+      const formData = new FormData();
+      formData.append("bukti_bayar", proofFile);
+
+      const upload = await fetch(`${apiBase}/transaksi/${transactionId}/upload-bukti`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
+        },
+        body: formData,
+      });
+
+      const uploadData = await upload.json();
+      if (!uploadData.success) throw new Error(uploadData.message);
+
+      router.push(`/booking-success/${transactionId}/success`);
+    } catch (err: any) {
+      toast({
+        title: "Gagal",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const price = produk?.data?.harga_produk ?? 0;
+
+  return (
+    <main className="bg-gray-50 pb-20">
+      <section className="bg-gray-light pt-[170px] pb-[180px]">
+        <div className="container mx-auto px-4">
+          <Breadcrumbs />
+        </div>
+      </section>
+
+      <section className="container mx-auto px-4 -mt-[140px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          {/* Kiri - Produk */}
+          <div className="lg:col-span-5">
+            {produk?.data && <Produk produk={produk.data} />}
+          </div>
+
+          {/* Kanan - Booking + Pembayaran */}
+          <div className="lg:col-span-7">
+            <div className="space-y-10">
+              {/* Informasi Pesanan */}
+              <div>
+                <h2 className="font-bold text-xl text-secondary mb-3">Informasi Pesanan</h2>
+                <div className="rounded-[20px] bg-white p-6 border border-border shadow space-y-5">
+                  <DatePickerDemo placeholder="Tanggal Mulai" date={startDate} setDate={setStartDate} />
+                  <DatePickerDemo placeholder="Tanggal Selesai" date={endDate} setDate={setEndDate} />
+                  <CardBooking title="Total Hari" value={`${totalDays} hari`} />
+                  <CardBooking title="Total Harga" value={moneyFormat.format(price)} />
+                </div>
+              </div>
+
+              {/* Pembayaran */}
+              <div>
+                <h2 className="font-bold text-xl text-secondary mb-3">Pembayaran</h2>
+                <div className="rounded-[20px] bg-white p-6 border border-border shadow space-y-5">
+                  <div className="flex items-center gap-4">
+                    <Button variant="third" size="button" className="w-1/2 border-gray-light hover:border-primary">
+                      <Image src="/icons/card.svg" alt="card" width={24} height={24} className="mr-2.5" />
+                      Transfer
+                    </Button>
+                    <Button variant="third" size="button" className="w-1/2 border-gray-light hover:border-primary">
+                      <Image src="/icons/visa.svg" alt="visa" width={48} height={24} />
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2 text-sm font-medium">
+                    <CardBooking title="Bank" value="HerFit Bank" />
+                    <CardBooking title="Atas Nama" value="HerFit Produk" />
+                    <CardBooking title="No. Rekening" value="20193050" />
+                  </div>
+
+                  <Separator className="bg-border" />
+
+                  <div>
+                    <label htmlFor="proof" className="block font-semibold text-sm mb-2">
+                      Upload Bukti Pembayaran
+                    </label>
+                    <input
+                      type="file"
+                      id="proof"
+                      accept="image/*,application/pdf"
+                      onChange={handleFileChange}
+                      className="block w-full text-sm text-gray-600
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-full file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-primary file:text-white
+                  hover:file:bg-primary/90"
+                    />
+                    {proofFile && (
+                      <p className="text-sm mt-1 text-green-600">{proofFile.name} siap diunggah.</p>
+                    )}
+                  </div>
+
+                  <Button
+                    variant="default"
+                    size="default"
+                    className="w-full"
+                    onClick={handlePayment}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Memproses..." : "Buat Pesanan"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+export default Checkout;

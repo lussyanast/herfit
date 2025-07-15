@@ -14,9 +14,10 @@ import axios from "@/lib/axios";
 
 interface Produk {
   id_produk: number;
+  kode_produk: string;
   nama_produk: string;
   harga_produk: number;
-  kategori: string;
+  kategori_produk: string;
   foto_produk: string | null;
 }
 
@@ -45,9 +46,9 @@ const ListingShowcase = ({ id, title, subtitle, category }: ListingShowcaseProps
 
   const filtered = produkList.filter((item) => {
     if (category === "membership") {
-      return item.kategori_produk.toLowerCase() === "membership";
+      return item.kategori_produk?.toLowerCase() === "membership";
     } else if (category === "others") {
-      return item.kategori_produk.toLowerCase() !== "membership";
+      return item.kategori_produk?.toLowerCase() !== "membership";
     }
     return true;
   });
@@ -68,7 +69,7 @@ const ListingShowcase = ({ id, title, subtitle, category }: ListingShowcaseProps
                     : "/images/no-image.png"
                 }
                 title={item.nama_produk}
-                slug={`/produk/${item.id_produk}`}
+                slug={`/produk/${item.kode_produk}`}
                 price={item.harga_produk}
               />
             </CarouselItem>
