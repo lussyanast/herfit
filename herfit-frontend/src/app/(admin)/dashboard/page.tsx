@@ -6,12 +6,11 @@ import Image from "next/image";
 import CardTransaction from "@/components/molecules/card/card-transaction";
 import CardEmpty from "@/components/molecules/card/card-empty";
 import Title from "@/components/atomics/title";
-import { Transaction } from "@/interfaces/transaction";
 
 function Dashboard() {
   const { data: session } = useSession();
   const [profile, setProfile] = useState<any>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,7 +24,7 @@ function Dashboard() {
               Authorization: `Bearer ${session.user.token}`,
             },
           }),
-          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaction`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi`, {
             headers: {
               Authorization: `Bearer ${session.user.token}`,
             },
@@ -36,7 +35,12 @@ function Dashboard() {
         const transData = await transRes.json();
 
         if (profileRes.ok) setProfile(profileData.data);
-        if (transRes.ok) setTransactions(transData.data.data.slice(0, 3));
+        if (transRes.ok) {
+          const raw = transData.data;
+          const list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
+          setTransactions(list.slice(0, 3));
+        }
+
       } catch (err) {
         console.error("Gagal memuat data overview", err);
       } finally {
@@ -67,8 +71,8 @@ function Dashboard() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <Image
                 src={
-                  profile?.photo_profile
-                    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${profile.photo_profile}`
+                  profile?.foto_profil
+                    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${profile.foto_profil}`
                     : "/images/avatar.png"
                 }
                 alt="Foto Profil"
@@ -79,7 +83,7 @@ function Dashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3 w-full text-sm">
                 <div>
                   <p className="text-gray-500">Nama</p>
-                  <p className="font-medium">{profile?.name || "-"}</p>
+                  <p className="font-medium">{profile?.nama_lengkap || "-"}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Email</p>
@@ -104,14 +108,18 @@ function Dashboard() {
             </h1>
             <div className="space-y-5">
               {transactions.length > 0 ? (
-                transactions.map((transaction: Transaction) => (
+                transactions.map((transaction: any) => (
                   <CardTransaction
-                    key={transaction.id}
-                    id={transaction.id}
-                    image={transaction.listing?.attachments?.[0] || ""}
-                    title={transaction.listing?.listing_name || "Tanpa Nama"}
-                    days={transaction.total_days}
-                    price={transaction.listing?.price}
+                    key={transaction.id_transaksi}
+                    id={transaction.id_transaksi}
+                    image={
+                      transaction.produk?.foto_produk
+                        ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${transaction.produk.foto_produk}`
+                        : "/images/default.png"
+                    }
+                    title={transaction.produk?.nama_produk || "Tanpa Nama"}
+                    days={transaction.total_hari}
+                    price={transaction.harga}
                     status={transaction.status}
                   />
                 ))
