@@ -31,7 +31,7 @@ function TopMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger data-login={!!session?.user} className="outline-none">
           <div className="flex items-center space-x-2">
-            <Title title={session?.user?.nama_lengkap|| "-"} section="header" reverse />
+            <Title title={session?.user?.nama_lengkap || "-"} section="header" reverse />
             <Image
               key={fotoProfil}
               src={fotoProfil}
@@ -43,11 +43,13 @@ function TopMenu() {
             />
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-[240px] mr-8 space-y-4">
+        <DropdownMenuContent className="w-[220px] mt-2 shadow-lg border bg-white rounded-md">
           <DropdownMenuItem>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/dashboard" className="w-full">Dashboard</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => signOut()}>
+            Logout
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
