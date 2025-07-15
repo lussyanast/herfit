@@ -23,7 +23,7 @@ class LatihanController extends Controller
         $data = $request->validate([
             'nama_aktivitas' => 'required|string|max:30',
             'durasi' => 'required|integer|min:1',
-            'jadwal' => 'required|array',
+            'jadwal' => 'required|string',
             'tanggal' => 'nullable|date',
         ]);
 
