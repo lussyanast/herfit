@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/atomics/button";
-import { Checkbox } from "@/components/atomics/checkbox";
 import { Input } from "@/components/atomics/input";
 import Title from "@/components/atomics/title";
 import Image from "next/image";
@@ -21,21 +20,21 @@ import { useToast } from "@/components/atomics/use-toast";
 import { useRegisterMutation } from "@/services/auth.service";
 import { signIn } from "next-auth/react";
 
-// Validasi schema
+// Validasi schema sesuai backend
 const schema = yup.object().shape({
-  name: yup
+  nama_lengkap: yup
     .string()
     .min(5, "Nama lengkap minimal 5 karakter")
     .required("Nama lengkap wajib diisi"),
   no_identitas: yup
     .string()
     .length(16, "Nomor identitas harus 16 digit")
-    .required("Nomor identitas wajib diisi"),
+    .nullable(),
   no_telp: yup
     .string()
     .min(10, "Nomor telepon minimal 10 digit")
-    .max(12, "Nomor telepon maksimal 12 digit")
-    .required("Nomor telepon wajib diisi"),
+    .max(15, "Nomor telepon maksimal 15 digit")
+    .nullable(),
   email: yup
     .string()
     .email("Format email tidak valid")
@@ -44,6 +43,10 @@ const schema = yup.object().shape({
     .string()
     .min(8, "Kata sandi minimal 8 karakter")
     .required("Kata sandi wajib diisi"),
+  password_confirmation: yup
+    .string()
+    .oneOf([yup.ref("password")], "Konfirmasi kata sandi tidak cocok")
+    .required("Konfirmasi kata sandi wajib diisi"),
 });
 
 type FormData = yup.InferType<typeof schema>;
@@ -51,15 +54,15 @@ type FormData = yup.InferType<typeof schema>;
 function SignUp() {
   const router = useRouter();
   const { toast } = useToast();
-
   const form = useForm<FormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      name: "",
+      nama_lengkap: "",
       no_identitas: "",
       no_telp: "",
       email: "",
       password: "",
+      password_confirmation: "",
     },
   });
 
@@ -67,26 +70,21 @@ function SignUp() {
 
   async function onSubmit(values: FormData) {
     try {
-      const res = await register({
-        ...values,
-        photo_profile: null,
-        password_confirmation: values.password,
-      }).unwrap();
+      const res = await register(values).unwrap();
 
       if (res.success) {
         const user = res.data;
         await signIn("credentials", {
-          id: user.id,
+          id: user.id_pengguna,
           email: user.email,
-          name: user.name,
+          name: user.nama_lengkap,
           token: user.token,
-          photo_profile: user.photo_profile,
           redirect: false,
         });
 
         toast({
-          title: "Welcome",
-          description: "Sign up successfully",
+          title: "Berhasil!",
+          description: "Pendaftaran berhasil.",
           open: true,
         });
 
@@ -94,8 +92,8 @@ function SignUp() {
       }
     } catch (error: any) {
       toast({
-        title: "Something went wrong.",
-        description: error.data.message,
+        title: "Gagal Mendaftar",
+        description: error?.data?.message || "Terjadi kesalahan.",
         variant: "destructive",
       });
     }
@@ -119,16 +117,15 @@ function SignUp() {
               {/* Nama */}
               <FormField
                 control={form.control}
-                name="name"
+                name="nama_lengkap"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <Input
-                        type="text"
                         placeholder="Nama lengkap"
                         icon="/icons/profile.svg"
                         variant="auth"
-                        className={form.formState.errors.name ? "border-destructive" : ""}
+                        className={form.formState.errors.nama_lengkap ? "border-destructive" : ""}
                         {...field}
                       />
                     </FormControl>
@@ -187,7 +184,7 @@ function SignUp() {
                   <FormItem>
                     <FormControl>
                       <Input
-                        type="text"
+                        type="email"
                         placeholder="Alamat email"
                         icon="/icons/sms.svg"
                         variant="auth"
@@ -220,16 +217,27 @@ function SignUp() {
                   </FormItem>
                 )}
               />
-            </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox id="terms" />
-              <label
-                htmlFor="terms"
-                className="text-sm font-semibold peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Saya setuju dengan syarat dan ketentuan
-              </label>
+              {/* Konfirmasi Password */}
+              <FormField
+                control={form.control}
+                name="password_confirmation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Konfirmasi kata sandi"
+                        icon="/icons/lock-circle.svg"
+                        variant="auth"
+                        className={form.formState.errors.password_confirmation ? "border-destructive" : ""}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <Button type="submit" disabled={isLoading} className="w-full">
@@ -238,7 +246,7 @@ function SignUp() {
 
             <Link href="/sign-in">
               <Button variant="third" className="w-full mt-5">
-                Sudah memiliki akun
+                Sudah punya akun
               </Button>
             </Link>
           </form>
