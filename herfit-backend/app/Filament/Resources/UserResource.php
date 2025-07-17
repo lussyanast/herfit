@@ -10,6 +10,9 @@ use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
 use App\Filament\Resources\UserResource\Pages;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 
 class UserResource extends Resource
 {
@@ -29,6 +32,7 @@ class UserResource extends Resource
                 ->maxLength(255),
 
             Forms\Components\TextInput::make('email')
+                ->label('Email')
                 ->email()
                 ->required()
                 ->maxLength(255),
@@ -55,43 +59,54 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([
-            Tables\Columns\TextColumn::make('nama_lengkap')
-                ->label('Nama')
-                ->sortable()
-                ->searchable()
-                ->weight(FontWeight::Bold),
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('nama_lengkap')
+                    ->label('Nama')
+                    ->sortable()
+                    ->searchable()
+                    ->weight(FontWeight::Bold),
 
-            Tables\Columns\TextColumn::make('email')
-                ->sortable()
-                ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
+                    ->sortable()
+                    ->searchable(),
 
-            Tables\Columns\TextColumn::make('no_identitas')
-                ->label('NIK')
-                ->searchable(),
+                Tables\Columns\TextColumn::make('no_identitas')
+                    ->label('NIK')
+                    ->searchable(),
 
-            Tables\Columns\TextColumn::make('no_telp')
-                ->label('No. Telepon')
-                ->searchable(),
+                Tables\Columns\TextColumn::make('no_telp')
+                    ->label('No. Telepon')
+                    ->searchable(),
 
-            Tables\Columns\BadgeColumn::make('peran_pengguna')
-                ->label('Peran')
-                ->colors([
-                    'primary' => 'admin',
-                    'gray' => 'member',
-                ]),
+                Tables\Columns\BadgeColumn::make('peran_pengguna')
+                    ->label('Peran')
+                    ->colors([
+                        'primary' => 'admin',
+                        'gray' => 'member',
+                    ])
+                    ->formatStateUsing(fn ($state) => ucfirst($state)),
 
-            Tables\Columns\TextColumn::make('created_at')
-                ->label('Dibuat')
-                ->dateTime()
-                ->sortable(),
-        ])
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Dibuat')
+                    ->dateTime('d M Y H:i')
+                    ->sortable(),
+            ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                EditAction::make()
+                    ->label('Edit')
+                    ->icon('heroicon-o-pencil')
+                    ->color('warning'),
+
+                DeleteAction::make()
+                    ->label('Hapus')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger'),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                DeleteBulkAction::make()
+                    ->label('Hapus Massal'),
             ]);
     }
 

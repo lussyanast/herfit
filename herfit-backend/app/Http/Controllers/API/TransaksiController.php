@@ -77,14 +77,7 @@ class TransaksiController extends Controller
         $produk = Produk::findOrFail($request->id_produk);
         $totalHarga = $produk->harga_produk * $jumlahHari;
 
-        $today = Carbon::now()->format('Y-m-d');
-        $tanggalKode = Carbon::now()->format('Ymd');
-        $jumlahHariIni = Transaksi::whereDate('created_at', $today)->count();
-        $urutan = $jumlahHariIni + 1;
-        $kodeTransaksi = 'TRX' . $tanggalKode . $urutan;
-
         $transaksi = Transaksi::create([
-            'kode_transaksi' => $kodeTransaksi,
             'id_pengguna' => auth()->id(),
             'id_produk' => $produk->id_produk,
             'tanggal_mulai' => $request->tanggal_mulai,
@@ -94,7 +87,8 @@ class TransaksiController extends Controller
             'status_transaksi' => 'waiting',
         ]);
 
-        $qrData = route('transaksi.show', $transaksi->id_transaksi);
+        // Buat QR Code
+        $qrData = route('transaction.show', $transaksi->id_transaksi);
         $qrCode = new QrCode($qrData);
         $writer = new PngWriter();
         $qrImage = $writer->write($qrCode);
@@ -130,31 +124,6 @@ class TransaksiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Detail transaksi berhasil diambil.',
-            'data' => $data
-        ]);
-    }
-
-    public function showByKode($kode): JsonResponse
-    {
-        $transaksi = Transaksi::where('kode_transaksi', $kode)->firstOrFail();
-
-        if ($transaksi->id_pengguna !== auth()->id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tidak diizinkan.',
-            ], 403);
-        }
-
-        $transaksi->loadMissing('produk');
-
-        $data = $transaksi->toArray();
-        $data['qr_code_url'] = $transaksi->kode_qr
-            ? asset('storage/' . $transaksi->kode_qr)
-            : null;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Detail transaksi berdasarkan kode berhasil diambil.',
             'data' => $data
         ]);
     }

@@ -64,4 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/latihan/{id}', [LatihanController::class, 'destroy']);
 });
 
+// ✅ Absensi: Scan Transaksi
+Route::get('/transaksi/scan/{kode}', [TransaksiController::class, 'scanByKode']);
+
 require __DIR__ . '/auth.php';

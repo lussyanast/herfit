@@ -23,11 +23,11 @@ class TransactionScanResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('absensi.id_transaksi')
+                Tables\Columns\TextColumn::make('id_transaksi')
                     ->label('ID Transaksi')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('absensi.pengguna.nama_lengkap')
+                Tables\Columns\TextColumn::make('transaksi.pengguna.nama_lengkap')
                     ->label('Pemesan')
                     ->searchable(),
 

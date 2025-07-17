@@ -12,6 +12,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Str;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Filters\TrashedFilter;
 
 class ProdukResource extends Resource
 {
@@ -32,18 +37,13 @@ class ProdukResource extends Resource
                 ->live(debounce: 250)
                 ->maxLength(255),
 
-            Forms\Components\TextInput::make('slug')
-                ->disabled()
-                ->maxLength(255),
-
             Forms\Components\Select::make('kategori_produk')
                 ->label('Kategori')
                 ->required()
                 ->options([
-                    'latihan' => 'Latihan',
-                    'makanan' => 'Makanan',
-                ])
-                ->columnSpanFull(),
+                    'Membership' => 'Membership',
+                    'Lainnya' => 'Lainnya',
+                ]),
 
             Forms\Components\Textarea::make('deskripsi_produk')
                 ->label('Deskripsi')
@@ -51,64 +51,82 @@ class ProdukResource extends Resource
                 ->columnSpanFull(),
 
             Forms\Components\TextInput::make('maksimum_peserta')
+                ->label('Maksimum Peserta')
                 ->numeric()
-                ->required()
-                ->label('Maksimum Peserta'),
+                ->required(),
 
             Forms\Components\TextInput::make('harga_produk')
+                ->label('Harga')
+                ->prefix('Rp')
                 ->numeric()
-                ->required()
-                ->label('Harga'),
+                ->required(),
 
             FileUpload::make('foto_produk')
                 ->label('Foto Produk')
                 ->image()
+                ->disk('public')
                 ->directory('produk')
+                ->preserveFilenames()
                 ->openable()
-                ->columnSpanFull()
+                ->downloadable()
+                ->columnSpanFull(),
         ]);
     }
 
     public static function table(Table $table): Table
     {
-        return $table->columns([
-            Tables\Columns\TextColumn::make('nama_produk')
-                ->label('Nama')
-                ->weight(FontWeight::Bold),
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('nama_produk')
+                    ->label('Nama')
+                    ->searchable()
+                    ->sortable()
+                    ->weight(FontWeight::Bold),
 
-            Tables\Columns\TextColumn::make('kategori_produk')
-                ->label('Kategori')
-                ->searchable(),
+                Tables\Columns\TextColumn::make('kategori_produk')
+                    ->label('Kategori')
+                    ->sortable(),
 
-            Tables\Columns\TextColumn::make('maksimum_peserta')
-                ->label('Max')
-                ->weight(FontWeight::Bold),
+                Tables\Columns\TextColumn::make('maksimum_peserta')
+                    ->label('Max')
+                    ->sortable(),
 
-            Tables\Columns\TextColumn::make('harga_produk')
-                ->label('Harga')
-                ->getStateUsing(fn($record) => 'Rp. ' . number_format($record->harga_produk, 0, ',', '.'))
-                ->weight(FontWeight::Bold),
+                Tables\Columns\TextColumn::make('harga_produk')
+                    ->label('Harga')
+                    ->sortable()
+                    ->getStateUsing(fn($record) => 'Rp. ' . number_format($record->harga_produk, 0, ',', '.')),
 
-            Tables\Columns\TextColumn::make('created_at')
-                ->dateTime()
-                ->label('Dibuat')
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Dibuat')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
-            Tables\Columns\TextColumn::make('updated_at')
-                ->dateTime()
-                ->label('Diperbarui')
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
-        ])
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Diperbarui')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
+                EditAction::make()
+                    ->label('Edit')
+                    ->icon('heroicon-o-pencil')
+                    ->color('warning'),
+
+                DeleteAction::make()
+                    ->label('Hapus')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger'),
+
+                ForceDeleteAction::make()
+                    ->label('Hapus Permanen'),
+
+                RestoreAction::make()
+                    ->label('Pulihkan'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -137,5 +155,4 @@ class ProdukResource extends Resource
     {
         return 'produk';
     }
-
 }

@@ -12,6 +12,7 @@ class WaitingTransactions extends BaseWidget
 {
     protected static ?int $sort = 3;
     protected int|string|array $columnSpan = 'full';
+    protected static ?string $heading = 'Transaksi Yang Menunggu';
 
     public function table(Tables\Table $table): Tables\Table
     {
@@ -20,20 +21,20 @@ class WaitingTransactions extends BaseWidget
                 Transaksi::query()->where('status_transaksi', 'waiting')->latest()
             )
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('pengguna.nama_lengkap')
                     ->label('Nama Pengguna')
                     ->sortable()
                     ->searchable()
                     ->weight('bold'),
 
-                Tables\Columns\TextColumn::make('listing.listing_name')
+                Tables\Columns\TextColumn::make('produk.nama_produk')
                     ->label('Nama Produk')
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('price')
+                Tables\Columns\TextColumn::make('harga')
                     ->label('Harga')
-                    ->getStateUsing(fn($record) => 'Rp. ' . number_format($record->price, 0, ',', '.'))
+                    ->getStateUsing(fn($record) => 'Rp. ' . number_format($record->jumlah_bayar, 0, ',', '.'))
                     ->weight('bold'),
 
                 Tables\Columns\BadgeColumn::make('status_transaksi')

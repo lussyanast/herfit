@@ -1,14 +1,10 @@
 <x-filament::page>
-    <script>
-        window.csrfToken = '{{ csrf_token() }}';
-    </script>
-
     <div class="flex flex-col items-center justify-center space-y-6">
         <h2 class="text-2xl font-semibold text-center">Scan QR Transaksi</h2>
 
         <div id="qr-reader" class="rounded-lg border border-gray-300 p-4 shadow-md w-full max-w-md"></div>
 
-        @if($transaksi)
+        @if ($transaksi)
             <x-filament::card class="w-full max-w-md mt-6">
                 <x-slot name="header">
                     <h3 class="text-lg font-bold">Detail Transaksi</h3>
@@ -19,7 +15,7 @@
                     <p><strong>Produk:</strong> {{ $transaksi->produk->nama_produk ?? '-' }}</p>
                     <p><strong>Tanggal Mulai:</strong> {{ $transaksi->tanggal_mulai }}</p>
                     <p><strong>Tanggal Selesai:</strong> {{ $transaksi->tanggal_selesai }}</p>
-                    <p><strong>Status:</strong> {{ $transaksi->status }}</p>
+                    <p><strong>Status:</strong> {{ $transaksi->status_transaksi }}</p>
                 </div>
             </x-filament::card>
         @endif
@@ -31,42 +27,39 @@
         document.addEventListener("DOMContentLoaded", function () {
             const qrReader = new Html5Qrcode("qr-reader");
 
+            let lastScannedCode = null;
+            let lastScanTime = 0;
+
+            async function onScanSuccess(decodedText) {
+                const now = Date.now();
+
+                // Jika QR sama dan dalam 3 detik terakhir, abaikan
+                if (decodedText === lastScannedCode && (now - lastScanTime < 3000)) {
+                    return;
+                }
+
+                lastScannedCode = decodedText;
+                lastScanTime = now;
+
+                console.log("✅ QR Scanned:", decodedText);
+
+                const livewire = Livewire.find('{{ $this->getId() }}');
+                if (livewire) {
+                    livewire.set('qrContent', decodedText);
+                    await livewire.call('scanQR');
+                }
+            }
+
             qrReader.start(
                 { facingMode: "environment" },
                 { fps: 10, qrbox: 250 },
-                (decodedText) => {
-                    console.log("QR Scanned:", decodedText);
-
-                    fetch("/scan/save", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": window.csrfToken
-                        },
-                        body: JSON.stringify({ qr: decodedText })
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert("✅ Scan berhasil disimpan!");
-                                location.reload();
-                            } else {
-                                alert("❌ Gagal: " + data.message);
-                            }
-                        })
-                        .catch(err => {
-                            console.error("Error kirim:", err);
-                        });
-
-                    qrReader.stop();
-                },
-                (errorMessage) => {
-                    // ignore
-                }
+                onScanSuccess,
+                () => { } // error callback (optional)
             ).catch(err => {
                 console.error("Kamera gagal dibuka:", err);
-                alert("Gagal membuka kamera.");
+                alert("Gagal membuka kamera. Pastikan izin kamera sudah diberikan.");
             });
         });
-    </script>
+    </script
+
 </x-filament::page>
