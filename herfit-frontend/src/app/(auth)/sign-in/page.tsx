@@ -18,7 +18,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/atomics/use-toast";
 import { useLoginMutation } from "@/services/auth.service";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
@@ -49,9 +49,8 @@ function SignIn() {
       if (res.success) {
         const user = res.data;
 
-        localStorage.setItem("token", user.token);
-
-        await signIn("credentials", {
+        // 1. Sign in ke NextAuth
+        const result = await signIn("credentials", {
           id: user.id_pengguna,
           email: user.email,
           name: user.nama_lengkap,
@@ -59,6 +58,14 @@ function SignIn() {
           token: user.token,
           redirect: false,
         });
+
+        // 2. Ambil session setelah signIn selesai
+        const session = await getSession();
+
+        // 3. Simpan token dari session ke localStorage (untuk RTK Query)
+        if (session?.user?.token) {
+          localStorage.setItem("token", session.user.token);
+        }
 
         toast({
           title: "Welcome",

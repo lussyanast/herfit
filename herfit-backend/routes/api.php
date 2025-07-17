@@ -30,6 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/transaksi/is-available', [TransaksiController::class, 'isAvailable']);
     Route::post('/transaksi/{id}/upload-bukti', [TransaksiController::class, 'uploadBukti'])->name('transaksi.upload-bukti');
     Route::resource('transaksi', TransaksiController::class)->only(['index', 'store', 'show']);
+    Route::get('/transaksi/kode/{kode}', [TransaksiController::class, 'showByKode'])->name('transaksi.show-by-kode');
+
 });
 
 // ✅ HerFeed: Postingan

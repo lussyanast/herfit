@@ -8,7 +8,6 @@ import Breadcrumbs from "@/components/molecules/breadcrumbs";
 import CardBooking from "@/components/molecules/card/card-booking";
 import { Button } from "@/components/atomics/button";
 import { Separator } from "@/components/atomics/separator";
-import { Checkbox } from "@/components/atomics/checkbox";
 import { DatePickerDemo } from "@/components/molecules/date-picker";
 import Produk from "./produk";
 import { useGetDetailProdukQuery } from "@/services/produk.service";
@@ -46,10 +45,10 @@ function Checkout({ params }: { params: { kode: string } }) {
   };
 
   const handlePayment = async () => {
-    if (!startDate || !endDate || !proofFile) {
+    if (!produk?.data?.id_produk || !startDate || !endDate || !proofFile || totalDays <= 0) {
       toast({
         title: "Validasi Gagal",
-        description: "Tanggal dan bukti pembayaran harus diisi.",
+        description: "Tanggal, produk, dan bukti pembayaran wajib diisi.",
         variant: "destructive",
       });
       return;
@@ -58,28 +57,35 @@ function Checkout({ params }: { params: { kode: string } }) {
     try {
       setIsLoading(true);
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const totalBayar = produk.data.harga_produk * totalDays;
 
-      const res = await fetch(`${apiBase}/transaksi`, {
+      // 1. Buat transaksi
+      const transaksiRes = await fetch(`${apiBase}/transaksi`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id_produk: produk?.data?.id_produk,
+          id_produk: produk.data.id_produk,
           tanggal_mulai: moment(startDate).format("YYYY-MM-DD"),
           tanggal_selesai: moment(endDate).format("YYYY-MM-DD"),
+          jumlah_hari: totalDays,
+          jumlah_bayar: totalBayar,
         }),
       });
 
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
-      const transactionId = data.data.id_transaksi;
+      const transaksiData = await transaksiRes.json();
+      if (!transaksiData.success) throw new Error(transaksiData.message);
 
+      const transactionId = transaksiData.data.id_transaksi;
+      const kodeTransaksi = transaksiData.data.kode_transaksi;
+
+      // 2. Upload bukti pembayaran
       const formData = new FormData();
       formData.append("bukti_bayar", proofFile);
 
-      const upload = await fetch(`${apiBase}/transaksi/${transactionId}/upload-bukti`, {
+      const uploadRes = await fetch(`${apiBase}/transaksi/${transactionId}/upload-bukti`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
@@ -87,10 +93,11 @@ function Checkout({ params }: { params: { kode: string } }) {
         body: formData,
       });
 
-      const uploadData = await upload.json();
+      const uploadData = await uploadRes.json();
       if (!uploadData.success) throw new Error(uploadData.message);
 
-      router.push(`/booking-success/${transactionId}/success`);
+      // 3. Redirect sukses pakai kode_transaksi (bukan kode produk)
+      router.push(`/booking-success/${kodeTransaksi}/success`);
     } catch (err: any) {
       toast({
         title: "Gagal",
@@ -106,23 +113,24 @@ function Checkout({ params }: { params: { kode: string } }) {
 
   return (
     <main className="bg-gray-50 pb-20">
+      {/* Header */}
       <section className="bg-gray-light pt-[170px] pb-[180px]">
         <div className="container mx-auto px-4">
           <Breadcrumbs />
         </div>
       </section>
 
+      {/* Isi */}
       <section className="container mx-auto px-4 -mt-[140px]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          {/* Kiri - Produk */}
+          {/* Produk */}
           <div className="lg:col-span-5">
             {produk?.data && <Produk produk={produk.data} />}
           </div>
 
-          {/* Kanan - Booking + Pembayaran */}
+          {/* Form Booking */}
           <div className="lg:col-span-7">
             <div className="space-y-10">
-              {/* Informasi Pesanan */}
               <div>
                 <h2 className="font-bold text-xl text-secondary mb-3">Informasi Pesanan</h2>
                 <div className="rounded-[20px] bg-white p-6 border border-border shadow space-y-5">
@@ -133,7 +141,6 @@ function Checkout({ params }: { params: { kode: string } }) {
                 </div>
               </div>
 
-              {/* Pembayaran */}
               <div>
                 <h2 className="font-bold text-xl text-secondary mb-3">Pembayaran</h2>
                 <div className="rounded-[20px] bg-white p-6 border border-border shadow space-y-5">
@@ -165,11 +172,11 @@ function Checkout({ params }: { params: { kode: string } }) {
                       accept="image/*,application/pdf"
                       onChange={handleFileChange}
                       className="block w-full text-sm text-gray-600
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-full file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-primary file:text-white
-                  hover:file:bg-primary/90"
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-primary file:text-white
+                        hover:file:bg-primary/90"
                     />
                     {proofFile && (
                       <p className="text-sm mt-1 text-green-600">{proofFile.name} siap diunggah.</p>

@@ -23,8 +23,8 @@ export const transactionApi = apiSlice.injectEndpoints({
             }),
         }),
         getDetailTransaction: build.query({
-            query: (id) => ({
-                url: `/transaksi/${id}`,
+            query: (kode) => ({
+                url: `/transaksi/kode/${kode}`,
                 method: "GET",
             }),
         }),
