@@ -27,6 +27,10 @@ class TransactionScanResource extends Resource
                     ->label('ID Transaksi')
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('transaksi.produk.nama_produk')
+                    ->label('Nama Produk')
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('transaksi.pengguna.nama_lengkap')
                     ->label('Pemesan')
                     ->searchable(),
@@ -35,12 +39,12 @@ class TransactionScanResource extends Resource
                     ->label('Discan Oleh')
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('scanned_at')
+                Tables\Columns\TextColumn::make('waktu_scan')
                     ->label('Waktu Scan')
                     ->dateTime('d M Y H:i')
                     ->sortable(),
             ])
-            ->defaultSort('scanned_at', 'desc')
+            ->defaultSort('waktu_scan', 'desc')
             ->filters([])
             ->actions([])
             ->bulkActions([]);
