@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Button } from "@/components/atomics/button";
 import { Input } from "@/components/atomics/input";
@@ -49,20 +49,21 @@ function SignIn() {
       if (res.success) {
         const user = res.data;
 
-        // 1. Sign in ke NextAuth
-        const result = await signIn("credentials", {
+        // ✅ Sign in ke NextAuth
+        await signIn("credentials", {
           id: user.id_pengguna,
           email: user.email,
           name: user.nama_lengkap,
-          photo_profile: user.foto_profil,
+          nama_lengkap: user.nama_lengkap,
+          foto_profil: user.foto_profil,
           token: user.token,
           redirect: false,
         });
 
-        // 2. Ambil session setelah signIn selesai
+        // ✅ Ambil session
         const session = await getSession();
 
-        // 3. Simpan token dari session ke localStorage (untuk RTK Query)
+        // ✅ Simpan token ke localStorage untuk RTK Query
         if (session?.user?.token) {
           localStorage.setItem("token", session.user.token);
         }
@@ -132,9 +133,7 @@ function SignIn() {
                         icon="/icons/lock-circle.svg"
                         variant="auth"
                         className={
-                          form.formState.errors.password
-                            ? "border-destructive"
-                            : ""
+                          form.formState.errors.password ? "border-destructive" : ""
                         }
                         {...field}
                       />

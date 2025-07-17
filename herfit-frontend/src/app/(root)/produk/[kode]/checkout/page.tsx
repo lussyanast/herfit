@@ -57,7 +57,7 @@ function Checkout({ params }: { params: { kode: string } }) {
     try {
       setIsLoading(true);
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const totalBayar = produk.data.harga_produk * totalDays;
+      const totalBayar = produk.data.harga_produk;
 
       // 1. Buat transaksi
       const transaksiRes = await fetch(`${apiBase}/transaksi`, {

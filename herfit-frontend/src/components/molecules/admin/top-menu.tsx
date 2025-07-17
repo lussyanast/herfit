@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   DropdownMenu,
@@ -13,6 +13,7 @@ import Link from "next/link";
 
 function TopMenu() {
   const { data: session } = useSession();
+
   const fotoProfil = session?.user?.foto_profil
     ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${session.user.foto_profil}`
     : "/images/avatar.png";
@@ -47,7 +48,7 @@ function TopMenu() {
           <DropdownMenuItem>
             <Link href="/dashboard" className="w-full">Dashboard</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => signOut()}>
+          <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
             Logout
           </DropdownMenuItem>
         </DropdownMenuContent>

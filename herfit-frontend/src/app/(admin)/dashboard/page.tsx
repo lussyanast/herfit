@@ -35,14 +35,17 @@ function Dashboard() {
         const transData = await transRes.json();
 
         if (profileRes.ok) setProfile(profileData.data);
-        if (transRes.ok) {
-          const raw = transData.data;
-          const list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
+
+        if (transRes.ok && transData?.data) {
+          const list = Array.isArray(transData.data)
+            ? transData.data
+            : Array.isArray(transData.data.data)
+            ? transData.data.data
+            : [];
           setTransactions(list.slice(0, 3));
         }
-
       } catch (err) {
-        console.error("Gagal memuat data overview", err);
+        console.error("Gagal memuat data dashboard:", err);
       } finally {
         setLoading(false);
       }
@@ -66,8 +69,10 @@ function Dashboard() {
       ) : (
         <>
           {/* Data Pribadi */}
-          <div className="mt-[30px] p-6 rounded-2xl bg-white shadow-md space-y-4">
-            <h2 className="text-xl font-semibold text-secondary border-b pb-2">Data Pribadi</h2>
+          <div className="mt-8 p-6 rounded-2xl bg-white shadow-md space-y-4">
+            <h2 className="text-xl font-semibold text-secondary border-b pb-2">
+              Data Pribadi
+            </h2>
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <Image
                 src={
@@ -102,25 +107,25 @@ function Dashboard() {
           </div>
 
           {/* Riwayat Transaksi */}
-          <div className="mt-[30px]">
-            <h1 className="font-bold text-lg leading-[27px] text-secondary mb-3">
+          <div className="mt-10">
+            <h2 className="text-lg font-bold text-secondary mb-3">
               Riwayat Transaksi Terbaru
-            </h1>
+            </h2>
             <div className="space-y-5">
               {transactions.length > 0 ? (
                 transactions.map((transaction: any) => (
                   <CardTransaction
-                    key={transaction.id_transaksi}
-                    id={transaction.id_transaksi}
+                    key={transaction.kode_transaksi}
+                    kode={transaction.kode_transaksi}
                     image={
                       transaction.produk?.foto_produk
                         ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${transaction.produk.foto_produk}`
                         : "/images/default.png"
                     }
                     title={transaction.produk?.nama_produk || "Tanpa Nama"}
-                    days={transaction.total_hari}
-                    price={transaction.harga}
-                    status={transaction.status}
+                    days={transaction.jumlah_hari}
+                    price={transaction.jumlah_bayar}
+                    status={transaction.status_transaksi}
                   />
                 ))
               ) : (

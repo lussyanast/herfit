@@ -10,7 +10,6 @@ import {
   PaginationContent,
   PaginationItem,
   PaginationLink,
-  PaginationEllipsis,
 } from '@/components/atomics/pagination';
 
 function MyTransactions() {
@@ -61,7 +60,6 @@ function MyTransactions() {
 
   const renderPagination = () => {
     const pages = [];
-
     for (let i = 1; i <= lastPage; i++) {
       pages.push(
         <PaginationItem key={i}>
@@ -75,7 +73,6 @@ function MyTransactions() {
         </PaginationItem>
       );
     }
-
     return pages;
   };
 
@@ -91,8 +88,9 @@ function MyTransactions() {
         ) : transactions.length > 0 ? (
           transactions.map((transaction: any) => (
             <CardTransaction
-              key={transaction.id_transaksi}
+              key={transaction.kode_transaksi}
               id={transaction.id_transaksi}
+              kode={transaction.kode_transaksi} // 🔥 gunakan ini untuk routing detail
               image={
                 transaction.produk?.foto_produk
                   ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${transaction.produk.foto_produk}`

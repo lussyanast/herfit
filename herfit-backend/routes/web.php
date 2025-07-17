@@ -50,7 +50,7 @@ Route::post('/scan/save', function (Request $request) {
     // Simpan data scan
     TransactionScan::create([
         'transaction_id' => $transaction->id,
-        'scanned_by' => auth()->id() ?? 11, // fallback ID user jika belum login
+        'scanned_by' => auth()->id() ?? 11,
         'scanned_at' => now(),
     ]);
 
