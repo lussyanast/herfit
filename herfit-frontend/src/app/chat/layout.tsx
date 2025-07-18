@@ -9,7 +9,7 @@ import ReduxProvider from '@/providers/redux';
 const poppins = Poppins({
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
   subsets: ['latin'],
-})
+});
 
 export const metadata: Metadata = {
   title: 'HerFit Ladies Gym',
@@ -17,27 +17,23 @@ export const metadata: Metadata = {
   icons: {
     icon: '/logo.png',
   },
-}
+  viewport: 'width=device-width, initial-scale=1',
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
-      <body className={poppins.className}>
+      <body className={`${poppins.className} min-h-screen flex flex-col bg-white text-gray-900`}>
         <ReduxProvider>
-          <div className="lg:block hidden">
-            <Header />
+          <Header />
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
             {children}
-            <Footer />
-          </div>
-          <div className="block lg:hidden">
-            <div className="text-secondary h-screen text-2xl text-center leading-snug font-medium my-auto grid place-content-center">
-              Sorry, this page only supported on 1024px screen or above
-            </div>
-          </div>
+          </main>
+          <Footer />
           <Toaster />
         </ReduxProvider>
       </body>
