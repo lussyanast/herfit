@@ -21,8 +21,8 @@ import { useLoginMutation } from "@/services/auth.service";
 import { signIn, getSession } from "next-auth/react";
 
 const schema = yup.object().shape({
-    email: yup.string().email("Email tidak valid").required("Email wajib diisi"),
-    password: yup.string().min(8).max(32).required("Kata sandi wajib diisi"),
+    email: yup.string().email("Format email tidak valid").required("Email wajib diisi"),
+    password: yup.string().min(8, "Minimal 8 karakter").max(32, "Maksimal 32 karakter").required("Kata sandi wajib diisi"),
 });
 
 type FormData = yup.InferType<typeof schema>;
@@ -49,7 +49,7 @@ export default function SignIn() {
             if (res.success) {
                 const user = res.data;
 
-                await signIn("credentials", {
+                const signInResult = await signIn("credentials", {
                     id: user.id_pengguna,
                     email: user.email,
                     name: user.nama_lengkap,
@@ -59,23 +59,31 @@ export default function SignIn() {
                     redirect: false,
                 });
 
-                const session = await getSession();
-                if (session?.user?.token) {
-                    localStorage.setItem("token", session.user.token);
+                if (signInResult?.ok) {
+                    const session = await getSession();
+                    if (session?.user?.token) {
+                        localStorage.setItem("token", session.user.token);
+                    }
+
+                    toast({
+                        title: "Berhasil Masuk",
+                        description: "Anda berhasil login.",
+                        open: true,
+                    });
+
+                    router.push(searchParams.get("callbackUrl") || "/dashboard");
+                } else {
+                    toast({
+                        title: "Login Gagal",
+                        description: "Email atau kata sandi salah.",
+                        variant: "destructive",
+                    });
                 }
-
-                toast({
-                    title: "Berhasil masuk",
-                    description: "Selamat datang kembali!",
-                    open: true,
-                });
-
-                router.push(searchParams.get("callbackUrl") || "/dashboard");
             }
         } catch (error: any) {
             toast({
-                title: "Gagal Login",
-                description: error?.data?.message || "Terjadi kesalahan.",
+                title: "Terjadi Kesalahan",
+                description: error?.data?.message || "Gagal login.",
                 variant: "destructive",
             });
         }
@@ -83,7 +91,7 @@ export default function SignIn() {
 
     return (
         <div
-            className="min-h-screen flex items-center justify-center px-4 bg-primary-foreground bg-cover bg-no-repeat bg-center"
+            className="min-h-screen flex items-center justify-center bg-primary-foreground bg-cover bg-no-repeat bg-right px-4 lg:px-28"
             style={{ backgroundImage: "url('/images/bg-image.png')" }}
         >
             <div className="w-full max-w-md bg-white rounded-[30px] shadow-lg p-8 space-y-6">
@@ -103,7 +111,7 @@ export default function SignIn() {
                                     <FormItem>
                                         <FormControl>
                                             <Input
-                                                type="email"
+                                                type="text"
                                                 placeholder="Alamat email"
                                                 icon="/icons/sms.svg"
                                                 variant="auth"
