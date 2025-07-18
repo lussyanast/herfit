@@ -3,7 +3,7 @@ export interface DealsProps {
   title: string;
   slug: string;
   price: number;
-  capacity: number;
+  // capacity: number;
 }
 
 export interface CategoriesProps {

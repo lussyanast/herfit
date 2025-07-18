@@ -148,6 +148,7 @@ function SignUp() {
                         variant="auth"
                         className={form.formState.errors.no_identitas ? "border-destructive" : ""}
                         {...field}
+                        value={field.value ?? ""}
                       />
                     </FormControl>
                     <FormMessage />
@@ -169,6 +170,7 @@ function SignUp() {
                         variant="auth"
                         className={form.formState.errors.no_telp ? "border-destructive" : ""}
                         {...field}
+                        value={field.value ?? ""}
                       />
                     </FormControl>
                     <FormMessage />

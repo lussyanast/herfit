@@ -14,14 +14,15 @@ function Detail({ params }: { params: { kode: string } }) {
   const { data } = useGetDetailProdukQuery(params.kode);
   const produk: Produk | undefined = useMemo(() => data?.data, [data]);
 
-  const fotoArray: string[] =
-    produk?.foto_produk?.includes(",")
-      ? produk.foto_produk
-        .split(",")
-        .map((item) => `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${item.trim()}`)
-      : produk?.foto_produk
-        ? [`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${produk.foto_produk}`]
-        : [];
+  const fotoArray: string[] = useMemo(() => {
+    if (!produk?.foto_produk || produk.foto_produk.trim() === "") return [];
+
+    const files = produk.foto_produk.includes(",")
+      ? produk.foto_produk.split(",")
+      : [produk.foto_produk];
+
+    return files.map((file) => file.trim());
+  }, [produk]);
 
   return (
     <main>

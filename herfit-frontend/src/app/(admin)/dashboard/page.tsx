@@ -40,8 +40,8 @@ function Dashboard() {
           const list = Array.isArray(transData.data)
             ? transData.data
             : Array.isArray(transData.data.data)
-            ? transData.data.data
-            : [];
+              ? transData.data.data
+              : [];
           setTransactions(list.slice(0, 3));
         }
       } catch (err) {
@@ -115,6 +115,7 @@ function Dashboard() {
               {transactions.length > 0 ? (
                 transactions.map((transaction: any) => (
                   <CardTransaction
+                    id={transaction.id}
                     key={transaction.kode_transaksi}
                     kode={transaction.kode_transaksi}
                     image={

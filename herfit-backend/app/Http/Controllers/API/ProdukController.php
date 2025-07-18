@@ -42,4 +42,30 @@ class ProdukController extends Controller
             'data' => $produk,
         ]);
     }
+
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'nama_produk' => 'required|string|max:255',
+            'kategori_produk' => 'required|string',
+            'deskripsi_produk' => 'nullable|string',
+            'maksimum_peserta' => 'required|integer',
+            'harga_produk' => 'required|numeric',
+            'foto_produk' => 'nullable|string',
+        ]);
+
+        // Ambil ID terakhir
+        $lastProduk = Produk::latest('id_produk')->first();
+        $nextId = $lastProduk ? $lastProduk->id_produk + 1 : 1;
+
+        $validated['kode_produk'] = 'PRD' . $nextId;
+
+        $produk = Produk::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Produk berhasil ditambahkan.',
+            'data' => $produk,
+        ]);
+    }
 }

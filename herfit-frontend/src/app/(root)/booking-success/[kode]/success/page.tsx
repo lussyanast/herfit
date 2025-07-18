@@ -83,7 +83,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                 <p>{booking.jumlah_hari} hari</p>
 
                 <p className="font-semibold">Total Bayar</p>
-                <p>Rp {booking.jumlah_bayar.toLocaleString("id-ID")}</p>
+                <p>Rp {booking.jumlah_bayar?.toLocaleString("id-ID") ?? "-"}</p>
 
                 <p className="font-semibold">Status</p>
                 <div>
