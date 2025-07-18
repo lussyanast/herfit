@@ -9,20 +9,20 @@ export const authOptions: AuthOptions = {
     providers: [
         Credentials({
             credentials: {
-                id: { type: "text" }, // atau "number", boleh dua-duanya
+                id: { type: "number" },
                 email: { type: "text" },
                 nama_lengkap: { type: "text" },
                 foto_profil: { type: "text" },
                 token: { type: "text" },
             },
-            async authorize(credentials) {
+            authorize: async (credentials) => {
                 if (!credentials) return null;
 
-                const id = parseInt(credentials.id); // ✅ pastikan jadi number
+                const id = Number(credentials.id);
                 if (isNaN(id)) return null;
 
                 return {
-                    id, // ← sekarang ini number
+                    id,
                     email: credentials.email,
                     nama_lengkap: credentials.nama_lengkap,
                     foto_profil: credentials.foto_profil,
@@ -45,7 +45,7 @@ export const authOptions: AuthOptions = {
         },
         session: async ({ session, token }) => {
             if (session.user) {
-                session.user.id = token.id as number; // tetap number
+                session.user.id = token.id as number;
                 session.user.email = token.email as string;
                 session.user.nama_lengkap = token.nama_lengkap as string;
                 session.user.name = token.name as string;
