@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "../../../../lib/axios";
 import dayjs from "dayjs";
-import groupBy from "lodash.groupby";
+import groupBy from "lodash/groupBy";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 dayjs.extend(isSameOrAfter);
