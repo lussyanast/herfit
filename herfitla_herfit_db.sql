@@ -16,8 +16,8 @@
 
 
 -- Dumping database structure for herfit_db
-CREATE DATABASE IF NOT EXISTS `herfit_db` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci */;
-USE `herfit_db`;
+CREATE DATABASE IF NOT EXISTS `herfitla_herfit_db` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci */;
+USE `herfitla_herfit_db`;
 
 -- Dumping structure for table herfit_db.absensi
 CREATE TABLE IF NOT EXISTS `absensi` (
