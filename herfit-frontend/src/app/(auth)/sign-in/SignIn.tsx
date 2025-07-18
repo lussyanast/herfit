@@ -50,7 +50,7 @@ export default function SignIn() {
                 const user = res.data;
 
                 const signInResult = await signIn("credentials", {
-                    id: user.id_pengguna,
+                    id: String(user.id_pengguna),
                     email: user.email,
                     name: user.nama_lengkap,
                     nama_lengkap: user.nama_lengkap,

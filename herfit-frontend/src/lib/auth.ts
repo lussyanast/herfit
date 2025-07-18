@@ -9,20 +9,18 @@ export const authOptions: AuthOptions = {
     providers: [
         Credentials({
             credentials: {
-                id: { type: "number" },
+                id: { type: "text" },
                 email: { type: "text" },
                 nama_lengkap: { type: "text" },
                 foto_profil: { type: "text" },
                 token: { type: "text" },
             },
-            authorize: async (credentials) => {
+            async authorize(credentials) {
                 if (!credentials) return null;
 
-                const id = Number(credentials.id);
-                if (isNaN(id)) return null;
-
+                // pastikan id dikonversi jadi string (NextAuth butuh string)
                 return {
-                    id,
+                    id: String(credentials.id),
                     email: credentials.email,
                     nama_lengkap: credentials.nama_lengkap,
                     foto_profil: credentials.foto_profil,
@@ -32,23 +30,22 @@ export const authOptions: AuthOptions = {
         }),
     ],
     callbacks: {
-        jwt: async ({ token, user }) => {
+        async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
                 token.email = user.email;
                 token.nama_lengkap = user.nama_lengkap;
-                token.name = user.nama_lengkap;
                 token.foto_profil = user.foto_profil;
                 token.token = user.token;
             }
             return token;
         },
-        session: async ({ session, token }) => {
+        async session({ session, token }) {
             if (session.user) {
-                session.user.id = token.id as number;
+                session.user.id = token.id as string;
                 session.user.email = token.email as string;
                 session.user.nama_lengkap = token.nama_lengkap as string;
-                session.user.name = token.name as string;
+                session.user.name = token.nama_lengkap as string;
                 session.user.foto_profil = token.foto_profil as string;
                 session.user.token = token.token as string;
             }
@@ -56,6 +53,6 @@ export const authOptions: AuthOptions = {
         },
     },
     pages: {
-        signIn: "/sign-in", // ✅ override halaman login bawaan agar tida direct ke next-auth
+        signIn: "/sign-in",
     },
 };
