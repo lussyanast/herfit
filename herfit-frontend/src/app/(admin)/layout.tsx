@@ -12,14 +12,12 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "HerFit Ladies Gym",
-  description: "Ladies Gym",
+  title: 'HerFit Ladies Gym',
+  description: 'Ladies Gym',
   icons: {
-    icon: "/logo.png",
+      icon: '/logo.png',
   },
-  // Menambahkan viewport meta agar mobile support
-  viewport: "width=device-width, initial-scale=1",
-};
+}
 
 export default function RootLayout({
   children,
@@ -28,15 +26,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.className} bg-gray-light min-h-screen`}>
+      <body className={poppins.className}>
         <ReduxProvider>
-          <div className="flex flex-col md:flex-row md:space-x-6 p-4 md:p-6 container mx-auto">
-            <div className="w-full md:w-[250px]">
+          <div className="bg-gray-light">
+            <div className="flex space-x-[30px] p-[30px] container mx-auto">
               <SideMenu />
-            </div>
-            <div className="flex-1">
-              <TopMenu />
-              <div className="py-4 md:py-6">{children}</div>
+              <div className="w-full">
+                <TopMenu />
+                <div className="py-[30px]">{children}</div>
+              </div>
             </div>
           </div>
           <Toaster />
