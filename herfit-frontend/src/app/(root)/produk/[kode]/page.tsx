@@ -16,27 +16,24 @@ function Detail({ params }: { params: { kode: string } }) {
 
   const fotoArray: string[] = useMemo(() => {
     if (!produk?.foto_produk || produk.foto_produk.trim() === "") return [];
-
-    const files = produk.foto_produk.includes(",")
-      ? produk.foto_produk.split(",")
-      : [produk.foto_produk];
-
-    return files.map((file) => file.trim());
+    return produk.foto_produk.includes(",")
+      ? produk.foto_produk.split(",").map((f) => f.trim())
+      : [produk.foto_produk.trim()];
   }, [produk]);
 
   return (
     <main>
       {/* SECTION: HERO */}
       <section id="overview-section" className="bg-gray-light pt-[170px] pb-[50px]">
-        <div className="px-6 xl:container xl:mx-auto">
+        <div className="px-4 sm:px-6 xl:container xl:mx-auto">
           <Breadcrumbs />
 
           {fotoArray.length > 0 && <PhotoGallery photos={fotoArray} />}
 
-          <div className="mt-[30px] grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-x-6">
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <div className="col-span-2 xl:col-span-3 space-y-5">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-                <h1 className="font-bold text-[28px] xl:text-[32px] leading-tight text-secondary">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <h1 className="font-bold text-2xl sm:text-[28px] xl:text-[32px] leading-tight text-secondary break-words">
                   {produk?.nama_produk ?? "Nama produk tidak tersedia"}
                 </h1>
                 <div className="flex items-center font-semibold text-muted-foreground text-sm">
@@ -58,9 +55,9 @@ function Detail({ params }: { params: { kode: string } }) {
       {/* SECTION: BOOKING */}
       <section
         id="about-booking-section"
-        className="px-6 xl:container xl:mx-auto py-[50px] flex flex-col lg:flex-row space-y-10 lg:space-y-0 lg:space-x-[60px]"
+        className="px-4 sm:px-6 xl:container xl:mx-auto py-12 flex flex-col lg:flex-row gap-10 lg:gap-[60px]"
       >
-        <div className="w-full max-w-[650px] space-y-[30px]">
+        <div className="w-full lg:max-w-[650px] space-y-[30px]">
           <Title
             section="detail"
             title="Deskripsi"
@@ -69,11 +66,13 @@ function Detail({ params }: { params: { kode: string } }) {
         </div>
 
         {produk && (
-          <BookingSection
-            id={produk.id_produk}
-            kode={produk.kode_produk}
-            price={produk.harga_produk}
-          />
+          <div className="w-full">
+            <BookingSection
+              id={produk.id_produk}
+              kode={produk.kode_produk}
+              price={produk.harga_produk}
+            />
+          </div>
         )}
       </section>
 

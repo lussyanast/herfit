@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Button } from "@/components/atomics/button";
 import { Input } from "@/components/atomics/input";
@@ -21,8 +21,8 @@ import { useLoginMutation } from "@/services/auth.service";
 import { signIn, getSession } from "next-auth/react";
 
 const schema = yup.object().shape({
-    email: yup.string().email().required(),
-    password: yup.string().min(8).max(32).required(),
+    email: yup.string().email("Email tidak valid").required("Email wajib diisi"),
+    password: yup.string().min(8).max(32).required("Kata sandi wajib diisi"),
 });
 
 type FormData = yup.InferType<typeof schema>;
@@ -65,8 +65,8 @@ export default function SignIn() {
                 }
 
                 toast({
-                    title: "Welcome",
-                    description: "Sign in successfully",
+                    title: "Berhasil masuk",
+                    description: "Selamat datang kembali!",
                     open: true,
                 });
 
@@ -74,7 +74,7 @@ export default function SignIn() {
             }
         } catch (error: any) {
             toast({
-                title: "Something went wrong.",
+                title: "Gagal Login",
                 description: error?.data?.message || "Terjadi kesalahan.",
                 variant: "destructive",
             });
@@ -83,7 +83,7 @@ export default function SignIn() {
 
     return (
         <div
-            className="fixed inset-0 z-0 flex items-center justify-center bg-primary-foreground bg-no-repeat bg-cover bg-right px-4 lg:px-28"
+            className="min-h-screen flex items-center justify-center px-4 bg-primary-foreground bg-cover bg-no-repeat bg-center"
             style={{ backgroundImage: "url('/images/bg-image.png')" }}
         >
             <div className="w-full max-w-md bg-white rounded-[30px] shadow-lg p-8 space-y-6">
@@ -103,13 +103,11 @@ export default function SignIn() {
                                     <FormItem>
                                         <FormControl>
                                             <Input
-                                                type="text"
+                                                type="email"
                                                 placeholder="Alamat email"
                                                 icon="/icons/sms.svg"
                                                 variant="auth"
-                                                className={
-                                                    form.formState.errors.email ? "border-destructive" : ""
-                                                }
+                                                className={form.formState.errors.email ? "border-destructive" : ""}
                                                 {...field}
                                             />
                                         </FormControl>
@@ -128,9 +126,7 @@ export default function SignIn() {
                                                 placeholder="Kata sandi"
                                                 icon="/icons/lock-circle.svg"
                                                 variant="auth"
-                                                className={
-                                                    form.formState.errors.password ? "border-destructive" : ""
-                                                }
+                                                className={form.formState.errors.password ? "border-destructive" : ""}
                                                 {...field}
                                             />
                                         </FormControl>
@@ -141,7 +137,7 @@ export default function SignIn() {
                         </div>
 
                         <Button type="submit" disabled={isLoading} className="w-full">
-                            Masuk
+                            {isLoading ? "Memproses..." : "Masuk"}
                         </Button>
 
                         <Link href="/sign-up">

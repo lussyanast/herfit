@@ -20,33 +20,16 @@ import { useToast } from "@/components/atomics/use-toast";
 import { useRegisterMutation } from "@/services/auth.service";
 import { signIn } from "next-auth/react";
 
-// Validasi schema sesuai backend
 const schema = yup.object().shape({
-  nama_lengkap: yup
-    .string()
-    .min(5, "Nama lengkap minimal 5 karakter")
-    .required("Nama lengkap wajib diisi"),
-  no_identitas: yup
-    .string()
-    .length(16, "Nomor identitas harus 16 digit")
-    .nullable(),
-  no_telp: yup
-    .string()
-    .min(10, "Nomor telepon minimal 10 digit")
-    .max(15, "Nomor telepon maksimal 15 digit")
-    .nullable(),
-  email: yup
-    .string()
-    .email("Format email tidak valid")
-    .required("Email wajib diisi"),
-  password: yup
-    .string()
-    .min(8, "Kata sandi minimal 8 karakter")
-    .required("Kata sandi wajib diisi"),
+  nama_lengkap: yup.string().min(5).required(),
+  no_identitas: yup.string().length(16).nullable(),
+  no_telp: yup.string().min(10).max(15).nullable(),
+  email: yup.string().email().required(),
+  password: yup.string().min(8).required(),
   password_confirmation: yup
     .string()
-    .oneOf([yup.ref("password")], "Konfirmasi kata sandi tidak cocok")
-    .required("Konfirmasi kata sandi wajib diisi"),
+    .oneOf([yup.ref("password")], "Konfirmasi tidak cocok")
+    .required(),
 });
 
 type FormData = yup.InferType<typeof schema>;
@@ -100,159 +83,69 @@ function SignUp() {
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-primary-foreground bg-cover bg-no-repeat bg-right px-4 lg:px-28"
-      style={{ backgroundImage: "url('/images/bg-image.png')" }}
-    >
-      <div className="w-full max-w-md bg-white rounded-[30px] shadow-lg p-8 space-y-6">
-        <div className="flex justify-center">
-          <Image src="/images/logo.png" alt="HerFit" height={36} width={133} />
-        </div>
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Kiri: background (desktop only) */}
+      <div
+        className="hidden lg:block lg:w-1/2 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/bg-image.png')" }}
+      />
 
-        <Title title="Buat akun baru" subtitle="" section="" />
+      {/* Kanan: form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-12 py-10 bg-white">
+        <div className="w-full max-w-[480px] space-y-6">
+          <div className="flex justify-center">
+            <Image src="/images/logo.png" alt="HerFit" height={36} width={133} />
+          </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-5">
-              {/* Nama */}
-              <FormField
-                control={form.control}
-                name="nama_lengkap"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        placeholder="Nama lengkap"
-                        icon="/icons/profile.svg"
-                        variant="auth"
-                        className={form.formState.errors.nama_lengkap ? "border-destructive" : ""}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <Title title="Buat akun baru" subtitle="" section="" />
 
-              {/* No Identitas */}
-              <FormField
-                control={form.control}
-                name="no_identitas"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Nomor identitas (NIK)"
-                        icon="/icons/card.svg"
-                        variant="auth"
-                        className={form.formState.errors.no_identitas ? "border-destructive" : ""}
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-5">
+                {[
+                  { name: "nama_lengkap", type: "text", placeholder: "Nama lengkap", icon: "/icons/profile.svg" },
+                  { name: "no_identitas", type: "number", placeholder: "Nomor identitas (NIK)", icon: "/icons/card.svg" },
+                  { name: "no_telp", type: "number", placeholder: "Nomor telepon", icon: "/icons/call.svg" },
+                  { name: "email", type: "email", placeholder: "Alamat email", icon: "/icons/sms.svg" },
+                  { name: "password", type: "password", placeholder: "Kata sandi", icon: "/icons/lock-circle.svg" },
+                  { name: "password_confirmation", type: "password", placeholder: "Konfirmasi kata sandi", icon: "/icons/lock-circle.svg" },
+                ].map(({ name, type, placeholder, icon }) => (
+                  <FormField
+                    key={name}
+                    control={form.control}
+                    name={name as keyof FormData}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type={type}
+                            placeholder={placeholder}
+                            icon={icon}
+                            variant="auth"
+                            className={form.formState.errors[name as keyof FormData] ? "border-destructive" : ""}
+                            {...field}
+                            value={field.value ?? ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
 
-              {/* Telepon */}
-              <FormField
-                control={form.control}
-                name="no_telp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Nomor telepon"
-                        icon="/icons/call.svg"
-                        variant="auth"
-                        className={form.formState.errors.no_telp ? "border-destructive" : ""}
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Email */}
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="Alamat email"
-                        icon="/icons/sms.svg"
-                        variant="auth"
-                        className={form.formState.errors.email ? "border-destructive" : ""}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Password */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Kata sandi"
-                        icon="/icons/lock-circle.svg"
-                        variant="auth"
-                        className={form.formState.errors.password ? "border-destructive" : ""}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Konfirmasi Password */}
-              <FormField
-                control={form.control}
-                name="password_confirmation"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Konfirmasi kata sandi"
-                        icon="/icons/lock-circle.svg"
-                        variant="auth"
-                        className={form.formState.errors.password_confirmation ? "border-destructive" : ""}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <Button type="submit" disabled={isLoading} className="w-full">
-              Buat akun
-            </Button>
-
-            <Link href="/sign-in">
-              <Button variant="third" className="w-full mt-5">
-                Sudah punya akun
+              <Button type="submit" disabled={isLoading} className="w-full">
+                {isLoading ? "Memproses..." : "Buat akun"}
               </Button>
-            </Link>
-          </form>
-        </Form>
+
+              <Link href="/sign-in" className="block">
+                <Button variant="third" className="w-full mt-5">
+                  Sudah punya akun
+                </Button>
+              </Link>
+            </form>
+          </Form>
+        </div>
       </div>
     </div>
   );

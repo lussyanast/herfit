@@ -12,12 +12,12 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'HerFit Ladies Gym',
-  description: 'Ladies Gym',
+  title: "HerFit Ladies Gym",
+  description: "Ladies Gym",
   icons: {
-      icon: '/logo.png',
+    icon: "/logo.png",
   },
-}
+};
 
 export default function RootLayout({
   children,
@@ -25,16 +25,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={poppins.className}>
+    <html lang="id">
+      <body className={`${poppins.className} min-h-screen bg-gray-light overflow-x-hidden`}>
         <ReduxProvider>
-          <div className="bg-gray-light">
-            <div className="flex space-x-[30px] p-[30px] container mx-auto">
-              <SideMenu />
-              <div className="w-full">
-                <TopMenu />
-                <div className="py-[30px]">{children}</div>
-              </div>
+          <div className="flex min-h-screen">
+            {/* Sidebar */}
+            <SideMenu />
+
+            {/* Main content */}
+            <div className="flex-1 flex flex-col">
+              <TopMenu />
+              <main className="p-6 sm:p-8 md:p-10 lg:p-12 xl:p-[30px] w-full max-w-[1440px] mx-auto">
+                {children}
+              </main>
             </div>
           </div>
           <Toaster />

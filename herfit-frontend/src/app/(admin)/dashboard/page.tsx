@@ -55,8 +55,8 @@ function Dashboard() {
   }, [session]);
 
   return (
-    <main>
-      <div className="flex items-center justify-between">
+    <main className="pb-20">
+      <div className="flex flex-col sm:flex-row items-start justify-between sm:items-center gap-3">
         <Title
           section="admin"
           title="Dashboard"
@@ -69,7 +69,7 @@ function Dashboard() {
       ) : (
         <>
           {/* Data Pribadi */}
-          <div className="mt-8 p-6 rounded-2xl bg-white shadow-md space-y-4">
+          <div className="mt-8 p-6 rounded-2xl bg-white shadow-md space-y-6">
             <h2 className="text-xl font-semibold text-secondary border-b pb-2">
               Data Pribadi
             </h2>
@@ -83,16 +83,16 @@ function Dashboard() {
                 alt="Foto Profil"
                 width={100}
                 height={100}
-                className="rounded-full object-cover border shadow"
+                className="rounded-full object-cover border shadow shrink-0"
               />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3 w-full text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-4 w-full text-sm">
                 <div>
                   <p className="text-gray-500">Nama</p>
-                  <p className="font-medium">{profile?.nama_lengkap || "-"}</p>
+                  <p className="font-medium break-words">{profile?.nama_lengkap || "-"}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Email</p>
-                  <p className="font-medium">{profile?.email || "-"}</p>
+                  <p className="font-medium break-words">{profile?.email || "-"}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">NIK</p>

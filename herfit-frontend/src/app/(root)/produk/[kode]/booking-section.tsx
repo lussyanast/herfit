@@ -55,7 +55,6 @@ function BookingSection({ id, kode, price }: BookingSectionProps) {
       const res = await checkAvailability(data).unwrap();
 
       if (res.success) {
-        // Simpan ke localStorage (jika dibutuhkan di checkout)
         localStorage.setItem("tanggal_mulai", data.tanggal_mulai);
         localStorage.setItem("tanggal_selesai", data.tanggal_selesai);
 
@@ -92,20 +91,23 @@ function BookingSection({ id, kode, price }: BookingSectionProps) {
   };
 
   return (
-    <div className="w-full max-w-[360px] xl:max-w-[400px] h-fit space-y-5 bg-white border border-border rounded-[20px] p-[30px] shadow-indicator">
-      <span className="leading-6">
-        <span className="font-bold text-4xl leading-[54px]">
+    <div className="w-full sm:max-w-md bg-white border border-border rounded-[20px] p-6 sm:p-8 shadow-indicator space-y-5">
+      <span className="leading-6 block">
+        <span className="font-bold text-3xl sm:text-4xl leading-[54px] text-secondary">
           {moneyFormat.format(price)}
         </span>
       </span>
+
       <div className="space-y-5">
         <DatePickerDemo placeholder="Start Date" date={startDate} setDate={setStartDate} />
         <DatePickerDemo placeholder="End Date" date={endDate} setDate={setEndDate} />
       </div>
+
       <div className="space-y-5">
         <CardBooking title="Total hari" value={`${totalDays} hari`} />
       </div>
-      <Button variant="default" className="mt-4" onClick={handleBook} disabled={isLoading}>
+
+      <Button variant="default" className="mt-4 w-full" onClick={handleBook} disabled={isLoading}>
         {isLoading ? "Memeriksa..." : "Pesan Sekarang"}
       </Button>
     </div>

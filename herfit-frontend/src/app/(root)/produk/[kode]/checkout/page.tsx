@@ -59,7 +59,6 @@ function Checkout({ params }: { params: { kode: string } }) {
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
       const totalBayar = produk.data.harga_produk;
 
-      // 1. Buat transaksi
       const transaksiRes = await fetch(`${apiBase}/transaksi`, {
         method: "POST",
         headers: {
@@ -81,7 +80,6 @@ function Checkout({ params }: { params: { kode: string } }) {
       const transactionId = transaksiData.data.id_transaksi;
       const kodeTransaksi = transaksiData.data.kode_transaksi;
 
-      // 2. Upload bukti pembayaran
       const formData = new FormData();
       formData.append("bukti_bayar", proofFile);
 
@@ -96,7 +94,6 @@ function Checkout({ params }: { params: { kode: string } }) {
       const uploadData = await uploadRes.json();
       if (!uploadData.success) throw new Error(uploadData.message);
 
-      // 3. Redirect sukses pakai kode_transaksi (bukan kode produk)
       router.push(`/booking-success/${kodeTransaksi}/success`);
     } catch (err: any) {
       toast({
@@ -115,14 +112,14 @@ function Checkout({ params }: { params: { kode: string } }) {
     <main className="bg-gray-50 pb-20">
       {/* Header */}
       <section className="bg-gray-light pt-[170px] pb-[180px]">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 sm:px-6">
           <Breadcrumbs />
         </div>
       </section>
 
       {/* Isi */}
-      <section className="container mx-auto px-4 -mt-[140px]">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <section className="container mx-auto px-4 sm:px-6 -mt-[140px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10">
           {/* Produk */}
           <div className="lg:col-span-5">
             {produk?.data && <Produk produk={produk.data} />}
@@ -132,7 +129,7 @@ function Checkout({ params }: { params: { kode: string } }) {
           <div className="lg:col-span-7">
             <div className="space-y-10">
               <div>
-                <h2 className="font-bold text-xl text-secondary mb-3">Informasi Pesanan</h2>
+                <h2 className="font-bold text-xl sm:text-2xl text-secondary mb-3">Informasi Pesanan</h2>
                 <div className="rounded-[20px] bg-white p-6 border border-border shadow space-y-5">
                   <DatePickerDemo placeholder="Tanggal Mulai" date={startDate} setDate={setStartDate} />
                   <DatePickerDemo placeholder="Tanggal Selesai" date={endDate} setDate={setEndDate} />
@@ -142,14 +139,14 @@ function Checkout({ params }: { params: { kode: string } }) {
               </div>
 
               <div>
-                <h2 className="font-bold text-xl text-secondary mb-3">Pembayaran</h2>
+                <h2 className="font-bold text-xl sm:text-2xl text-secondary mb-3">Pembayaran</h2>
                 <div className="rounded-[20px] bg-white p-6 border border-border shadow space-y-5">
-                  <div className="flex items-center gap-4">
-                    <Button variant="third" size="button" className="w-1/2 border-gray-light hover:border-primary">
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <Button variant="third" size="button" className="w-full sm:w-1/2 border-gray-light hover:border-primary">
                       <Image src="/icons/card.svg" alt="card" width={24} height={24} className="mr-2.5" />
                       Transfer
                     </Button>
-                    <Button variant="third" size="button" className="w-1/2 border-gray-light hover:border-primary">
+                    <Button variant="third" size="button" className="w-full sm:w-1/2 border-gray-light hover:border-primary">
                       <Image src="/icons/visa.svg" alt="visa" width={48} height={24} />
                     </Button>
                   </div>

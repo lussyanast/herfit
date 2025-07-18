@@ -1,4 +1,4 @@
-import { Button } from "@/components/atomics/button";
+// import { Button } from "@/components/atomics/button";
 import Image from "next/image";
 import React from "react";
 
@@ -7,18 +7,19 @@ function PhotoGallery({ photos }: { photos: string[] }) {
     `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${path}`;
 
   return (
-    <div className="mt-[30px] grid grid-cols-3 xl:grid-cols-4 gap-x-5">
-      <div className="col-span-2 xl:col-span-3 relative">
+    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      {/* Foto utama besar */}
+      <div className="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-3 relative w-full">
         <Image
           src={photos[0] ? getFullUrl(photos[0]) : "/images/no-image.png"}
           alt="image-1"
           height={0}
           width={0}
-          className="w-full h-[520px] rounded-[30px] object-cover"
+          className="w-full h-[280px] sm:h-[350px] md:h-[450px] xl:h-[520px] rounded-[20px] object-cover"
           unoptimized
         />
 
-        <div className="absolute bottom-[30px] right-[30px]">
+        {/* <div className="absolute bottom-5 right-5">
           <Button className="flex" variant="third">
             <Image
               src="/icons/direct-right.svg"
@@ -29,41 +30,23 @@ function PhotoGallery({ photos }: { photos: string[] }) {
             />
             Start Virtual Tour
           </Button>
-        </div>
+        </div> */}
       </div>
 
+      {/* Foto kecil samping */}
       {photos.length > 1 && (
-        <div className="space-y-5">
-          {photos[1] && (
+        <div className="flex flex-col gap-4">
+          {photos.slice(1, 4).map((photo, i) => (
             <Image
-              src={getFullUrl(photos[1])}
-              alt="image-2"
+              key={i}
+              src={getFullUrl(photo)}
+              alt={`image-${i + 2}`}
               height={0}
               width={0}
-              className="w-full h-[160px] rounded-[20px] object-cover"
+              className="w-full h-[120px] sm:h-[140px] md:h-[160px] rounded-[16px] object-cover"
               unoptimized
             />
-          )}
-          {photos[2] && (
-            <Image
-              src={getFullUrl(photos[2])}
-              alt="image-3"
-              height={0}
-              width={0}
-              className="w-full h-[160px] rounded-[20px] object-cover"
-              unoptimized
-            />
-          )}
-          {photos[3] && (
-            <Image
-              src={getFullUrl(photos[3])}
-              alt="image-4"
-              height={0}
-              width={0}
-              className="w-full h-[160px] rounded-[20px] object-cover"
-              unoptimized
-            />
-          )}
+          ))}
         </div>
       )}
     </div>

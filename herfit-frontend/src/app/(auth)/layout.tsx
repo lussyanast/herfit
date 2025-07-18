@@ -4,7 +4,10 @@ import '@/app/globals.css';
 import { Toaster } from '@/components/atomics/toaster';
 import ReduxProvider from '@/providers/redux';
 
-const inter = Poppins({ weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'], subsets: ['latin'] });
+const poppins = Poppins({
+    weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+    subsets: ['latin'],
+});
 
 export const metadata: Metadata = {
     title: 'HerFit Ladies Gym',
@@ -12,7 +15,7 @@ export const metadata: Metadata = {
     icons: {
         icon: '/logo.png',
     },
-}
+};
 
 export default function RootLayout({
     children,
@@ -20,11 +23,11 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body className={inter.className}>
+        <html lang="id">
+            <body className={`${poppins.className} bg-white text-black`}>
                 <ReduxProvider>
+                    <main className="min-h-screen">{children}</main>
                     <Toaster />
-                    {children}
                 </ReduxProvider>
             </body>
         </html>

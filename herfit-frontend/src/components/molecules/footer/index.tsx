@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,9 +9,7 @@ function Footer() {
   return (
     <footer className="mt-24 bg-[#675371] text-white">
       <div className="container mx-auto px-6 py-20">
-        {/* Grid Utama */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-          {/* Menu Navigasi */}
           <div>
             <h4 className="font-semibold text-lg mb-4">Menu</h4>
             <ul className="space-y-2 text-sm">
@@ -24,7 +22,6 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Menu Bantuan */}
           <div>
             <h4 className="font-semibold text-lg mb-4">Bantuan</h4>
             <ul className="space-y-2 text-sm">
@@ -33,7 +30,6 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Instagram */}
           <div>
             <h4 className="font-semibold text-lg mb-4">Ikuti Kami</h4>
             <ul className="space-y-2 text-sm">
@@ -51,16 +47,9 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Logo dan Copyright */}
           <div className="flex flex-col justify-between">
             <Link href="/">
-              <Image
-                src="/images/logo.png"
-                alt="HerFit"
-                width={133}
-                height={36}
-                className="mb-4"
-              />
+              <Image src="/images/logo.png" alt="HerFit" width={133} height={36} className="mb-4" />
             </Link>
             <span className="text-sm text-white/70">
               © {new Date().getFullYear()} HerFit. All rights reserved.
@@ -68,7 +57,6 @@ function Footer() {
           </div>
         </div>
 
-        {/* Garis Bawah */}
         <Separator className="bg-white/30" />
       </div>
     </footer>
