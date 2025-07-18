@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-const ChatGemini = dynamic(() => import("@/components/chat/ChatGemini"), {
+const ChatGemini = dynamic(() => import("@/components/chat/chatGemini"), {
     ssr: false,
 });
 
