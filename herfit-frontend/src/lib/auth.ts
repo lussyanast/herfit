@@ -9,7 +9,7 @@ export const authOptions: AuthOptions = {
     providers: [
         Credentials({
             credentials: {
-                id: { type: "text" },
+                id: { type: "text" }, // atau "number", boleh dua-duanya
                 email: { type: "text" },
                 nama_lengkap: { type: "text" },
                 foto_profil: { type: "text" },
@@ -18,9 +18,11 @@ export const authOptions: AuthOptions = {
             async authorize(credentials) {
                 if (!credentials) return null;
 
-                // pastikan id dikonversi jadi string (NextAuth butuh string)
+                const id = parseInt(credentials.id); // ✅ pastikan jadi number
+                if (isNaN(id)) return null;
+
                 return {
-                    id: String(credentials.id),
+                    id, // ← sekarang ini number
                     email: credentials.email,
                     nama_lengkap: credentials.nama_lengkap,
                     foto_profil: credentials.foto_profil,
@@ -30,29 +32,27 @@ export const authOptions: AuthOptions = {
         }),
     ],
     callbacks: {
-        async jwt({ token, user }) {
+        jwt: async ({ token, user }) => {
             if (user) {
                 token.id = user.id;
                 token.email = user.email;
                 token.nama_lengkap = user.nama_lengkap;
+                token.name = user.nama_lengkap;
                 token.foto_profil = user.foto_profil;
                 token.token = user.token;
             }
             return token;
         },
-        async session({ session, token }) {
+        session: async ({ session, token }) => {
             if (session.user) {
-                session.user.id = token.id as string;
+                session.user.id = token.id as number; // tetap number
                 session.user.email = token.email as string;
                 session.user.nama_lengkap = token.nama_lengkap as string;
-                session.user.name = token.nama_lengkap as string;
+                session.user.name = token.name as string;
                 session.user.foto_profil = token.foto_profil as string;
                 session.user.token = token.token as string;
             }
             return session;
         },
-    },
-    pages: {
-        signIn: "/sign-in",
     },
 };
