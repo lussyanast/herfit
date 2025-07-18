@@ -16,7 +16,18 @@ export const authOptions: AuthOptions = {
                 token: { type: "text" },
             },
             authorize: async (credentials) => {
-                return credentials || null;
+                if (!credentials) return null;
+
+                const id = Number(credentials.id);
+                if (isNaN(id)) return null;
+
+                return {
+                    id,
+                    email: credentials.email,
+                    nama_lengkap: credentials.nama_lengkap,
+                    foto_profil: credentials.foto_profil,
+                    token: credentials.token,
+                };
             },
         }),
     ],
