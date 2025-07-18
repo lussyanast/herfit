@@ -116,7 +116,7 @@ export default function WorkoutTemplatesPage() {
     };
 
     return (
-        <div className="p-6 max-w-6xl mx-auto space-y-10">
+        <div className="px-4 sm:px-6 py-6 max-w-6xl mx-auto space-y-10">
             <h1 className="text-3xl font-bold text-center text-pink-600">Template Latihan</h1>
 
             {/* Form Input */}
@@ -148,11 +148,11 @@ export default function WorkoutTemplatesPage() {
 
                     <div className="space-y-2">
                         <label className="block text-sm font-medium">Tambah Hari Latihan</label>
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-3">
                             <select
                                 value={newDay}
                                 onChange={(e) => setNewDay(e.target.value)}
-                                className="p-2 border rounded-md"
+                                className="p-2 border rounded-md w-full sm:w-auto"
                             >
                                 {allDays.map((day) => (
                                     <option key={day} value={day}>{day}</option>
@@ -161,7 +161,7 @@ export default function WorkoutTemplatesPage() {
                             <button
                                 type="button"
                                 onClick={addNewDay}
-                                className="bg-orange-600 text-white px-4 py-2 rounded-md"
+                                className="bg-orange-600 text-white px-4 py-2 rounded-md w-full sm:w-auto"
                             >
                                 + Hari
                             </button>
@@ -173,7 +173,7 @@ export default function WorkoutTemplatesPage() {
                             <div key={idx} className="bg-white border p-4 rounded-md shadow-sm">
                                 <h4 className="font-semibold mb-3">{day.day}</h4>
                                 {day.workouts.map((w, widx) => (
-                                    <div key={widx} className="grid grid-cols-2 gap-2 mb-2">
+                                    <div key={widx} className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
                                         <input
                                             type="text"
                                             placeholder="Nama latihan"
@@ -219,7 +219,7 @@ export default function WorkoutTemplatesPage() {
             <div className="space-y-6">
                 {templates.map((template) => (
                     <div key={template.id_aktivitas} className="p-6 rounded-xl border bg-white shadow-sm">
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
                                 <h2 className="text-lg font-semibold">{template.nama_aktivitas}</h2>
                                 <p className="text-sm text-gray-600 capitalize">

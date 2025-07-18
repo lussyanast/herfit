@@ -55,4 +55,7 @@ export const authOptions: AuthOptions = {
             return session;
         },
     },
+    pages: {
+        signIn: "/sign-in", // ✅ override halaman login bawaan agar tida direct ke next-auth
+    },
 };
