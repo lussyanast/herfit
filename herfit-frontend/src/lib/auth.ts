@@ -1,58 +1,73 @@
-import { AuthOptions } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import CredentialsProvider from "next-auth/providers/credentials";
+import type { AuthOptions } from "next-auth";
 
 export const authOptions: AuthOptions = {
-    session: {
-        strategy: "jwt",
-        maxAge: 60 * 60 * 24,
-    },
     providers: [
-        Credentials({
+        CredentialsProvider({
+            name: "Credentials",
             credentials: {
-                id: { type: "number" },
-                email: { type: "text" },
-                nama_lengkap: { type: "text" },
-                foto_profil: { type: "text" },
-                token: { type: "text" },
+                email: { label: "Email", type: "text" },
+                password: { label: "Password", type: "password" },
             },
-            authorize: async (credentials) => {
-                if (!credentials) return null;
+            async authorize(credentials) {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/login`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({
+                        email: credentials?.email,
+                        password: credentials?.password,
+                    }),
+                });
 
-                const id = Number(credentials.id);
-                if (isNaN(id)) return null;
+                const data = await res.json();
 
-                return {
-                    id,
-                    email: credentials.email,
-                    nama_lengkap: credentials.nama_lengkap,
-                    foto_profil: credentials.foto_profil,
-                    token: credentials.token,
-                };
+                if (res.ok && data.success && data.data) {
+                    return {
+                        id: data.data.id_pengguna,
+                        email: data.data.email,
+                        name: data.data.nama_lengkap,
+                        nama_lengkap: data.data.nama_lengkap,
+                        foto_profil: data.data.foto_profil,
+                        token: data.data.token,
+                    };
+                }
+
+                return null;
             },
         }),
     ],
+    pages: {
+        signIn: "/sign-in",
+    },
+    session: {
+        strategy: "jwt",
+    },
     callbacks: {
-        jwt: async ({ token, user }) => {
+        async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
                 token.email = user.email;
-                token.nama_lengkap = user.nama_lengkap;
                 token.name = user.nama_lengkap;
+                token.nama_lengkap = user.nama_lengkap;
                 token.foto_profil = user.foto_profil;
                 token.token = user.token;
             }
             return token;
         },
-        session: async ({ session, token }) => {
+        async session({ session, token }) {
             if (session.user) {
                 session.user.id = token.id as number;
                 session.user.email = token.email as string;
+                session.user.name = token.nama_lengkap as string;
                 session.user.nama_lengkap = token.nama_lengkap as string;
-                session.user.name = token.name as string;
                 session.user.foto_profil = token.foto_profil as string;
                 session.user.token = token.token as string;
             }
             return session;
         },
     },
+    secret: process.env.NEXTAUTH_SECRET,
 };
