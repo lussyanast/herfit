@@ -12,11 +12,6 @@ return [
             'driver' => 'session',
             'provider' => 'pengguna',
         ],
-
-        'api' => [
-            'driver' => 'sanctum',
-            'provider' => 'pengguna',
-        ],
     ],
 
     'providers' => [
