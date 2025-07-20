@@ -18,7 +18,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/atomics/use-toast";
 import { useLoginMutation } from "@/services/auth.service";
-import { signIn, getSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 
 const schema = yup.object().shape({
     email: yup.string().email("Email tidak valid").required("Email wajib diisi"),
@@ -44,33 +44,37 @@ export default function SignIn() {
 
     async function onSubmit(values: FormData) {
         try {
+            // validasi login ke backend kamu (jika perlu token tambahan, dsb)
             const res = await login(values).unwrap();
 
             if (res.success) {
-                const user = res.data;
-
-                await signIn("credentials", {
-                    id: user.id_pengguna,
-                    email: user.email,
-                    name: user.nama_lengkap,
-                    nama_lengkap: user.nama_lengkap,
-                    foto_profil: user.foto_profil,
-                    token: user.token,
+                const result = await signIn("credentials", {
                     redirect: false,
+                    email: values.email,
+                    password: values.password,
+                    callbackUrl: searchParams.get("callbackUrl") || "/dashboard",
                 });
 
-                const session = await getSession();
-                if (session?.user?.token) {
-                    localStorage.setItem("token", session.user.token);
+                if (result?.ok && result.url) {
+                    toast({
+                        title: "Berhasil masuk",
+                        description: "Selamat datang kembali!",
+                        open: true,
+                    });
+                    router.push(result.url);
+                } else {
+                    toast({
+                        title: "Gagal Login",
+                        description: "Email atau password salah.",
+                        variant: "destructive",
+                    });
                 }
-
+            } else {
                 toast({
-                    title: "Berhasil masuk",
-                    description: "Selamat datang kembali!",
-                    open: true,
+                    title: "Gagal Login",
+                    description: "Autentikasi tidak valid.",
+                    variant: "destructive",
                 });
-
-                router.push(searchParams.get("callbackUrl") || "/dashboard");
             }
         } catch (error: any) {
             toast({

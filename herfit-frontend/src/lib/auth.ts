@@ -4,30 +4,44 @@ import Credentials from "next-auth/providers/credentials";
 export const authOptions: AuthOptions = {
     session: {
         strategy: "jwt",
-        maxAge: 60 * 60 * 24,
+        maxAge: 60 * 60 * 24, // 1 hari
     },
     providers: [
         Credentials({
+            name: "Credentials",
             credentials: {
-                id: { type: "number" },
-                email: { type: "text" },
-                nama_lengkap: { type: "text" },
-                foto_profil: { type: "text" },
-                token: { type: "text" },
+                email: { label: "Email", type: "text" },
+                password: { label: "Password", type: "password" },
             },
             authorize: async (credentials) => {
                 if (!credentials) return null;
 
-                const id = Number(credentials.id);
-                if (isNaN(id)) return null;
+                const loginRes = await fetch("https://herfit-ladiesgym.my.id/api/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({
+                        email: credentials.email,
+                        password: credentials.password,
+                    }),
+                });
 
-                return {
-                    id,
-                    email: credentials.email,
-                    nama_lengkap: credentials.nama_lengkap,
-                    foto_profil: credentials.foto_profil,
-                    token: credentials.token,
-                };
+                const response = await loginRes.json();
+
+                if (loginRes.ok && response.success) {
+                    const user = response.data;
+                    return {
+                        id: user.id_pengguna,
+                        email: user.email,
+                        nama_lengkap: user.nama_lengkap,
+                        foto_profil: user.foto_profil,
+                        token: user.token,
+                    };
+                }
+
+                return null; // trigger 401
             },
         }),
     ],
@@ -55,4 +69,8 @@ export const authOptions: AuthOptions = {
             return session;
         },
     },
+    pages: {
+        signIn: "/sign-in",
+    },
+    secret: process.env.NEXTAUTH_SECRET,
 };
