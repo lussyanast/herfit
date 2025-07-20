@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import axios from '@/lib/axios';
+import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
 import { X } from 'lucide-react';
+import { toast } from '@/components/atomics/use-toast';
 
 type Post = {
     id_postingan: number;
@@ -17,6 +18,7 @@ type Post = {
 };
 
 export default function HerFeedPage() {
+    const { data: session } = useSession();
     const [caption, setCaption] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -24,22 +26,40 @@ export default function HerFeedPage() {
     const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
     const [loading, setLoading] = useState(false);
 
+    const token = session?.user?.token;
+
     const fetchPosts = async () => {
+        if (!token) return;
         try {
-            const res = await axios.get('/herfeed-posts');
-            setPosts(res.data.data);
-        } catch (err) {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-posts`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setPosts(data.data);
+            } else {
+                throw new Error(data.message || 'Gagal memuat postingan');
+            }
+        } catch (err: any) {
             console.error('Gagal memuat postingan', err);
+            toast({
+                title: 'Gagal Memuat Postingan',
+                description: err.message,
+                variant: 'destructive',
+            });
         }
     };
 
     useEffect(() => {
-        fetchPosts();
-    }, []);
+        if (token) fetchPosts();
+    }, [token]);
 
     const handlePostSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!caption.trim() && !image) return;
+        if (!token) return;
 
         const formData = new FormData();
         formData.append('caption', caption);
@@ -47,13 +67,32 @@ export default function HerFeedPage() {
 
         try {
             setLoading(true);
-            await axios.post('/herfeed-posts', formData);
-            setCaption('');
-            setImage(null);
-            setPreview(null);
-            fetchPosts();
-        } catch (err) {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-posts`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                toast({ title: 'Berhasil', description: 'Postingan berhasil ditambahkan' });
+                setCaption('');
+                setImage(null);
+                setPreview(null);
+                fetchPosts();
+            } else {
+                throw new Error(data.message || 'Gagal posting');
+            }
+        } catch (err: any) {
             console.error('Gagal posting', err);
+            toast({
+                title: 'Gagal Posting',
+                description: err.message,
+                variant: 'destructive',
+            });
         } finally {
             setLoading(false);
         }
@@ -71,8 +110,16 @@ export default function HerFeedPage() {
     };
 
     const handleLike = async (id_postingan: number) => {
+        if (!token) return;
         try {
-            await axios.post('/herfeed-likes/toggle', { id_postingan });
+            await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-likes/toggle`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id_postingan }),
+            });
             fetchPosts();
         } catch (err) {
             console.error('Gagal like postingan', err);
@@ -81,12 +128,16 @@ export default function HerFeedPage() {
 
     const handleComment = async (id_postingan: number) => {
         const content = commentInputs[id_postingan];
-        if (!content?.trim()) return;
+        if (!content?.trim() || !token) return;
 
         try {
-            await axios.post('/herfeed-comments', {
-                id_postingan,
-                isi_komentar: content,
+            await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-comments`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id_postingan, isi_komentar: content }),
             });
             setCommentInputs((prev) => ({ ...prev, [id_postingan]: '' }));
             fetchPosts();
@@ -95,14 +146,18 @@ export default function HerFeedPage() {
         }
     };
 
+    const resolveImageUrl = (path: string) => {
+        if (!path) return "";
+        const cleanPath = path.replace(/^storage\//, "");
+        const base = process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "");
+        return `${base}/storage/${cleanPath}`;
+    };
+
     return (
         <div className="max-w-2xl mx-auto p-6 space-y-10">
             <h1 className="text-3xl font-bold text-center text-pink-600">HerFeed</h1>
 
-            <form
-                onSubmit={handlePostSubmit}
-                className="space-y-4 bg-white p-6 rounded-lg shadow-md border"
-            >
+            <form onSubmit={handlePostSubmit} className="space-y-4 bg-white p-6 rounded-lg shadow-md border">
                 <textarea
                     placeholder="Bagikan progres latihanmu..."
                     value={caption}
@@ -149,7 +204,7 @@ export default function HerFeedPage() {
                     {post.foto_postingan && (
                         <img
                             src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${post.foto_postingan}`}
-                            alt="post"
+                            alt="Post"
                             className="w-full rounded-md border"
                         />
                     )}

@@ -29,10 +29,7 @@ export default function RootLayout({
       <body className={`${poppins.className} min-h-screen bg-gray-light overflow-x-hidden`}>
         <ReduxProvider>
           <div className="flex min-h-screen">
-            {/* Sidebar */}
             <SideMenu />
-
-            {/* Main content */}
             <div className="flex-1 flex flex-col">
               <TopMenu />
               <main className="p-6 sm:p-8 md:p-10 lg:p-12 xl:p-[30px] w-full max-w-[1440px] mx-auto">

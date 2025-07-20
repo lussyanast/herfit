@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Postingan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 class PostinganController extends Controller
 {
@@ -47,9 +48,23 @@ class PostinganController extends Controller
             'image' => 'nullable|image|max:2048',
         ]);
 
-        $path = $request->hasFile('image')
-            ? $request->file('image')->store('feeds', 'public')
-            : null;
+        $path = null;
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Simpan ke /home/herfitla/public_html/storage/feeds
+            $publicStoragePath = base_path('../storage/feeds');
+
+            if (!File::exists($publicStoragePath)) {
+                File::makeDirectory($publicStoragePath, 0755, true);
+            }
+
+            $file->move($publicStoragePath, $filename);
+
+            $path = 'storage/feeds/' . $filename;
+        }
 
         Postingan::create([
             'id_pengguna' => Auth::id(),
