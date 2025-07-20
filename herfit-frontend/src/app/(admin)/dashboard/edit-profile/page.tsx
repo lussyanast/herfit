@@ -150,18 +150,31 @@ export default function EditProfilePage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center pt-28 px-4 lg:px-28">
-            <div className="w-full max-w-md bg-white rounded-[30px] shadow-lg p-8 space-y-6">
+        <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 pt-20 px-4">
+            <div className="w-full max-w-xl bg-white rounded-3xl shadow-lg px-6 py-8 space-y-6">
                 {loading ? (
                     <div className="text-center text-sm text-gray-500">Memuat profil...</div>
                 ) : (
                     <>
+                        {/* Logo */}
                         <div className="flex justify-center">
-                            <Image src="/images/logo.png" alt="HerFit" height={36} width={133} priority />
+                            <Image
+                                src="/images/logo.png"
+                                alt="HerFit"
+                                width={120}
+                                height={36}
+                                priority
+                                className="h-auto w-auto"
+                            />
                         </div>
 
-                        <Title title="Edit Profil" subtitle="Perbarui data Anda" section="" />
+                        {/* Judul */}
+                        <div className="text-center">
+                            <h2 className="text-xl font-bold text-secondary">Edit Profil</h2>
+                            <p className="text-sm text-gray-500 mt-1">Perbarui data pribadi Anda</p>
+                        </div>
 
+                        {/* Form */}
                         {showCropper && previewImage ? (
                             <ImageCropper
                                 image={previewImage}
@@ -170,8 +183,9 @@ export default function EditProfilePage() {
                             />
                         ) : (
                             <Form {...form}>
-                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                    <div className="space-y-5">
+                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                                    {/* Input fields */}
+                                    <div className="space-y-4">
                                         <FormField
                                             control={form.control}
                                             name="nama_lengkap"
@@ -191,6 +205,7 @@ export default function EditProfilePage() {
                                                 </FormItem>
                                             )}
                                         />
+
                                         <FormField
                                             control={form.control}
                                             name="no_identitas"
@@ -210,6 +225,7 @@ export default function EditProfilePage() {
                                                 </FormItem>
                                             )}
                                         />
+
                                         <FormField
                                             control={form.control}
                                             name="no_telp"
@@ -229,6 +245,7 @@ export default function EditProfilePage() {
                                                 </FormItem>
                                             )}
                                         />
+
                                         <FormField
                                             control={form.control}
                                             name="email"
@@ -248,38 +265,41 @@ export default function EditProfilePage() {
                                                 </FormItem>
                                             )}
                                         />
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-sm font-semibold text-gray-600">Foto Profil</label>
-                                            {previewImage && (
-                                                previewImage.startsWith("http") || previewImage.startsWith("https") ? (
-                                                    <Image
-                                                        src={previewImage}
-                                                        alt="Preview"
-                                                        width={80}
-                                                        height={80}
-                                                        unoptimized // Ini penting agar Next tidak proses image secara internal
-                                                        className="rounded-full object-cover mb-2"
-                                                    />
-                                                ) : (
-                                                    <img
-                                                        src={previewImage}
-                                                        alt="Preview"
-                                                        width={80}
-                                                        height={80}
-                                                        className="rounded-full object-cover mb-2"
-                                                    />
-                                                )
-                                            )}
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={onFileChange}
-                                                className="border rounded-md px-3 py-2 text-sm"
-                                            />
-                                        </div>
                                     </div>
 
-                                    <Button type="submit" className="w-full">
+                                    {/* Foto profil */}
+                                    <div className="flex flex-col gap-2 mt-4">
+                                        <label className="text-sm font-medium text-gray-600">Foto Profil</label>
+                                        {previewImage && (
+                                            previewImage.startsWith("http") || previewImage.startsWith("https") ? (
+                                                <Image
+                                                    src={previewImage}
+                                                    alt="Preview"
+                                                    width={80}
+                                                    height={80}
+                                                    unoptimized
+                                                    className="rounded-full object-cover mb-2 border shadow"
+                                                />
+                                            ) : (
+                                                <img
+                                                    src={previewImage}
+                                                    alt="Preview"
+                                                    width={80}
+                                                    height={80}
+                                                    className="rounded-full object-cover mb-2 border shadow"
+                                                />
+                                            )
+                                        )}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={onFileChange}
+                                            className="border rounded-md px-3 py-2 text-sm"
+                                        />
+                                    </div>
+
+                                    {/* Tombol */}
+                                    <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
                                         Simpan Perubahan
                                     </Button>
                                 </form>

@@ -28,15 +28,22 @@ export default function RootLayout({
     <html lang="id">
       <body className={`${poppins.className} min-h-screen bg-gray-light overflow-x-hidden`}>
         <ReduxProvider>
-          <div className="flex min-h-screen">
-            <SideMenu />
-            <div className="flex-1 flex flex-col">
+          <div className="flex min-h-screen overflow-hidden">
+            {/* Sidebar */}
+            <aside className="hidden lg:block lg:w-[250px] bg-white p-6">
+              <SideMenu />
+            </aside>
+
+            {/* Main area */}
+            <div className="flex flex-1 flex-col overflow-hidden">
               <TopMenu />
-              <main className="p-6 sm:p-8 md:p-10 lg:p-12 xl:p-[30px] w-full max-w-[1440px] mx-auto">
-                {children}
+
+              <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-8 sm:py-8">
+                <div className="max-w-5xl mx-auto w-full">{children}</div>
               </main>
             </div>
           </div>
+
           <Toaster />
         </ReduxProvider>
       </body>
