@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import dayjs from 'dayjs';
-import { X } from 'lucide-react';
-import { toast } from '@/components/atomics/use-toast';
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import dayjs from "dayjs";
+import { X } from "lucide-react";
+import { toast } from "@/components/atomics/use-toast";
 
 type Post = {
     id_postingan: number;
@@ -19,35 +19,36 @@ type Post = {
 
 export default function HerFeedPage() {
     const { data: session } = useSession();
-    const [caption, setCaption] = useState('');
+    const token = session?.user?.token;
+
+    const [caption, setCaption] = useState("");
     const [image, setImage] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
     const [loading, setLoading] = useState(false);
 
-    const token = session?.user?.token;
+    // 🔢 Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const postsPerPage = 5;
 
     const fetchPosts = async () => {
         if (!token) return;
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-posts`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
             if (res.ok) {
                 setPosts(data.data);
             } else {
-                throw new Error(data.message || 'Gagal memuat postingan');
+                throw new Error(data.message || "Gagal memuat postingan");
             }
         } catch (err: any) {
-            console.error('Gagal memuat postingan', err);
             toast({
-                title: 'Gagal Memuat Postingan',
+                title: "Gagal Memuat Postingan",
                 description: err.message,
-                variant: 'destructive',
+                variant: "destructive",
             });
         }
     };
@@ -62,40 +63,61 @@ export default function HerFeedPage() {
         if (!token) return;
 
         const formData = new FormData();
-        formData.append('caption', caption);
-        if (image) formData.append('image', image);
+        formData.append("caption", caption);
+        if (image) formData.append("image", image);
 
         try {
             setLoading(true);
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-posts`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
                 body: formData,
             });
 
             const data = await res.json();
-
             if (res.ok) {
-                toast({ title: 'Berhasil', description: 'Postingan berhasil ditambahkan' });
-                setCaption('');
+                toast({ title: "Berhasil", description: "Postingan berhasil ditambahkan" });
+                setCaption("");
                 setImage(null);
                 setPreview(null);
                 fetchPosts();
             } else {
-                throw new Error(data.message || 'Gagal posting');
+                throw new Error(data.message || "Gagal posting");
             }
         } catch (err: any) {
-            console.error('Gagal posting', err);
-            toast({
-                title: 'Gagal Posting',
-                description: err.message,
-                variant: 'destructive',
-            });
+            toast({ title: "Gagal Posting", description: err.message, variant: "destructive" });
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleLike = async (id_postingan: number) => {
+        if (!token) return;
+        await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-likes/toggle`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id_postingan }),
+        });
+        fetchPosts();
+    };
+
+    const handleComment = async (id_postingan: number) => {
+        const content = commentInputs[id_postingan];
+        if (!content?.trim() || !token) return;
+
+        await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-comments`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id_postingan, isi_komentar: content }),
+        });
+        setCommentInputs((prev) => ({ ...prev, [id_postingan]: "" }));
+        fetchPosts();
     };
 
     const handleImageChange = (file: File | null) => {
@@ -109,49 +131,18 @@ export default function HerFeedPage() {
         }
     };
 
-    const handleLike = async (id_postingan: number) => {
-        if (!token) return;
-        try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-likes/toggle`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id_postingan }),
-            });
-            fetchPosts();
-        } catch (err) {
-            console.error('Gagal like postingan', err);
-        }
-    };
-
-    const handleComment = async (id_postingan: number) => {
-        const content = commentInputs[id_postingan];
-        if (!content?.trim() || !token) return;
-
-        try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-comments`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id_postingan, isi_komentar: content }),
-            });
-            setCommentInputs((prev) => ({ ...prev, [id_postingan]: '' }));
-            fetchPosts();
-        } catch (err) {
-            console.error('Gagal komentar', err);
-        }
-    };
-
     const resolveImageUrl = (path: string) => {
         if (!path) return "";
         const cleanPath = path.replace(/^storage\//, "");
         const base = process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "");
         return `${base}/storage/${cleanPath}`;
     };
+
+    // 🔢 Pagination logic
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+    const totalPages = Math.ceil(posts.length / postsPerPage);
 
     return (
         <div className="max-w-2xl mx-auto p-6 space-y-10">
@@ -187,23 +178,20 @@ export default function HerFeedPage() {
                     disabled={loading}
                     className="w-full bg-orange-500 hover:bg-orange-700 text-white py-2 rounded-md transition"
                 >
-                    {loading ? 'Posting...' : 'Posting'}
+                    {loading ? "Posting..." : "Posting"}
                 </button>
             </form>
 
-            {posts.map((post) => (
-                <div
-                    key={post.id_postingan}
-                    className="bg-white p-5 rounded-lg shadow-sm border space-y-4"
-                >
+            {currentPosts.map((post) => (
+                <div key={post.id_postingan} className="bg-white p-5 rounded-lg shadow-sm border space-y-4">
                     <div className="flex justify-between items-center text-sm text-gray-600">
                         <span className="font-semibold text-gray-800">{post.user_name}</span>
-                        <span>{dayjs(post.created_at).format('DD MMM YYYY HH:mm')}</span>
+                        <span>{dayjs(post.created_at).format("DD MMM YYYY HH:mm")}</span>
                     </div>
                     <p className="text-gray-800">{post.caption}</p>
                     {post.foto_postingan && (
                         <img
-                            src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${post.foto_postingan}`}
+                            src={resolveImageUrl(post.foto_postingan)}
                             alt="Post"
                             className="w-full rounded-md border"
                         />
@@ -213,7 +201,7 @@ export default function HerFeedPage() {
                         onClick={() => handleLike(post.id_postingan)}
                         className="text-sm text-gray-700 hover:underline"
                     >
-                        {post.is_liked ? '💔 Unlike' : '❤️ Like'} ({post.likes_count})
+                        {post.is_liked ? "💔 Unlike" : "❤️ Like"} ({post.likes_count})
                     </button>
 
                     <div className="pt-2 space-y-1">
@@ -228,7 +216,7 @@ export default function HerFeedPage() {
                         <input
                             type="text"
                             placeholder="Tulis komentar..."
-                            value={commentInputs[post.id_postingan] || ''}
+                            value={commentInputs[post.id_postingan] || ""}
                             onChange={(e) =>
                                 setCommentInputs((prev) => ({
                                     ...prev,
@@ -246,6 +234,29 @@ export default function HerFeedPage() {
                     </div>
                 </div>
             ))}
+
+            {/* 🔁 Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4 pt-4">
+                    <button
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                        className="text-sm px-4 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                    >
+                        ← Sebelumnya
+                    </button>
+                    <span className="text-sm text-gray-600">
+                        Halaman {currentPage} dari {totalPages}
+                    </span>
+                    <button
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                        className="text-sm px-4 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                    >
+                        Selanjutnya →
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
