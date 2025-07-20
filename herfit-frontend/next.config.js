@@ -14,6 +14,11 @@ const nextConfig = {
         hostname: 'herfit-ladiesgym.my.id',
         pathname: '/storage/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'herfit-ladiesgym.my.id',
+        pathname: '/profil/**',
+      },
     ],
   },
 };
