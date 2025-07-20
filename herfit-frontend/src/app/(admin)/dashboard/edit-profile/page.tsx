@@ -16,7 +16,7 @@ import {
 } from "@/components/atomics/form";
 import Title from "@/components/atomics/title";
 import { useToast } from "@/components/atomics/use-toast";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import ImageCropper from "@/components/molecules/ImageCropper";
 
@@ -71,9 +71,7 @@ export default function EditProfilePage() {
                     });
 
                     if (result.data.foto_profil) {
-                        setPreviewImage(
-                            `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${result.data.foto_profil}`
-                        );
+                        setPreviewImage(`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${result.data.foto_profil}`);
                     }
                 } else {
                     throw new Error(result.message);
@@ -114,15 +112,6 @@ export default function EditProfilePage() {
             const result = await res.json();
 
             if (res.ok) {
-                await signIn("credentials", {
-                    redirect: false,
-                    id: result.data.id_pengguna,
-                    email: result.data.email,
-                    nama_lengkap: result.data.nama_lengkap,
-                    foto_profil: result.data.foto_profil,
-                    token: session?.user.token,
-                });
-
                 toast({ title: "Berhasil", description: "Profil berhasil diperbarui!" });
                 router.refresh();
             } else {
@@ -262,13 +251,24 @@ export default function EditProfilePage() {
                                         <div className="flex flex-col gap-2">
                                             <label className="text-sm font-semibold text-gray-600">Foto Profil</label>
                                             {previewImage && (
-                                                <Image
-                                                    src={previewImage}
-                                                    alt="Preview"
-                                                    width={80}
-                                                    height={80}
-                                                    className="rounded-full object-cover mb-2"
-                                                />
+                                                previewImage.startsWith("http") || previewImage.startsWith("https") ? (
+                                                    <Image
+                                                        src={previewImage}
+                                                        alt="Preview"
+                                                        width={80}
+                                                        height={80}
+                                                        unoptimized // Ini penting agar Next tidak proses image secara internal
+                                                        className="rounded-full object-cover mb-2"
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src={previewImage}
+                                                        alt="Preview"
+                                                        width={80}
+                                                        height={80}
+                                                        className="rounded-full object-cover mb-2"
+                                                    />
+                                                )
                                             )}
                                             <input
                                                 type="file"

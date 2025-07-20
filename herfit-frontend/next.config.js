@@ -12,7 +12,7 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'herfit-ladiesgym.my.id',
-        pathname: '/storage/**',
+        pathname: '/**',
       },
     ],
   },

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
@@ -27,12 +29,35 @@ class ProfileController extends Controller
         $data = $request->only(['nama_lengkap', 'no_identitas', 'no_telp', 'email']);
 
         if ($request->hasFile('foto_profil')) {
-            if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
-                Storage::disk('public')->delete($user->foto_profil);
+            // Hapus foto lama jika ada
+            if ($user->foto_profil && file_exists(public_path($user->foto_profil))) {
+                unlink(public_path($user->foto_profil));
             }
 
-            $path = $request->file('foto_profil')->store('profil', 'public');
-            $data['foto_profil'] = $path;
+            $file = $request->file('foto_profil');
+            $filename = time() . '_' . Str::random(20) . '.' . $file->getClientOriginalExtension();
+            $destination = public_path('storage/profil');
+
+            // Buat folder jika belum ada
+            if (!File::exists($destination)) {
+                File::makeDirectory($destination, 0755, true);
+            }
+
+            // Simpan di public/storage/profil
+            $file->move($destination, $filename);
+
+            // Copy ke public_html/storage/profil (agar bisa diakses oleh URL)
+            $sourcePath = public_path("storage/profil/{$filename}");
+            $publicHtmlPath = base_path("public_html/storage/profil/{$filename}");
+
+            if (!File::exists(dirname($publicHtmlPath))) {
+                File::makeDirectory(dirname($publicHtmlPath), 0755, true);
+            }
+
+            File::copy($sourcePath, $publicHtmlPath);
+
+            // Simpan path relatif
+            $data['foto_profil'] = 'storage/profil/' . $filename;
         }
 
         $user->update($data);

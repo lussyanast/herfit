@@ -12,6 +12,7 @@ function Dashboard() {
   const [profile, setProfile] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileImgError, setProfileImgError] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,6 +55,17 @@ function Dashboard() {
     fetchData();
   }, [session]);
 
+  const getProfileImage = () => {
+    if (profileImgError || !profile?.foto_profil) return "/images/avatar.png";
+
+    // Hilangkan "storage/" jika sudah ada di awal (optional)
+    const cleanPath = profile.foto_profil.replace(/^storage\//, "");
+
+    const baseUrl = process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "");
+
+    return `${baseUrl}/storage/${cleanPath}`;
+  };
+
   return (
     <main className="pb-20">
       <div className="flex flex-col sm:flex-row items-start justify-between sm:items-center gap-3">
@@ -75,15 +87,13 @@ function Dashboard() {
             </h2>
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <Image
-                src={
-                  profile?.foto_profil
-                    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${profile.foto_profil}`
-                    : "/images/avatar.png"
-                }
+                src={getProfileImage()}
                 alt="Foto Profil"
                 width={100}
                 height={100}
                 className="rounded-full object-cover border shadow shrink-0"
+                onError={() => setProfileImgError(true)}
+                unoptimized
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-4 w-full text-sm">
                 <div>
@@ -120,7 +130,7 @@ function Dashboard() {
                     kode={transaction.kode_transaksi}
                     image={
                       transaction.produk?.foto_produk
-                        ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${transaction.produk.foto_produk}`
+                        ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}${transaction.produk.foto_produk}`
                         : "/images/default.png"
                     }
                     title={transaction.produk?.nama_produk || "Tanpa Nama"}
