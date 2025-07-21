@@ -75,29 +75,23 @@ function Checkout({ params }: { params: { kode: string } }) {
       });
 
       const transaksiData = await transaksiRes.json();
-      console.log("Hasil transaksi:", transaksiData);
       const transactionId = transaksiData?.data?.id_transaksi;
       if (!transactionId) {
         throw new Error("ID transaksi tidak ditemukan.");
       }
+
       const kodeTransaksi = transaksiData.data.kode_transaksi;
-      console.log("ID Transaksi:", transactionId);
 
       const formData = new FormData();
       formData.append("bukti_bayar", proofFile);
-      console.log("Token:", localStorage.getItem("token"));
 
-
-      const uploadRes = await fetch(`${apiBase}/transaksi/${transactionId}/upload-bukti`, {
+      const uploadRes = await fetch(`${apiBase}/transaksi/kode/${kodeTransaksi}/upload-bukti`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
         },
         body: formData,
       });
-
-      console.log("Upload Response Status:", uploadRes.status);
-      console.log("Upload Response Raw:", await uploadRes.text());
 
       const uploadData = await uploadRes.json();
       if (!uploadData.success) throw new Error(uploadData.message);

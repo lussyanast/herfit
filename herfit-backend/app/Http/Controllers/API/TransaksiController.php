@@ -175,7 +175,7 @@ class TransaksiController extends Controller
 
     public function uploadBukti(Request $request, $id): JsonResponse
     {
-        $transaksi = Transaksi::findOrFail($id);
+        $transaksi = Transaksi::where('kode_transaksi', $id)->firstOrFail();
 
         if ($transaksi->id_pengguna !== auth()->id()) {
             return response()->json([
