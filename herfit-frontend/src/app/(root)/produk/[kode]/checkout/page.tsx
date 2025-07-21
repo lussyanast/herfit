@@ -75,10 +75,13 @@ function Checkout({ params }: { params: { kode: string } }) {
       });
 
       const transaksiData = await transaksiRes.json();
-      if (!transaksiData.success) throw new Error(transaksiData.message);
-
-      const transactionId = transaksiData.data.id_transaksi;
+      console.log("Hasil transaksi:", transaksiData);
+      const transactionId = transaksiData?.data?.id_transaksi;
+      if (!transactionId) {
+        throw new Error("ID transaksi tidak ditemukan.");
+      }
       const kodeTransaksi = transaksiData.data.kode_transaksi;
+      console.log("ID Transaksi:", transactionId);
 
       const formData = new FormData();
       formData.append("bukti_bayar", proofFile);
