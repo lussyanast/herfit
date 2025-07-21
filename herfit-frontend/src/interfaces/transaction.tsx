@@ -1,22 +1,16 @@
 import { Produk } from "./produk";
 
 export interface Transaction {
-    id: number;
-    user_id: number;
-    listing_id: number;
-    start_date: Date;
-    end_date: Date;
-    total_days: number;
-    price: number;
-    status: string;
-    created_at: Date;
-    updated_at: Date;
-    produk: Produk;
-    kode_transaksi?: string;
+    id_transaksi: number;
+    kode_transaksi: string;
+    id_pengguna: number;
+    id_produk: number;
+    tanggal_mulai: string;
+    tanggal_selesai: string;
+    jumlah_hari: number;
+    jumlah_bayar: number;
+    status_transaksi: "waiting" | "approved" | "rejected";
+    kode_qr?: string;
     qr_code_url?: string;
-    jumlah_hari?: number;
-    jumlah_bayar?: number;
-    status_transaksi?: string;
-    tanggal_mulai?: string;
-    tanggal_selesai?: string;
+    produk: Produk;
 }

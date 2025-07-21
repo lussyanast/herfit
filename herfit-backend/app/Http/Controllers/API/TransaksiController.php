@@ -207,4 +207,36 @@ class TransaksiController extends Controller
             ],
         ]);
     }
+
+    public function showByKode($kode): JsonResponse
+    {
+        $transaksi = Transaksi::where('kode_transaksi', $kode)->first();
+
+        if (!$transaksi) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transaksi tidak ditemukan.',
+            ], 404);
+        }
+
+        // if ($transaksi->id_pengguna !== auth()->id()) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Tidak diizinkan.',
+        //     ], 403);
+        // }
+
+        $transaksi->loadMissing('produk');
+
+        $data = $transaksi->toArray();
+        $data['qr_code_url'] = $transaksi->kode_qr
+            ? asset('storage/' . $transaksi->kode_qr)
+            : null;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail transaksi berhasil diambil.',
+            'data' => $data
+        ]);
+    }
 }
