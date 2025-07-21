@@ -28,7 +28,7 @@ Route::get('/produk/{kode}', [ProdukController::class, 'show']);
 // ✅ Transaksi
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/transaksi/is-available', [TransaksiController::class, 'isAvailable']);
-    Route::post('/transaksi/kode/{kode}/upload-bukti', [TransaksiController::class, 'uploadBukti'])->name('transaksi.upload-bukti');
+    Route::post('/transaksi/{id}/upload-bukti', [TransaksiController::class, 'uploadBukti'])->name('transaksi.upload-bukti');
     Route::resource('transaksi', TransaksiController::class)
         ->only(['index', 'store', 'show'])
         ->names([

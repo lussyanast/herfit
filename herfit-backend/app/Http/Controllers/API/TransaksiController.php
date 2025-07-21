@@ -175,14 +175,14 @@ class TransaksiController extends Controller
 
     public function uploadBukti(Request $request, $id): JsonResponse
     {
-        $transaksi = Transaksi::where('kode_transaksi', $id)->firstOrFail();
+        $transaksi = Transaksi::findOrFail($id);
 
-        if ($transaksi->id_pengguna !== auth()->id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tidak diizinkan.',
-            ], 403);
-        }
+        // if ($transaksi->id_pengguna !== auth()->id()) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Tidak diizinkan.',
+        //     ], 403);
+        // }
 
         if ($transaksi->status_transaksi !== 'waiting') {
             return response()->json([

@@ -85,7 +85,7 @@ function Checkout({ params }: { params: { kode: string } }) {
       const formData = new FormData();
       formData.append("bukti_bayar", proofFile);
 
-      const uploadRes = await fetch(`${apiBase}/transaksi/kode/${kodeTransaksi}/upload-bukti`, {
+      const uploadRes = await fetch(`${apiBase}/transaksi/${transactionId}/upload-bukti`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
