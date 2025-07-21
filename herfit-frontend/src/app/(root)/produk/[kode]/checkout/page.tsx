@@ -94,6 +94,9 @@ function Checkout({ params }: { params: { kode: string } }) {
         body: formData,
       });
 
+      console.log("Upload Response Status:", uploadRes.status);
+      console.log("Upload Response Raw:", await uploadRes.text());
+
       const uploadData = await uploadRes.json();
       if (!uploadData.success) throw new Error(uploadData.message);
 
