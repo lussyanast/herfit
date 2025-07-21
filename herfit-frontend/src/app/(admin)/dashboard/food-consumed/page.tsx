@@ -115,7 +115,7 @@ export default function FoodConsumedPage() {
             <h1 className="text-3xl font-bold text-center text-pink-600">Jurnal Konsumsi Makanan</h1>
 
             {/* Form Tambah */}
-            <form onSubmit={handleSubmit} className="bg-gray-100 p-6 rounded-xl shadow space-y-4">
+            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow space-y-4">
                 <h2 className="text-xl font-semibold text-gray-800">Tambah Makanan</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <input

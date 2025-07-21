@@ -1,4 +1,5 @@
 <?php
+use App\Models\Pengguna;
 
 return [
 
@@ -12,12 +13,16 @@ return [
             'driver' => 'session',
             'provider' => 'pengguna',
         ],
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'pengguna',
+        ],
     ],
 
     'providers' => [
         'pengguna' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Pengguna::class,
+            'model' => Pengguna::class,
         ],
     ],
 

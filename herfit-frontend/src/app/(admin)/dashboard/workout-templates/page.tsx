@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import axios from "../../../../lib/axios";
 
 type WorkoutDay = { day: string; workouts: { name: string; reps: string }[] };
@@ -22,9 +23,17 @@ const defaultForm = {
 const allDays = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
 
 export default function WorkoutTemplatesPage() {
+    const { data: session } = useSession();
     const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
     const [form, setForm] = useState(defaultForm);
     const [newDay, setNewDay] = useState("Senin");
+
+    // ⬇️ Taruh token dari session ke localStorage agar axios bisa baca
+    useEffect(() => {
+        if (session?.user?.token) {
+            localStorage.setItem("token", session.user.token);
+        }
+    }, [session]);
 
     useEffect(() => {
         fetchTemplates();
@@ -32,16 +41,11 @@ export default function WorkoutTemplatesPage() {
 
     const fetchTemplates = async () => {
         try {
-            const token = localStorage.getItem("token");
-            const res = await axios.get("/latihan", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
+            const res = await axios.get("/latihan");
             const parsed = res.data.map((item: any) => ({
                 ...item,
                 days: JSON.parse(item.jadwal || "[]"),
             }));
-
             setTemplates(parsed);
         } catch (err) {
             console.error("Gagal mengambil data template", err);
@@ -72,7 +76,9 @@ export default function WorkoutTemplatesPage() {
             form.nama_aktivitas.trim() === "" ||
             form.days.length === 0 ||
             form.days.some(
-                (d) => d.workouts.length === 0 || d.workouts.some((w) => !w.name.trim() || !w.reps.trim())
+                (d) =>
+                    d.workouts.length === 0 ||
+                    d.workouts.some((w) => !w.name.trim() || !w.reps.trim())
             )
         ) {
             alert("Mohon lengkapi semua kolom sebelum menyimpan.");
@@ -80,7 +86,6 @@ export default function WorkoutTemplatesPage() {
         }
 
         try {
-            const token = localStorage.getItem("token");
             const payload = {
                 nama_aktivitas: form.nama_aktivitas,
                 durasi: form.days.length,
@@ -88,10 +93,7 @@ export default function WorkoutTemplatesPage() {
                 tanggal: new Date().toISOString().slice(0, 10),
             };
 
-            const res = await axios.post("/latihan", payload, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
+            const res = await axios.post("/latihan", payload);
             setTemplates((prev) => [...prev, { ...res.data, days: form.days }]);
             setForm(defaultForm);
         } catch (err) {
@@ -104,10 +106,7 @@ export default function WorkoutTemplatesPage() {
         if (!confirm("Yakin ingin menghapus template ini?")) return;
 
         try {
-            const token = localStorage.getItem("token");
-            await axios.delete(`/latihan/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            await axios.delete(`/latihan/${id}`);
             setTemplates((prev) => prev.filter((t) => t.id_aktivitas !== id));
         } catch (err) {
             alert("Gagal menghapus template.");
@@ -116,8 +115,8 @@ export default function WorkoutTemplatesPage() {
     };
 
     return (
-        <div className="px-4 sm:px-6 py-6 max-w-6xl mx-auto space-y-10">
-            <h1 className="text-3xl font-bold text-center text-pink-600">Template Latihan</h1>
+        <div className="p-6 max-w-6xl mx-auto space-y-10">
+            <h1 className="text-3xl font-bold text-center text-primary">Template Latihan</h1>
 
             {/* Form Input */}
             <div className="p-6 bg-gray-100 rounded-xl shadow-sm space-y-6">
@@ -148,11 +147,11 @@ export default function WorkoutTemplatesPage() {
 
                     <div className="space-y-2">
                         <label className="block text-sm font-medium">Tambah Hari Latihan</label>
-                        <div className="flex flex-col sm:flex-row gap-3">
+                        <div className="flex gap-3">
                             <select
                                 value={newDay}
                                 onChange={(e) => setNewDay(e.target.value)}
-                                className="p-2 border rounded-md w-full sm:w-auto"
+                                className="p-2 border rounded-md"
                             >
                                 {allDays.map((day) => (
                                     <option key={day} value={day}>{day}</option>
@@ -161,7 +160,7 @@ export default function WorkoutTemplatesPage() {
                             <button
                                 type="button"
                                 onClick={addNewDay}
-                                className="bg-orange-600 text-white px-4 py-2 rounded-md w-full sm:w-auto"
+                                className="bg-orange-500 hover:bg-orange-300 text-white px-4 py-2 rounded-md"
                             >
                                 + Hari
                             </button>
@@ -173,7 +172,7 @@ export default function WorkoutTemplatesPage() {
                             <div key={idx} className="bg-white border p-4 rounded-md shadow-sm">
                                 <h4 className="font-semibold mb-3">{day.day}</h4>
                                 {day.workouts.map((w, widx) => (
-                                    <div key={widx} className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+                                    <div key={widx} className="grid grid-cols-2 gap-2 mb-2">
                                         <input
                                             type="text"
                                             placeholder="Nama latihan"
@@ -201,7 +200,7 @@ export default function WorkoutTemplatesPage() {
                                 <button
                                     type="button"
                                     onClick={() => addWorkout(idx)}
-                                    className="text-sm text-orange-600 mt-1"
+                                    className="text-sm bg-orange-500 hover:bg-orange-300 text-white mt-1 px-3 py-1 rounded-md"
                                 >
                                     + Tambah Latihan
                                 </button>
@@ -209,7 +208,7 @@ export default function WorkoutTemplatesPage() {
                         ))}
                     </div>
 
-                    <button type="submit" className="w-full bg-orange-600 text-white py-2 rounded-md">
+                    <button type="submit" className="w-full bg-orange-500 hover:bg-orange-300 text-white py-2 rounded-md">
                         Simpan Template
                     </button>
                 </form>
@@ -219,7 +218,7 @@ export default function WorkoutTemplatesPage() {
             <div className="space-y-6">
                 {templates.map((template) => (
                     <div key={template.id_aktivitas} className="p-6 rounded-xl border bg-white shadow-sm">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div className="flex justify-between items-center">
                             <div>
                                 <h2 className="text-lg font-semibold">{template.nama_aktivitas}</h2>
                                 <p className="text-sm text-gray-600 capitalize">

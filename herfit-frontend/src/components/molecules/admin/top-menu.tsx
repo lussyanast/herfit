@@ -50,7 +50,7 @@ function TopMenu() {
               <span className="text-sm font-medium text-gray-800 truncate">
                 {session?.user?.nama_lengkap || "-"}
               </span>
-              <span className="text-xs text-gray-400">Admin</span>
+              <span className="text-xs text-gray-400">Member</span>
             </div>
             <Image
               src={fotoUrl}
