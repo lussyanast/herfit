@@ -77,7 +77,13 @@ class TransaksiController extends Controller
         $produk = Produk::findOrFail($request->id_produk);
         $totalHarga = $produk->harga_produk * $jumlahHari;
 
+        // Penentuan kode_transaksi: TRX + tanggal + nomor urut hari itu
+        $tanggalSekarang = now()->format('Ymd');
+        $jumlahHariIni = Transaksi::whereDate('created_at', now())->count() + 1;
+        $kodeTransaksi = 'TRX' . $tanggalSekarang . str_pad($jumlahHariIni, 3, '0', STR_PAD_LEFT);
+
         $transaksi = Transaksi::create([
+            'kode_transaksi' => $kodeTransaksi,
             'id_pengguna' => auth()->id(),
             'id_produk' => $produk->id_produk,
             'tanggal_mulai' => $request->tanggal_mulai,
@@ -87,7 +93,7 @@ class TransaksiController extends Controller
             'status_transaksi' => 'waiting',
         ]);
 
-        // Buat QR Code
+        // Generate QR Code
         $qrData = route('transaction.show', $transaksi->id_transaksi);
         $qrCode = new QrCode($qrData);
         $writer = new PngWriter();

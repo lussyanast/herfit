@@ -5,6 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Produk;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class ProdukController extends Controller
 {
@@ -43,10 +46,6 @@ class ProdukController extends Controller
         ]);
     }
 
-    use Illuminate\Http\Request;
-    use Illuminate\Support\Facades\File;
-    use Illuminate\Support\Str;
-
     public function store(Request $request): JsonResponse
     {
         if ($request->expectsJson()) {
@@ -82,7 +81,7 @@ class ProdukController extends Controller
             $file->move($destination, $filename);
 
             // Simpan path relatif
-            $validated['foto_produk'] = "storage/produk/" . $filename;
+            $validated['foto_produk'] = "produk/" . $filename;
         }
 
         $produk = Produk::create($validated);
