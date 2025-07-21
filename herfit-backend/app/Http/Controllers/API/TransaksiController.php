@@ -93,7 +93,7 @@ class TransaksiController extends Controller
             'status_transaksi' => 'waiting',
         ]);
 
-        // Generate QR Code
+        // Generate QR Code pointing to route
         $qrData = route('transaction.show', $transaksi->id_transaksi);
         $qrCode = new QrCode($qrData);
         $writer = new PngWriter();
@@ -102,6 +102,7 @@ class TransaksiController extends Controller
         $fileName = 'qr_codes/transaksi_' . $transaksi->id_transaksi . '_' . Str::random(6) . '.png';
         Storage::disk('public')->put($fileName, $qrImage->getString());
 
+        // Simpan path ke database (tanpa URL)
         $transaksi->update(['kode_qr' => $fileName]);
 
         return response()->json([
@@ -124,7 +125,7 @@ class TransaksiController extends Controller
 
         $data = $transaksi->toArray();
         $data['qr_code_url'] = $transaksi->kode_qr
-            ? asset('storage/' . $transaksi->kode_qr)
+            ? url('/herfit-backend/public/storage/' . $transaksi->kode_qr)
             : null;
 
         return response()->json([
@@ -218,13 +219,6 @@ class TransaksiController extends Controller
                 'message' => 'Transaksi tidak ditemukan.',
             ], 404);
         }
-
-        // if ($transaksi->id_pengguna !== auth()->id()) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Tidak diizinkan.',
-        //     ], 403);
-        // }
 
         $transaksi->loadMissing('produk');
 

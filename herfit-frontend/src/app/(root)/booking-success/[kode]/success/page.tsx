@@ -9,7 +9,6 @@ import { Separator } from "@/components/atomics/separator";
 
 function BookingSuccess({ params }: { params: { kode: string } }) {
   const { data, isLoading, error } = useGetDetailTransactionQuery(params.kode);
-
   const booking: Transaction | undefined = useMemo(() => data?.data, [data]);
 
   return (
@@ -17,7 +16,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
       {/* Header */}
       <section className="bg-gray-light pt-[190px] pb-[148px]">
         <div className="container mx-auto px-4 sm:px-6 text-center">
-          <h1 className="font-bold text-[28px] sm:text-[32px] text-secondary">
+          <h1 className="font-bold text-[28px] sm:text-[32px] leading-[42px] sm:leading-[48px] text-secondary">
             Pemesanan Berhasil 🎉
           </h1>
           <p className="mt-2 text-muted-foreground text-sm">
@@ -32,33 +31,45 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
 
       {/* Isi */}
       <section className="container mx-auto px-4 sm:px-6 -mt-[100px] mb-[100px]">
-        <div className="max-w-[700px] mx-auto bg-white rounded-[20px] border shadow p-6 sm:p-[30px]">
+        <div className="max-w-[700px] mx-auto rounded-[20px] bg-white border border-border shadow-indicator p-6 sm:p-[30px]">
           {!booking ? (
             <p className="text-center text-muted-foreground">Data transaksi tidak ditemukan.</p>
           ) : (
             <>
-              {/* ✅ QR Code */}
-              {booking.qr_code_url ? (
+              {/* QR Code */}
+              {booking.qr_code_url && (
                 <div className="text-center mb-10">
                   <h3 className="text-lg font-semibold text-secondary mb-3">QR Code Pemesanan</h3>
                   <div className="inline-block p-4 bg-white border rounded-xl shadow-md">
-                    <img
-                      src={booking.qr_code_url}
-                      alt="QR Code"
-                      className="mx-auto w-48 h-48"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
+                    <img src={booking.qr_code_url} alt="QR Code" className="mx-auto w-48 h-48" />
                   </div>
                   <p className="text-sm text-muted-foreground mt-3">
                     Tunjukkan QR ini saat check-in
                   </p>
+                  <div className="mt-4 text-xs text-muted-foreground bg-yellow-50 border border-yellow-200 px-4 py-3 rounded-lg text-left">
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>
+                        <span className="font-medium text-yellow-800">
+                          QR hanya dapat digunakan jika status transaksi adalah{" "}
+                          <span className="font-semibold text-green-700">approved</span>.
+                        </span>
+                      </li>
+                      <li>
+                        <span className="font-medium text-yellow-800">
+                          Jika status masih{" "}
+                          <span className="font-semibold text-yellow-700">waiting</span> atau{" "}
+                          <span className="font-semibold text-red-700">rejected</span>, maka QR tidak valid.
+                        </span>
+                      </li>
+                      <li>
+                        <span className="font-medium text-yellow-800">
+                          QR hanya berlaku selama periode tanggal{" "}
+                          <strong>{booking.tanggal_mulai}</strong> s.d. <strong>{booking.tanggal_selesai}</strong>.
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-              ) : (
-                <p className="text-sm text-center text-red-600">
-                  QR Code belum tersedia. Mohon tunggu atau konfirmasi admin.
-                </p>
               )}
 
               <Separator className="my-6 bg-border" />
@@ -81,9 +92,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                   <p>{booking.jumlah_hari} hari</p>
 
                   <p className="font-semibold">Total Bayar</p>
-                  <p>
-                    Rp {booking.jumlah_bayar?.toLocaleString("id-ID") ?? "-"}
-                  </p>
+                  <p>Rp {booking.jumlah_bayar?.toLocaleString("id-ID") ?? "-"}</p>
 
                   <p className="font-semibold">Status</p>
                   <div>
@@ -93,8 +102,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                           ? "bg-green-100 text-green-700"
                           : booking.status_transaksi === "rejected"
                             ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-800"
-                        }
+                            : "bg-yellow-100 text-yellow-800"}
                       `}
                     >
                       {booking.status_transaksi}
@@ -105,7 +113,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
 
               {/* Konfirmasi WA */}
               {booking.status_transaksi !== "approved" && (
-                <section className="mt-10 border border-border bg-gray-50 p-6 rounded-[20px] shadow-sm">
+                <section className="mt-10 rounded-[20px] border border-border bg-gray-50 p-6 shadow-sm">
                   <h3 className="text-xl font-bold mb-3 text-secondary text-center">
                     Konfirmasi Pembayaran
                   </h3>
@@ -132,7 +140,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                         type="text"
                         id="name"
                         required
-                        className="w-full rounded-md border px-3 py-2 shadow-sm text-sm"
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
                       />
                     </div>
 
@@ -144,7 +152,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                         id="message"
                         required
                         rows={3}
-                        className="w-full rounded-md border px-3 py-2 shadow-sm text-sm"
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
                       />
                     </div>
 
