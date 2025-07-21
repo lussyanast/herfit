@@ -28,10 +28,21 @@ Route::get('/produk/{kode}', [ProdukController::class, 'show']);
 // ✅ Transaksi
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/transaksi/is-available', [TransaksiController::class, 'isAvailable']);
-    Route::post('/transaksi/{id}/upload-bukti', [TransaksiController::class, 'uploadBukti'])->name('transaksi.upload-bukti');
-    Route::resource('transaksi', TransaksiController::class)->only(['index', 'store', 'show']);
-    Route::get('/transaksi/kode/{kode}', [TransaksiController::class, 'showByKode'])->name('transaksi.show-by-kode');
-
+    // ✅ Upload dengan ID transaksi (lama)
+    Route::post('/transaksi/{id}/upload-bukti', [TransaksiController::class, 'uploadBukti'])
+        ->name('transaksi.upload-bukti');
+    // ✅ Upload dengan kode_transaksi (baru, aman)
+    Route::post('/transaksi/upload-bukti/{kode_transaksi}', [TransaksiController::class, 'uploadByKode'])
+        ->name('transaksi.upload-by-kode');
+    Route::resource('transaksi', TransaksiController::class)
+        ->only(['index', 'store', 'show'])
+        ->names([
+            'index' => 'transaksi.index',
+            'store' => 'transaksi.store',
+            'show' => 'transaction.show'
+        ]);
+    Route::get('/transaksi/kode/{kode}', [TransaksiController::class, 'showByKode'])
+        ->name('transaksi.show-by-kode');
 });
 
 // ✅ HerFeed: Postingan
