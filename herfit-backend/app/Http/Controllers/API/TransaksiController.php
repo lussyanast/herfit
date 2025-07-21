@@ -173,9 +173,9 @@ class TransaksiController extends Controller
         ]);
     }
 
-    public function uploadByKode(Request $request, $kode_transaksi): JsonResponse
+    public function uploadBukti(Request $request, $id): JsonResponse
     {
-        $transaksi = Transaksi::where('kode_transaksi', $kode_transaksi)->firstOrFail();
+        $transaksi = Transaksi::findOrFail($id);
 
         if ($transaksi->id_pengguna !== auth()->id()) {
             return response()->json([
@@ -192,7 +192,7 @@ class TransaksiController extends Controller
         }
 
         $request->validate([
-            'bukti_bayar' => 'required|mimes:jpg,jpeg,png,pdf|max:2048',
+            'bukti_bayar' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $path = $request->file('bukti_bayar')->store('bukti-bayar', 'public');
