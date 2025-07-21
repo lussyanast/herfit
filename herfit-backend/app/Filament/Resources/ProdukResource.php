@@ -67,6 +67,11 @@ class ProdukResource extends Resource
                 ->disk('public')
                 ->directory('produk')
                 ->preserveFilenames()
+                ->getUploadedFileNameForStorageUsing(function ($file) {
+                    $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+                    return $filename;
+                })
+                ->dehydrated()
                 ->openable()
                 ->downloadable()
                 ->columnSpanFull(),

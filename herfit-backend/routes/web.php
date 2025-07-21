@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\TransactionScan;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Response;
+// use Illuminate\Support\Facades\Artisan;
 
 Route::get('/', function () {
     return ['Laravel' => app()->version()];
@@ -56,3 +58,29 @@ Route::post('/scan/save', function (Request $request) {
 
     return response()->json(['success' => true, 'message' => 'Scan berhasil disimpan']);
 });
+
+Route::get('/public-file/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+
+    $mimeType = mime_content_type($fullPath);
+    return Response::make(file_get_contents($fullPath), 200)->header("Content-Type", $mimeType);
+})->where('path', '.*');
+
+// ✅ Route sementara untuk clear cache
+// Route::get('/__fix-cache', function () {
+//     Artisan::call('optimize:clear');
+//     Artisan::call('config:clear');
+//     Artisan::call('route:clear');
+//     Artisan::call('cache:clear');
+//     Artisan::call('view:clear');
+//     return '✅ Semua cache Laravel berhasil dibersihkan!';
+// });
+
+// Route::get('/storage-link', function () {
+//     Artisan::call('storage:link');
+//     return 'Storage link berhasil dibuat!';
+// });
