@@ -61,7 +61,10 @@ const ListingShowcase = ({ id, title, subtitle, category }: ListingShowcaseProps
       <Carousel className="w-full mt-[30px]">
         <CarouselContent>
           {filtered.map((item) => (
-            <CarouselItem key={item.id_produk} className="basis-1/4">
+            <CarouselItem
+              key={item.id_produk}
+              className="basis-[85%] sm:basis-[45%] md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+            >
               <CardDeals
                 image={
                   item.foto_produk
