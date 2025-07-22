@@ -94,12 +94,13 @@ class TransactionResource extends Resource
                         : '<span class="text-gray-400 italic">Tidak ada</span>')
                     ->action(
                         Action::make('lihat_bukti')
+                            ->label('Lihat Bukti')
                             ->icon('heroicon-o-eye')
                             ->modalHeading('Bukti Pembayaran')
                             ->modalSubmitAction(false)
                             ->modalCancelActionLabel('Tutup')
                             ->modalContent(fn($record) => view('filament.preview-bukti', [
-                                'url' => asset('storage/' . $record->bukti_pembayaran),
+                                'url' => $record->bukti_pembayaran ? asset('storage/' . $record->bukti_pembayaran) : null,
                             ]))
                             ->visible(fn($record) => filled($record->bukti_pembayaran))
                     ),
