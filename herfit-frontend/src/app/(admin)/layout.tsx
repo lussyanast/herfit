@@ -29,8 +29,8 @@ export default function RootLayout({
       <body className={`${poppins.className} min-h-screen bg-gray-light overflow-x-hidden`}>
         <ReduxProvider>
           <div className="flex min-h-screen overflow-hidden">
-            {/* Sidebar */}
-            <aside className="hidden lg:block lg:w-[250px] bg-white p-6">
+            {/* Sidebar SELALU tampil di semua ukuran layar */}
+            <aside className="w-[250px] bg-white p-6 shrink-0">
               <SideMenu />
             </aside>
 
