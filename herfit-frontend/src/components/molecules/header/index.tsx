@@ -30,9 +30,9 @@ function Header() {
     { href: "/chat", label: "Chatbot AI" },
   ];
 
-  const avatarUrl = session?.user?.foto_profil
-    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${session.user.foto_profil}`
-    : "/images/avatar.png";
+  const avatarUrl = session?.user?.foto_profil?.startsWith("http")
+    ? session.user.foto_profil
+    : `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "")}/storage/${session?.user?.foto_profil?.replace(/^storage\//, "")}`;
 
   return (
     <header className="fixed top-5 inset-x-0 z-30 px-4">
@@ -69,11 +69,11 @@ function Header() {
                     {session.user.nama_lengkap}
                   </div>
                   <Image
-                    src={avatarUrl}
-                    alt="User Avatar"
+                    src={avatarUrl || "/images/avatar.png"}
+                    alt="avatar"
                     width={40}
                     height={40}
-                    className="rounded-full object-cover border"
+                    className="rounded-full border object-cover"
                     unoptimized
                   />
                 </div>
