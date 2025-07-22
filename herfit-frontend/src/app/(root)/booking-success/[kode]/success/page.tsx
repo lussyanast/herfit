@@ -11,6 +11,11 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
   const { data, isLoading, error } = useGetDetailTransactionQuery(params.kode);
   const booking: Transaction | undefined = useMemo(() => data?.data, [data]);
 
+  const showQR =
+    booking?.status_transaksi === "approved" &&
+    booking?.produk?.kategori_produk === "membership" &&
+    !!booking?.qr_code_url;
+
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -23,8 +28,8 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
             {isLoading
               ? "Memuat detail transaksi..."
               : error
-                ? "Terjadi kesalahan saat memuat data transaksi."
-                : "Detail transaksi tersedia di bawah."}
+              ? "Terjadi kesalahan saat memuat data transaksi."
+              : "Detail transaksi tersedia di bawah."}
           </p>
         </div>
       </section>
@@ -39,43 +44,41 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
           ) : (
             <>
               {/* QR Code */}
-              {booking.status_transaksi === "approved" && booking.produk?.kategori_produk === "membership" ? (
-                booking.qr_code_url && (
-                  <div className="text-center mb-10">
-                    <h3 className="text-lg font-semibold text-secondary mb-3">
-                      QR Code Pemesanan
-                    </h3>
-                    <div className="inline-block p-4 bg-white border rounded-xl shadow-md">
-                      <img
-                        src={booking.qr_code_url}
-                        alt="QR Code"
-                        className="mx-auto w-48 h-48"
-                      />
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-3">
-                      Tunjukkan QR ini saat check-in
-                    </p>
-                    <div className="mt-4 text-xs text-muted-foreground bg-yellow-50 border border-yellow-200 px-4 py-3 rounded-lg text-left">
-                      <ul className="list-disc pl-5 space-y-1">
-                        <li>
-                          Berlaku dari <strong>{booking.tanggal_mulai}</strong> sampai{" "}
-                          <strong>{booking.tanggal_selesai}</strong>.
-                        </li>
-                        <li>
-                          Jangan bagikan QR ini ke pihak lain demi keamanan akun Anda.
-                        </li>
-                      </ul>
-                    </div>
+              {showQR ? (
+                <div className="text-center mb-10">
+                  <h3 className="text-lg font-semibold text-secondary mb-3">
+                    QR Code Pemesanan
+                  </h3>
+                  <div className="inline-block p-4 bg-white border rounded-xl shadow-md">
+                    <img
+                      src={booking.qr_code_url}
+                      alt="QR Code"
+                      className="mx-auto w-48 h-48"
+                    />
                   </div>
-                )
+                  <p className="text-sm text-muted-foreground mt-3">
+                    Tunjukkan QR ini saat check-in
+                  </p>
+                  <div className="mt-4 text-xs text-muted-foreground bg-yellow-50 border border-yellow-200 px-4 py-3 rounded-lg text-left">
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>
+                        Berlaku dari <strong>{booking.tanggal_mulai}</strong> sampai{" "}
+                        <strong>{booking.tanggal_selesai}</strong>.
+                      </li>
+                      <li>
+                        Jangan bagikan QR ini ke pihak lain demi keamanan akun Anda.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               ) : (
                 <div className="text-center mb-10">
                   <h3 className="text-lg font-semibold text-secondary mb-3">
                     QR Code Belum Tersedia
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    QR akan tampil setelah transaksi disetujui oleh admin.
-                    Silakan cek kembali secara berkala melalui dashboard.
+                    QR akan tampil setelah transaksi disetujui oleh admin
+                    dan hanya untuk produk kategori membership.
                   </p>
                 </div>
               )}
@@ -109,8 +112,8 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                         ${booking.status_transaksi === "approved"
                           ? "bg-green-100 text-green-700"
                           : booking.status_transaksi === "rejected"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-800"}`}
+                          ? "bg-red-100 text-red-700"
+                          : "bg-yellow-100 text-yellow-800"}`}
                     >
                       {booking.status_transaksi}
                     </span>
