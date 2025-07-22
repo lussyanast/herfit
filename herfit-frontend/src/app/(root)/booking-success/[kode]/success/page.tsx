@@ -11,10 +11,13 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
   const { data, isLoading, error } = useGetDetailTransactionQuery(params.kode);
   const booking: Transaction | undefined = useMemo(() => data?.data, [data]);
 
-  const showQR =
-    booking?.status_transaksi === "approved" &&
-    booking?.produk?.kategori_produk === "membership" &&
-    !!booking?.qr_code_url;
+  const statusApproved = booking?.status_transaksi === "approved";
+  const isMembership = booking?.produk?.kategori_produk === "Membership";
+  const qrAvailable = !!booking?.qr_code_url;
+
+  const showQR = statusApproved && isMembership && qrAvailable;
+  const showQRCodeBelumTersedia = !statusApproved && isMembership;
+  const showKonfirmasiGym = !statusApproved && !isMembership;
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -43,7 +46,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
             </p>
           ) : (
             <>
-              {/* QR Code */}
+              {/* QR Code Section */}
               {showQR ? (
                 <div className="text-center mb-10">
                   <h3 className="text-lg font-semibold text-secondary mb-3">
@@ -71,17 +74,26 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                     </ul>
                   </div>
                 </div>
-              ) : (
+              ) : showQRCodeBelumTersedia ? (
                 <div className="text-center mb-10">
                   <h3 className="text-lg font-semibold text-secondary mb-3">
                     QR Code Belum Tersedia
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    QR akan tampil setelah transaksi disetujui oleh admin
-                    dan hanya untuk produk kategori membership.
+                    QR akan tampil setelah transaksi disetujui oleh admin.
+                    Silakan cek kembali secara berkala melalui dashboard.
                   </p>
                 </div>
-              )}
+              ) : showKonfirmasiGym ? (
+                <div className="text-center mb-10">
+                  <h3 className="text-lg font-semibold text-secondary mb-3">
+                    Konfirmasi Admin
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Silakan konfirmasi pembayaran langsung kepada admin yang bertugas di gym.
+                  </p>
+                </div>
+              ) : null}
 
               <Separator className="my-6 bg-border" />
 
@@ -109,7 +121,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                   <div>
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-xs font-semibold
-                        ${booking.status_transaksi === "approved"
+                        ${statusApproved
                           ? "bg-green-100 text-green-700"
                           : booking.status_transaksi === "rejected"
                           ? "bg-red-100 text-red-700"
@@ -120,60 +132,6 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                   </div>
                 </div>
               </div>
-
-              {/* Konfirmasi WA */}
-              {booking.status_transaksi !== "approved" && (
-                <section className="mt-10 rounded-[20px] border border-border bg-gray-50 p-6 shadow-sm">
-                  <h3 className="text-xl font-bold mb-3 text-secondary text-center">
-                    Konfirmasi Pembayaran
-                  </h3>
-                  <p className="text-muted-foreground text-center mb-6">
-                    Setelah pembayaran, silakan konfirmasi melalui WhatsApp.
-                  </p>
-
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const name = (document.getElementById("name") as HTMLInputElement).value;
-                      const message = (document.getElementById("message") as HTMLTextAreaElement).value;
-                      const text = `Halo, saya ${name}. Saya ingin mengonfirmasi pembayaran untuk produk "${booking.produk?.nama_produk}".\nPesan: ${message}`;
-                      const encodedText = encodeURIComponent(text);
-                      window.open(`https://wa.me/6282261291606?text=${encodedText}`, "_blank");
-                    }}
-                    className="space-y-4"
-                  >
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-semibold mb-1">
-                        Nama
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        required
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-semibold mb-1">
-                        Pesan
-                      </label>
-                      <textarea
-                        id="message"
-                        required
-                        rows={3}
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
-                      />
-                    </div>
-
-                    <div className="text-center pt-2">
-                      <Button type="submit" variant="default" size="header">
-                        Konfirmasi via WhatsApp
-                      </Button>
-                    </div>
-                  </form>
-                </section>
-              )}
             </>
           )}
 
