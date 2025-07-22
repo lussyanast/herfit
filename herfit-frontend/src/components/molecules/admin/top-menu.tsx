@@ -6,13 +6,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/atomics/dropdown-menu";
-import Title from "@/components/atomics/title";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Menu } from "lucide-react";
 
-function TopMenu() {
+interface TopMenuProps {
+  onSidebarToggle?: () => void;
+}
+
+function TopMenu({ onSidebarToggle }: TopMenuProps) {
   const { data: session } = useSession();
   const [fotoUrl, setFotoUrl] = useState("/images/avatar.png");
 
@@ -42,11 +46,20 @@ function TopMenu() {
   }, [session]);
 
   return (
-    <header className="w-full h-20 px-6 bg-white border-b flex items-center justify-end rounded-none sm:rounded-tr-2xl">
+    <header className="w-full h-20 px-4 sm:px-6 bg-white border-b flex items-center justify-between sm:justify-end rounded-none sm:rounded-tr-2xl">
+      {/* Tombol toggle sidebar di mobile */}
+      <button
+        className="block sm:hidden text-gray-600 hover:text-primary"
+        onClick={onSidebarToggle}
+      >
+        <Menu size={28} />
+      </button>
+
+      {/* Profil user */}
       <DropdownMenu>
         <DropdownMenuTrigger data-login={!!session?.user} className="outline-none">
           <div className="flex items-center gap-3">
-            <div className="flex flex-col items-end max-w-[180px]">
+            <div className="flex flex-col items-end max-w-[180px] hidden sm:flex">
               <span className="text-sm font-medium text-gray-800 truncate">
                 {session?.user?.nama_lengkap || "-"}
               </span>

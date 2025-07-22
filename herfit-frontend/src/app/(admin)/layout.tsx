@@ -1,3 +1,5 @@
+'use client';
+
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "@/app/globals.css";
@@ -5,6 +7,7 @@ import TopMenu from "@/components/molecules/admin/top-menu";
 import SideMenu from "@/components/molecules/admin/side-menu";
 import { Toaster } from "@/components/atomics/toaster";
 import ReduxProvider from "@/providers/redux";
+import { useState } from "react";
 
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -24,19 +27,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [showSidebar, setShowSidebar] = useState(false);
+
   return (
     <html lang="id">
       <body className={`${poppins.className} min-h-screen bg-gray-light overflow-x-hidden`}>
         <ReduxProvider>
           <div className="flex min-h-screen overflow-hidden">
-            {/* Sidebar SELALU tampil di semua ukuran layar */}
-            <aside className="w-[250px] bg-white p-6 shrink-0">
+            {/* Sidebar responsive */}
+            <aside
+              className={`
+                fixed inset-y-0 left-0 z-40 w-[250px] bg-white p-6 transform transition-transform duration-300 ease-in-out
+                ${showSidebar ? 'translate-x-0' : '-translate-x-full'}
+                lg:static lg:translate-x-0 lg:block
+              `}
+            >
               <SideMenu />
             </aside>
 
-            {/* Main area */}
+            {/* Main content */}
             <div className="flex flex-1 flex-col overflow-hidden">
-              <TopMenu />
+              <TopMenu onSidebarToggle={() => setShowSidebar(!showSidebar)} />
 
               <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-8 sm:py-8">
                 <div className="max-w-5xl mx-auto w-full">{children}</div>
