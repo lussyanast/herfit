@@ -95,12 +95,11 @@ function Home() {
             Temukan kami langsung di lokasi pusat kebugaran khusus wanita Her.Fit Ladies Gym.
           </p>
         </div>
-        <div className="rounded-2xl overflow-hidden shadow-md">
+        <div className="rounded-2xl overflow-hidden shadow-md w-full" style={{ aspectRatio: "16/9" }}>
           <iframe
             title="Lokasi Her.Fit Ladies Gym"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.7117498133534!2d106.9379705753429!3d-6.301554493687597!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e699332bfb7260b%3A0xece285f91f9d44c4!2sHer.Fit_ladiesgym!5e0!3m2!1sen!2sid!4v1744368457510!5m2!1sen!2sid"
-            width="100%"
-            height="450"
+            className="w-full h-full"
             style={{ border: 0 }}
             allowFullScreen
             loading="lazy"
@@ -114,11 +113,28 @@ function Home() {
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold mb-2">Pertanyaan Umum (FAQ)</h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Temukan jawaban dari pertanyaan-pertanyaan yang sering diajukan.
+            Temukan jawaban atas pertanyaan yang sering diajukan seputar layanan HerFit.
           </p>
         </div>
         <div className="max-w-3xl mx-auto space-y-6">
-          {/* FAQ items here */}
+          <div className="bg-gray-50 border border-border rounded-lg p-5 shadow-sm">
+            <h4 className="font-semibold text-lg mb-1">Apa saja syarat menjadi member HerFit?</h4>
+            <p className="text-muted-foreground text-sm">
+              Kamu hanya perlu membuat akun di website dan memilih jenis membership yang sesuai dengan kebutuhan.
+            </p>
+          </div>
+          <div className="bg-gray-50 border border-border rounded-lg p-5 shadow-sm">
+            <h4 className="font-semibold text-lg mb-1">Apakah HerFit menerima member pemula?</h4>
+            <p className="text-muted-foreground text-sm">
+              Tentu! HerFit terbuka untuk semua kalangan, termasuk pemula maupun yang sudah berpengalaman.
+            </p>
+          </div>
+          <div className="bg-gray-50 border border-border rounded-lg p-5 shadow-sm">
+            <h4 className="font-semibold text-lg mb-1">Apakah tersedia pelatih atau instruktur?</h4>
+            <p className="text-muted-foreground text-sm">
+              Saat ini kami belum menyediakan instruktur tetap. Namun, jika kamu ingin membawa pelatih pribadi, silakan hubungi kami terlebih dahulu.
+            </p>
+          </div>
         </div>
       </section>
 
