@@ -30,9 +30,9 @@ function Header() {
     { href: "/chat", label: "Chatbot AI" },
   ];
 
-  const avatarUrl = session?.user?.foto_profil?.startsWith("http")
-    ? session.user.foto_profil
-    : `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "")}/storage/${session?.user?.foto_profil?.replace(/^storage\//, "")}`;
+  const avatarUrl = session?.user?.foto_profil
+    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${session.user.foto_profil}`
+    : "/images/avatar.png";
 
   return (
     <header className="fixed top-5 inset-x-0 z-30 px-4">
@@ -50,13 +50,13 @@ function Header() {
           ))}
         </nav>
 
-        {/* Desktop Auth */}
+        {/* Desktop Auth Section */}
         {!session?.user ? (
           <div className="hidden lg:flex items-center space-x-2">
-            <Button variant="secondary" size="header">
+            <Button asChild variant="secondary" size="header">
               <Link href="/sign-in">Sign In</Link>
             </Button>
-            <Button variant="default" size="header" className="shadow-button">
+            <Button asChild variant="default" size="header" className="shadow-button">
               <Link href="/sign-up">Sign Up</Link>
             </Button>
           </div>
@@ -69,11 +69,11 @@ function Header() {
                     {session.user.nama_lengkap}
                   </div>
                   <Image
-                    src={avatarUrl || "/images/avatar.png"}
-                    alt="avatar"
+                    src={avatarUrl}
+                    alt="User Avatar"
                     width={40}
                     height={40}
-                    className="rounded-full border object-cover"
+                    className="rounded-full object-cover border"
                     unoptimized
                   />
                 </div>
@@ -90,21 +90,20 @@ function Header() {
           </div>
         )}
 
-        {/* Mobile Hamburger Button */}
+        {/* Mobile Toggle */}
         <button onClick={() => setOpen(true)} className="lg:hidden">
           <Bars3Icon className="w-7 h-7 text-gray-800" />
         </button>
       </div>
 
-      {/* Drawer */}
+      {/* Drawer for Mobile */}
       {open && (
         <div className="fixed inset-0 z-50">
           {/* Overlay */}
-          <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)}></div>
+          <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
 
           {/* Drawer Content */}
           <div className="fixed top-0 left-0 h-full w-72 bg-white shadow-xl flex flex-col">
-            {/* Header */}
             <div className="flex items-center justify-between p-5 border-b">
               <Image src="/images/logo.png" alt="HerFit Logo" width={50} height={18} />
               <button onClick={() => setOpen(false)}>
@@ -112,7 +111,7 @@ function Header() {
               </button>
             </div>
 
-            {/* Profile Section */}
+            {/* Mobile Profile Section */}
             {session?.user && (
               <div className="flex items-center gap-3 p-5 border-b">
                 <Image
@@ -121,7 +120,6 @@ function Header() {
                   width={40}
                   height={40}
                   className="rounded-full border object-cover"
-                  unoptimized
                 />
                 <div>
                   <p className="text-sm font-semibold truncate">{session.user.nama_lengkap}</p>
@@ -130,7 +128,7 @@ function Header() {
               </div>
             )}
 
-            {/* Menu */}
+            {/* Mobile Menu Links */}
             <nav className="flex-1 px-5 py-4 space-y-3 overflow-y-auto text-sm font-medium">
               {links.map((link) => (
                 <Link
@@ -143,17 +141,20 @@ function Header() {
                 </Link>
               ))}
 
-              {/* Divider */}
               <hr className="my-4" />
 
-              {/* Account Menu */}
-              {session?.user && (
+              {!session?.user ? (
                 <>
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setOpen(false)}
-                    className="block py-1"
-                  >
+                  <Link href="/sign-in" onClick={() => setOpen(false)} className="block py-1">
+                    Sign In
+                  </Link>
+                  <Link href="/sign-up" onClick={() => setOpen(false)} className="block py-1">
+                    Sign Up
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/dashboard" onClick={() => setOpen(false)} className="block py-1">
                     Dashboard
                   </Link>
                   <button
