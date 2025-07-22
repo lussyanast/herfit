@@ -5,7 +5,7 @@ import React from "react";
 
 function PhotoGallery({ photos }: { photos: string[] }) {
   const getFullUrl = (path: string) =>
-    `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${path}`;
+    `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/storage/${path}`;
 
   if (!photos || photos.length === 0) {
     return (
