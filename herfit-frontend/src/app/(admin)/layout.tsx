@@ -5,7 +5,6 @@ import TopMenu from "@/components/molecules/admin/top-menu";
 import SideMenu from "@/components/molecules/admin/side-menu";
 import { Toaster } from "@/components/atomics/toaster";
 import ReduxProvider from "@/providers/redux";
-import { useState } from "react";
 
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -20,39 +19,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const [showSidebar, setShowSidebar] = useState(false);
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
       <body className={`${poppins.className} min-h-screen bg-gray-light overflow-x-hidden`}>
         <ReduxProvider>
-          <div className="flex min-h-screen overflow-hidden">
-            {/* Sidebar responsive */}
-            <aside
-              className={`
-                fixed inset-y-0 left-0 z-40 w-[250px] bg-white p-6 transform transition-transform duration-300 ease-in-out
-                ${showSidebar ? 'translate-x-0' : '-translate-x-full'}
-                lg:static lg:translate-x-0 lg:block
-              `}
-            >
+          <div className="flex flex-col lg:flex-row min-h-screen overflow-hidden">
+            {/* Sidebar (selalu muncul, diatur tingginya agar skrol jika di mobile) */}
+            <aside className="w-full lg:w-[250px] bg-white p-4 border-b lg:border-b-0 lg:border-r lg:h-auto h-[auto] overflow-y-auto">
               <SideMenu />
             </aside>
 
-            {/* Main content */}
             <div className="flex flex-1 flex-col overflow-hidden">
-              <TopMenu onSidebarToggle={() => setShowSidebar(!showSidebar)} />
-
+              <TopMenu />
               <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-8 sm:py-8">
                 <div className="max-w-5xl mx-auto w-full">{children}</div>
               </main>
             </div>
           </div>
-
           <Toaster />
         </ReduxProvider>
       </body>

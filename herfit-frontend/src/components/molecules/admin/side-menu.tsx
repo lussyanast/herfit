@@ -4,10 +4,10 @@ import Link from "next/link";
 
 function SideMenu() {
   return (
-    <aside className="bg-white w-full max-w-[240px] px-6 py-8 rounded-2xl shadow-md h-fit min-h-screen flex flex-col justify-between">
+    <div className="w-full h-full flex flex-col justify-between">
       <div>
         {/* Logo */}
-        <div className="mb-10 flex justify-center">
+        <div className="mb-8 flex justify-center">
           <Link href="/">
             <Image
               src="/images/logo.png"
@@ -34,11 +34,11 @@ function SideMenu() {
         </nav>
       </div>
 
-      {/* Footer optional */}
+      {/* Footer */}
       <div className="text-center text-xs text-gray-400 mt-10">
         © {new Date().getFullYear()} HerFit
       </div>
-    </aside>
+    </div>
   );
 }
 
