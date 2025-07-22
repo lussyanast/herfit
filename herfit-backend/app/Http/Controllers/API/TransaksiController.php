@@ -224,7 +224,7 @@ class TransaksiController extends Controller
 
         $data = $transaksi->toArray();
         $data['qr_code_url'] = $transaksi->kode_qr
-            ? asset('storage/' . $transaksi->kode_qr)
+            ? asset('storage/qr_codes/' . $transaksi->kode_qr)
             : null;
 
         return response()->json([

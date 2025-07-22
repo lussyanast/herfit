@@ -24,7 +24,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
               ? "Memuat detail transaksi..."
               : error
                 ? "Terjadi kesalahan saat memuat data transaksi."
-                : "Detail transaksi dan QR tersedia di bawah."}
+                : "Detail transaksi tersedia di bawah."}
           </p>
         </div>
       </section>
@@ -33,42 +33,50 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
       <section className="container mx-auto px-4 sm:px-6 -mt-[100px] mb-[100px]">
         <div className="max-w-[700px] mx-auto rounded-[20px] bg-white border border-border shadow-indicator p-6 sm:p-[30px]">
           {!booking ? (
-            <p className="text-center text-muted-foreground">Data transaksi tidak ditemukan.</p>
+            <p className="text-center text-muted-foreground">
+              Data transaksi tidak ditemukan.
+            </p>
           ) : (
             <>
               {/* QR Code */}
-              {booking.qr_code_url && (
+              {booking.status_transaksi === "approved" ? (
+                booking.qr_code_url && (
+                  <div className="text-center mb-10">
+                    <h3 className="text-lg font-semibold text-secondary mb-3">
+                      QR Code Pemesanan
+                    </h3>
+                    <div className="inline-block p-4 bg-white border rounded-xl shadow-md">
+                      <img
+                        src={booking.qr_code_url}
+                        alt="QR Code"
+                        className="mx-auto w-48 h-48"
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-3">
+                      Tunjukkan QR ini saat check-in
+                    </p>
+                    <div className="mt-4 text-xs text-muted-foreground bg-yellow-50 border border-yellow-200 px-4 py-3 rounded-lg text-left">
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li>
+                          Berlaku dari <strong>{booking.tanggal_mulai}</strong> sampai{" "}
+                          <strong>{booking.tanggal_selesai}</strong>.
+                        </li>
+                        <li>
+                          Jangan bagikan QR ini ke pihak lain demi keamanan akun Anda.
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                )
+              ) : (
                 <div className="text-center mb-10">
-                  <h3 className="text-lg font-semibold text-secondary mb-3">QR Code Pemesanan</h3>
-                  <div className="inline-block p-4 bg-white border rounded-xl shadow-md">
-                    <img src={booking.qr_code_url} alt="QR Code" className="mx-auto w-48 h-48" />
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-3">
-                    Tunjukkan QR ini saat check-in
+                  <h3 className="text-lg font-semibold text-secondary mb-3">
+                    QR Code Belum Tersedia
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    QR akan tampil setelah transaksi disetujui oleh admin.
+                    Silakan cek kembali secara berkala melalui dashboard.
                   </p>
-                  <div className="mt-4 text-xs text-muted-foreground bg-yellow-50 border border-yellow-200 px-4 py-3 rounded-lg text-left">
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>
-                        <span className="font-medium text-yellow-800">
-                          QR hanya dapat digunakan jika status transaksi adalah{" "}
-                          <span className="font-semibold text-green-700">approved</span>.
-                        </span>
-                      </li>
-                      <li>
-                        <span className="font-medium text-yellow-800">
-                          Jika status masih{" "}
-                          <span className="font-semibold text-yellow-700">waiting</span> atau{" "}
-                          <span className="font-semibold text-red-700">rejected</span>, maka QR tidak valid.
-                        </span>
-                      </li>
-                      <li>
-                        <span className="font-medium text-yellow-800">
-                          QR hanya berlaku selama periode tanggal{" "}
-                          <strong>{booking.tanggal_mulai}</strong> s.d. <strong>{booking.tanggal_selesai}</strong>.
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
                 </div>
               )}
 
@@ -102,8 +110,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                           ? "bg-green-100 text-green-700"
                           : booking.status_transaksi === "rejected"
                             ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-800"}
-                      `}
+                            : "bg-yellow-100 text-yellow-800"}`}
                     >
                       {booking.status_transaksi}
                     </span>
