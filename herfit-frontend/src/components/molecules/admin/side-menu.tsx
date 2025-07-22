@@ -6,8 +6,8 @@ function SideMenu() {
   return (
     <div className="w-full h-full flex flex-col justify-between">
       <div>
-        {/* Logo */}
-        <div className="mb-8 flex justify-center">
+        {/* Logo with top space */}
+        <div className="pt-6 mb-8 flex justify-center">
           <Link href="/">
             <Image
               src="/images/logo.png"
