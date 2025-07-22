@@ -39,7 +39,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
           ) : (
             <>
               {/* QR Code */}
-              {booking.status_transaksi === "approved" ? (
+              {booking.status_transaksi === "approved" && booking.produk?.kategori_produk === "membership" ? (
                 booking.qr_code_url && (
                   <div className="text-center mb-10">
                     <h3 className="text-lg font-semibold text-secondary mb-3">
