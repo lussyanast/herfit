@@ -13,7 +13,7 @@ function Produk({ produk }: { produk: ProdukInterface }) {
     <div className="w-full sm:max-w-[460px] h-fit p-6 sm:p-[30px] space-y-5 bg-white rounded-[24px] sm:rounded-[30px] shadow-indicator border border-border">
       {fotoUtama && (
         <Image
-          src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${fotoUtama}`}
+          src={`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/storage/${fotoUtama}`}
           alt="produk-image"
           height={0}
           width={0}
