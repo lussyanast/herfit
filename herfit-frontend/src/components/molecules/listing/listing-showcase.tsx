@@ -65,7 +65,7 @@ const ListingShowcase = ({ id, title, subtitle, category }: ListingShowcaseProps
               <CardDeals
                 image={
                   item.foto_produk
-                    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${item.foto_produk}`
+                    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/storage/${item.foto_produk}`
                     : "/images/no-image.png"
                 }
                 title={item.nama_produk}

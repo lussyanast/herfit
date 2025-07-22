@@ -7,6 +7,7 @@ use App\Models\Produk;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProdukController extends Controller
@@ -61,27 +62,21 @@ class ProdukController extends Controller
             'foto_produk' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        // Ambil ID terakhir
+        // Generate kode produk otomatis
         $lastProduk = Produk::latest('id_produk')->first();
         $nextId = $lastProduk ? $lastProduk->id_produk + 1 : 1;
         $validated['kode_produk'] = 'PRD' . $nextId;
 
-        // Simpan file foto jika ada
+        // Simpan foto ke storage/app/public/produk
         if ($request->hasFile('foto_produk')) {
             $file = $request->file('foto_produk');
             $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-            $destination = public_path('../storage/produk');
 
-            // Pastikan direktori ada
-            if (!File::exists($destination)) {
-                File::makeDirectory($destination, 0755, true);
-            }
+            // simpan ke disk 'public' => storage/app/public/produk
+            $path = $file->storeAs('produk', $filename, 'public');
 
-            // Simpan ke public/storage/produk
-            $file->move($destination, $filename);
-
-            // Simpan path relatif
-            $validated['foto_produk'] = "produk/" . $filename;
+            // hanya simpan path relatif
+            $validated['foto_produk'] = $path; // contoh: produk/nama_file.jpg
         }
 
         $produk = Produk::create($validated);
