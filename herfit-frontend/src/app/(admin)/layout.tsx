@@ -1,5 +1,4 @@
-'use client';
-
+import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "@/app/globals.css";
 import TopMenu from "@/components/molecules/admin/top-menu";
@@ -13,7 +12,7 @@ const poppins = Poppins({
   subsets: ["latin"],
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "HerFit Ladies Gym",
   description: "Ladies Gym",
   icons: {
