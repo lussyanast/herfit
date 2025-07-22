@@ -71,13 +71,13 @@ class TransaksiController extends Controller
     {
         $this->_fullyBookedChecker($request);
 
-        $jumlahHari = Carbon::parse($request->tanggal_mulai)
-            ->diffInDays(Carbon::parse($request->tanggal_selesai)) + 1;
+        $startDate = Carbon::parse($request->tanggal_mulai)->startOfDay();
+        $endDate = Carbon::parse($request->tanggal_selesai)->endOfDay();
+        $jumlahHari = $startDate->diffInDays($endDate) + 1;
 
         $produk = Produk::findOrFail($request->id_produk);
-        $totalHarga = $produk->harga_produk * $jumlahHari;
+        $totalHarga = $produk->harga_produk;
 
-        // Penentuan kode_transaksi: TRX + tanggal + nomor urut hari itu
         $tanggalSekarang = now()->format('Ymd');
         $jumlahHariIni = Transaksi::whereDate('created_at', now())->count() + 1;
         $kodeTransaksi = 'TRX' . $tanggalSekarang . str_pad($jumlahHariIni, 3, '0', STR_PAD_LEFT);
@@ -86,14 +86,13 @@ class TransaksiController extends Controller
             'kode_transaksi' => $kodeTransaksi,
             'id_pengguna' => auth()->id(),
             'id_produk' => $produk->id_produk,
-            'tanggal_mulai' => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
+            'tanggal_mulai' => $startDate,
+            'tanggal_selesai' => $endDate,
             'jumlah_hari' => $jumlahHari,
             'jumlah_bayar' => $totalHarga,
             'status_transaksi' => 'waiting',
         ]);
 
-        // Generate QR Code pointing to route
         $qrData = route('transaction.show', $transaksi->id_transaksi);
         $qrCode = new QrCode($qrData);
         $writer = new PngWriter();
@@ -102,7 +101,6 @@ class TransaksiController extends Controller
         $fileName = 'qr_codes/transaksi_' . $transaksi->id_transaksi . '_' . Str::random(6) . '.png';
         Storage::disk('public')->put($fileName, $qrImage->getString());
 
-        // Simpan path ke database (tanpa URL)
         $transaksi->update(['kode_qr' => $fileName]);
 
         return response()->json([
@@ -144,7 +142,7 @@ class TransaksiController extends Controller
         if ($now->lt($start)) {
             return response()->json([
                 'success' => false,
-                'message' => 'QR belum aktif. Berlaku mulai ' . $start->format('d M Y'),
+                'message' => 'QR belum aktif. Berlaku mulai ' . $start->format('d M Y H:i'),
             ], 403);
         }
 

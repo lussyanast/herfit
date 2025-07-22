@@ -67,8 +67,8 @@ function Checkout({ params }: { params: { kode: string } }) {
         },
         body: JSON.stringify({
           id_produk: produk.data.id_produk,
-          tanggal_mulai: moment(startDate).format("YYYY-MM-DD"),
-          tanggal_selesai: moment(endDate).format("YYYY-MM-DD"),
+          tanggal_mulai: moment(startDate).startOf("day").format("YYYY-MM-DD HH:mm:ss"),
+          tanggal_selesai: moment(endDate).endOf("day").format("YYYY-MM-DD HH:mm:ss"),
           jumlah_hari: totalDays,
           jumlah_bayar: totalBayar,
         }),
