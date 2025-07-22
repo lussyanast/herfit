@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class ScanTransactionQR extends Page
 {
@@ -24,10 +23,16 @@ class ScanTransactionQR extends Page
 
     public function scanQR()
     {
-        $kode = trim($this->qrContent);
+        // $kode = trim($this->qrContent);
+
+        $fullUrl = trim($this->qrContent);
+
+        // Ambil ID dari URL, misal: https://herfit-ladiesgym.my.id/api/transaksi/26
+        $segments = explode('/', $fullUrl);
+        $id = intval(end($segments)); // ambil "26" dari URL
 
         $transaksi = Transaksi::with(['pengguna', 'produk'])
-            ->where('kode_transaksi', $kode)
+            ->where('id_transaksi', $id)
             ->where('status_transaksi', 'approved')
             ->first();
 

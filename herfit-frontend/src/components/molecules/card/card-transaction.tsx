@@ -49,7 +49,7 @@ function CardTransaction({
                 {days} hari
               </div>
               <div className="flex items-center gap-1 text-sm font-semibold leading-[21px] text-gray-800">
-                <span>
+                <span>Rp. 
                   {(price ?? 0).toLocaleString('id-ID', {
                     style: 'currency',
                     currency: 'IDR',
