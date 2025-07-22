@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import Title from '@/components/atomics/title';
-import CardTransaction from '@/components/molecules/card/card-transaction';
-import CardEmpty from '@/components/molecules/card/card-empty';
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import Title from "@/components/atomics/title";
+import CardTransaction from "@/components/molecules/card/card-transaction";
+import CardEmpty from "@/components/molecules/card/card-empty";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
-} from '@/components/atomics/pagination';
+} from "@/components/atomics/pagination";
 
 function MyTransactions() {
   const { data: session } = useSession();
@@ -60,6 +60,7 @@ function MyTransactions() {
 
   const renderPagination = () => {
     const pages = [];
+
     for (let i = 1; i <= lastPage; i++) {
       pages.push(
         <PaginationItem key={i}>
@@ -73,6 +74,7 @@ function MyTransactions() {
         </PaginationItem>
       );
     }
+
     return pages;
   };
 
@@ -86,17 +88,17 @@ function MyTransactions() {
         {loading ? (
           <p className="text-sm text-gray-500">Memuat data transaksi...</p>
         ) : transactions.length > 0 ? (
-          transactions.map((transaction: any) => (
+          transactions.map((transaction) => (
             <CardTransaction
               key={transaction.kode_transaksi}
               id={transaction.id_transaksi}
-              kode={transaction.kode_transaksi} // 🔥 gunakan ini untuk routing detail
+              kode={transaction.kode_transaksi}
               image={
                 transaction.produk?.foto_produk
-                  ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${transaction.produk.foto_produk}`
-                  : '/images/default.png'
+                  ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/storage/${transaction.produk.foto_produk}`
+                  : "/images/default.png"
               }
-              title={transaction.produk?.nama_produk || 'Tanpa Nama'}
+              title={transaction.produk?.nama_produk || "Tanpa Nama"}
               days={transaction.jumlah_hari}
               price={transaction.jumlah_bayar}
               status={transaction.status_transaksi}
