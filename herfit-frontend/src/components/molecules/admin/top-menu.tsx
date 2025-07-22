@@ -43,26 +43,32 @@ function TopMenu({ onSidebarToggle }: TopMenuProps) {
 
   return (
     <header className="w-full h-20 px-6 bg-white border-b flex items-center justify-between z-50">
-      {/* Hamburger (mobile only) */}
-      <button
-        className="lg:hidden text-orange-500"
-        onClick={onSidebarToggle}
-        aria-label="Toggle Sidebar"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+      {/* Hamburger (kiri - muncul di mobile) */}
+      <div className="lg:hidden">
+        <button
+          onClick={onSidebarToggle}
+          aria-label="Toggle Sidebar"
+          className="text-orange-500"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
 
+      {/* Spacer agar dropdown tetap di kanan */}
+      <div className="flex-1" />
+
+      {/* Dropdown user (kanan) */}
       <DropdownMenu>
         <DropdownMenuTrigger data-login={!!session?.user} className="outline-none">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer">
             <div className="flex flex-col items-end max-w-[180px]">
               <span className="text-sm font-medium text-gray-800 truncate">
                 {session?.user?.nama_lengkap || "-"}
