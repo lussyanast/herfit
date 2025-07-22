@@ -23,7 +23,7 @@ import ImageCropper from "@/components/molecules/ImageCropper";
 const schema = yup.object().shape({
     nama_lengkap: yup.string().min(3).required("Nama wajib diisi"),
     no_identitas: yup.string().length(16, "Harus 16 digit").required(),
-    no_telp: yup.string().min(10).max(12).required(),
+    no_telp: yup.string().min(10).max(15).required(),
     email: yup.string().email().required(),
 });
 
@@ -51,7 +51,10 @@ export default function EditProfilePage() {
 
     useEffect(() => {
         const fetchProfile = async () => {
-            if (!session?.user?.token) return;
+            if (!session?.user?.token) {
+                setLoading(false);
+                return;
+            }
 
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/user`, {
@@ -71,7 +74,9 @@ export default function EditProfilePage() {
                     });
 
                     if (result.data.foto_profil) {
-                        setPreviewImage(`${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${result.data.foto_profil}`);
+                        const cleanBase = process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "");
+                        const cleanPath = result.data.foto_profil.replace(/^\/+/, "");
+                        setPreviewImage(`${cleanBase}/${cleanPath}`);
                     }
                 } else {
                     throw new Error(result.message);
@@ -113,6 +118,9 @@ export default function EditProfilePage() {
 
             if (res.ok) {
                 toast({ title: "Berhasil", description: "Profil berhasil diperbarui!" });
+                setSelectedFile(null);
+                setPreviewImage(null);
+                setShowCropper(false);
                 router.refresh();
             } else {
                 throw new Error(result.message);
@@ -128,14 +136,23 @@ export default function EditProfilePage() {
 
     const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                setPreviewImage(reader.result as string);
-                setShowCropper(true);
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast({
+                title: "File tidak valid",
+                description: "Harap unggah file gambar (jpg/png)",
+                variant: "destructive",
+            });
+            return;
         }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            setPreviewImage(reader.result as string);
+            setShowCropper(true);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleCropDone = (croppedFile: File) => {
@@ -156,7 +173,6 @@ export default function EditProfilePage() {
                     <div className="text-center text-sm text-gray-500">Memuat profil...</div>
                 ) : (
                     <>
-                        {/* Logo */}
                         <div className="flex justify-center">
                             <Image
                                 src="/images/logo.png"
@@ -168,13 +184,11 @@ export default function EditProfilePage() {
                             />
                         </div>
 
-                        {/* Judul */}
                         <div className="text-center">
                             <h2 className="text-xl font-bold text-secondary">Edit Profil</h2>
                             <p className="text-sm text-gray-500 mt-1">Perbarui data pribadi Anda</p>
                         </div>
 
-                        {/* Form */}
                         {showCropper && previewImage ? (
                             <ImageCropper
                                 image={previewImage}
@@ -184,7 +198,6 @@ export default function EditProfilePage() {
                         ) : (
                             <Form {...form}>
                                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                                    {/* Input fields */}
                                     <div className="space-y-4">
                                         <FormField
                                             control={form.control}
@@ -271,34 +284,24 @@ export default function EditProfilePage() {
                                     <div className="flex flex-col gap-2 mt-4">
                                         <label className="text-sm font-medium text-gray-600">Foto Profil</label>
                                         {previewImage && (
-                                            previewImage.startsWith("http") || previewImage.startsWith("https") ? (
-                                                <Image
-                                                    src={previewImage}
-                                                    alt="Preview"
-                                                    width={80}
-                                                    height={80}
-                                                    unoptimized
-                                                    className="rounded-full object-cover mb-2 border shadow"
-                                                />
-                                            ) : (
-                                                <img
-                                                    src={previewImage}
-                                                    alt="Preview"
-                                                    width={80}
-                                                    height={80}
-                                                    className="rounded-full object-cover mb-2 border shadow"
-                                                />
-                                            )
+                                            <img
+                                                src={previewImage}
+                                                alt="Preview"
+                                                width={80}
+                                                height={80}
+                                                className="rounded-full object-cover mb-2 border shadow"
+                                            />
                                         )}
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={onFileChange}
-                                            className="border rounded-md px-3 py-2 text-sm"
-                                        />
+                                        {!showCropper && (
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={onFileChange}
+                                                className="border rounded-md px-3 py-2 text-sm"
+                                            />
+                                        )}
                                     </div>
 
-                                    {/* Tombol */}
                                     <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
                                         Simpan Perubahan
                                     </Button>

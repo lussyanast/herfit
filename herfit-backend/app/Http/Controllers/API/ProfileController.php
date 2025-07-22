@@ -43,20 +43,10 @@ class ProfileController extends Controller
                 File::makeDirectory($destination, 0755, true);
             }
 
-            // Simpan di public/storage/profil
+            // Simpan ke public/storage/profil
             $file->move($destination, $filename);
 
-            // Copy ke public_html/storage/profil (agar bisa diakses oleh URL)
-            $sourcePath = public_path("storage/profil/{$filename}");
-            $publicHtmlPath = base_path("public_html/storage/profil/{$filename}");
-
-            if (!File::exists(dirname($publicHtmlPath))) {
-                File::makeDirectory(dirname($publicHtmlPath), 0755, true);
-            }
-
-            File::copy($sourcePath, $publicHtmlPath);
-
-            // Simpan path relatif
+            // Path relatif untuk disimpan ke database
             $data['foto_profil'] = 'storage/profil/' . $filename;
         }
 

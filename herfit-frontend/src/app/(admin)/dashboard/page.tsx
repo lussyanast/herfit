@@ -130,7 +130,7 @@ function Dashboard() {
                     kode={transaction.kode_transaksi}
                     image={
                       transaction.produk?.foto_produk
-                        ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}${transaction.produk.foto_produk}`
+                        ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "")}/storage/${transaction.produk.foto_produk.replace(/^storage\//, "")}`
                         : "/images/default.png"
                     }
                     title={transaction.produk?.nama_produk || "Tanpa Nama"}
