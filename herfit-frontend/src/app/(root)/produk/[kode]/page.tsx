@@ -78,9 +78,14 @@ function Detail({ params }: { params: { kode: string } }) {
 
       {/* SECTION: LAINNYA */}
       <ListingShowcase
+        id="membership-listing"
+        title="Lihat membership lainnya"
+        subtitle="Membership lainnya untuk kamu."
+        category="membership" />
+      <ListingShowcase
         id="deals-section"
         title="Lihat produk lainnya"
-        subtitle="Rekomendasi produk kami untuk kamu"
+        subtitle="Produk lainnya untuk kamu."
         category="others"
       />
     </main>
