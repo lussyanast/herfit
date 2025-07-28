@@ -143,20 +143,10 @@ function Checkout({ params }: { params: { kode: string } }) {
               <div>
                 <h2 className="font-bold text-xl sm:text-2xl text-secondary mb-3">Pembayaran</h2>
                 <div className="rounded-[20px] bg-white p-6 border border-border shadow space-y-5">
-                  <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <Button variant="third" size="button" className="w-full sm:w-1/2 border-gray-light hover:border-primary">
-                      <Image src="/icons/card.svg" alt="card" width={24} height={24} className="mr-2.5" />
-                      Transfer
-                    </Button>
-                    <Button variant="third" size="button" className="w-full sm:w-1/2 border-gray-light hover:border-primary">
-                      <Image src="/icons/visa.svg" alt="visa" width={48} height={24} />
-                    </Button>
-                  </div>
-
                   <div className="space-y-2 text-sm font-medium">
-                    <CardBooking title="Bank" value="HerFit Bank" />
-                    <CardBooking title="Atas Nama" value="HerFit Produk" />
-                    <CardBooking title="No. Rekening" value="20193050" />
+                    <CardBooking title="Bank" value="HerFit Bank Mandiri" />
+                    <CardBooking title="Atas Nama" value="Lussy Triana" />
+                    <CardBooking title="No. Rekening" value="1670004852314" />
                   </div>
 
                   <Separator className="bg-border" />
