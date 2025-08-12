@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import axios from "../../../../lib/axios";
 
-type WorkoutDay = { day: string; workouts: { name: string; reps: string }[] };
+type WorkoutItem = { name: string; reps: string };
+type WorkoutDay = { day: string; workouts: WorkoutItem[] };
 type WorkoutTemplate = {
     id_aktivitas: number;
     nama_aktivitas: string;
     durasi: number;
-    jadwal: string;
+    jadwal?: any;
     tanggal: string;
     days: WorkoutDay[];
 };
@@ -22,13 +23,63 @@ const defaultForm = {
 
 const allDays = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
 
+const toArray = (val: any): any[] => {
+    if (Array.isArray(val)) return val;
+    if (typeof val === "string") {
+        let tmp: any = val;
+        for (let i = 0; i < 2; i++) {
+            try {
+                const decoded = JSON.parse(tmp);
+                if (Array.isArray(decoded)) return decoded;
+                if (typeof decoded === "string") {
+                    tmp = decoded;
+                    continue;
+                }
+                return [];
+            } catch {
+                return [];
+            }
+        }
+    }
+    return [];
+};
+
+const toWorkoutList = (w: any): WorkoutItem[] => {
+    if (Array.isArray(w)) return w as WorkoutItem[];
+    if (typeof w === "string") {
+        try {
+            const parsed = JSON.parse(w);
+            if (Array.isArray(parsed)) return parsed as WorkoutItem[];
+            w = parsed;
+        } catch {
+            return [];
+        }
+    }
+    if (w && typeof w === "object") {
+        const keys = Object.keys(w);
+        const allNumericLike = keys.length > 0 && keys.every((k) => /^\d+$/.test(String(k)));
+        if (allNumericLike) return keys.map((k) => w[k]) as WorkoutItem[];
+        if ("name" in w || "reps" in w) return [w as WorkoutItem];
+    }
+    return [];
+};
+
+const normalizeDays = (val: any): WorkoutDay[] => {
+    const arr = toArray(val);
+    return arr
+        .map((d: any) => ({
+            day: d?.day ?? d?.hari ?? "",
+            workouts: toWorkoutList(d?.workouts ?? []),
+        }))
+        .filter((d) => d.day);
+};
+
 export default function WorkoutTemplatesPage() {
     const { data: session } = useSession();
     const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
     const [form, setForm] = useState(defaultForm);
     const [newDay, setNewDay] = useState("Senin");
 
-    // ⬇️ Taruh token dari session ke localStorage agar axios bisa baca
     useEffect(() => {
         if (session?.user?.token) {
             localStorage.setItem("token", session.user.token);
@@ -42,10 +93,14 @@ export default function WorkoutTemplatesPage() {
     const fetchTemplates = async () => {
         try {
             const res = await axios.get("/latihan");
-            const parsed = res.data.map((item: any) => ({
+
+            const rows: any[] = Array.isArray(res.data) ? res.data : res.data?.data ?? [];
+
+            const parsed = rows.map((item: any) => ({
                 ...item,
-                days: JSON.parse(item.jadwal || "[]"),
+                days: normalizeDays(item.jadwal),
             }));
+
             setTemplates(parsed);
         } catch (err) {
             console.error("Gagal mengambil data template", err);
@@ -76,9 +131,7 @@ export default function WorkoutTemplatesPage() {
             form.nama_aktivitas.trim() === "" ||
             form.days.length === 0 ||
             form.days.some(
-                (d) =>
-                    d.workouts.length === 0 ||
-                    d.workouts.some((w) => !w.name.trim() || !w.reps.trim())
+                (d) => d.workouts.length === 0 || d.workouts.some((w) => !w.name.trim() || !w.reps.trim())
             )
         ) {
             alert("Mohon lengkapi semua kolom sebelum menyimpan.");
@@ -94,7 +147,12 @@ export default function WorkoutTemplatesPage() {
             };
 
             const res = await axios.post("/latihan", payload);
-            setTemplates((prev) => [...prev, { ...res.data, days: form.days }]);
+            const created = res.data;
+
+            // gunakan jadwal dari API kalau ada; fallback ke form.days
+            const days = normalizeDays(created?.jadwal ?? form.days);
+
+            setTemplates((prev) => [...prev, { ...created, days }]);
             setForm(defaultForm);
         } catch (err) {
             console.error(err);
@@ -154,7 +212,9 @@ export default function WorkoutTemplatesPage() {
                                 className="p-2 border rounded-md"
                             >
                                 {allDays.map((day) => (
-                                    <option key={day} value={day}>{day}</option>
+                                    <option key={day} value={day}>
+                                        {day}
+                                    </option>
                                 ))}
                             </select>
                             <button
@@ -208,7 +268,10 @@ export default function WorkoutTemplatesPage() {
                         ))}
                     </div>
 
-                    <button type="submit" className="w-full bg-orange-500 hover:bg-orange-300 text-white py-2 rounded-md">
+                    <button
+                        type="submit"
+                        className="w-full bg-orange-500 hover:bg-orange-300 text-white py-2 rounded-md"
+                    >
                         Simpan Template
                     </button>
                 </form>
@@ -239,7 +302,9 @@ export default function WorkoutTemplatesPage() {
                                     <h4 className="font-semibold text-sm mb-2 text-gray-800">{day.day}</h4>
                                     <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
                                         {day.workouts.map((workout, widx) => (
-                                            <li key={widx}>{workout.name} – {workout.reps}</li>
+                                            <li key={widx}>
+                                                {workout.name} – {workout.reps}
+                                            </li>
                                         ))}
                                     </ul>
                                 </div>
