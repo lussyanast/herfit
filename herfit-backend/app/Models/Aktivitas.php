@@ -19,21 +19,57 @@ class Aktivitas extends Model
         'tanggal',
     ];
 
+    // Jangan cast 'jadwal' ke array; kita kelola sendiri via accessor/mutator
     protected $casts = [
-        'jadwal' => 'array',
+        // 'jadwal' => 'array',
         'tanggal' => 'date',
     ];
 
-    public function scopeMakanan($query)
+    /** Selalu kembalikan array rapi untuk kolom 'jadwal' */
+    public function getJadwalAttribute($value)
     {
-        return $query->where('jenis_aktivitas', 'makanan');
+        if (is_array($value))
+            return $value;
+
+        $first = is_string($value) ? json_decode($value, true) : $value;
+        if (is_array($first))
+            return $first;
+
+        if (is_string($first)) {
+            $second = json_decode($first, true);
+            if (is_array($second))
+                return $second;
+        }
+
+        return [];
     }
 
-    public function scopeLatihan($query)
+    /** Simpan 'jadwal' sebagai JSON string yang bersih */
+    public function setJadwalAttribute($value): void
     {
-        return $query->where('jenis_aktivitas', 'latihan');
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $value = $decoded;
+            }
+        }
+        if (!is_array($value))
+            $value = [];
+
+        $this->attributes['jadwal'] = json_encode($value, JSON_UNESCAPED_UNICODE);
     }
 
+    // Scopes
+    public function scopeMakanan($q)
+    {
+        return $q->where('jenis_aktivitas', 'makanan');
+    }
+    public function scopeLatihan($q)
+    {
+        return $q->where('jenis_aktivitas', 'latihan');
+    }
+
+    // Relasi
     public function pengguna()
     {
         return $this->belongsTo(Pengguna::class, 'id_pengguna');

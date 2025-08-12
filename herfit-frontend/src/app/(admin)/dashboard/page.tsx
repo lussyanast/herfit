@@ -58,7 +58,6 @@ function Dashboard() {
   const getProfileImage = () => {
     if (profileImgError || !profile?.foto_profil) return "/images/avatar.png";
 
-    // Hilangkan "storage/" jika sudah ada di awal (optional)
     const cleanPath = profile.foto_profil.replace(/^storage\//, "");
 
     const baseUrl = process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "");
