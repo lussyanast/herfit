@@ -75,11 +75,22 @@ class AktivitasResource extends Resource
                         ->label('Jenis aktivitas')
                         ->options(['makanan' => 'Makanan', 'latihan' => 'Latihan'])
                         ->native(false)
-                        ->required(),
+                        ->required()
+                        ->reactive(),
+
                     Forms\Components\TextInput::make('nama_aktivitas')
                         ->label('Nama aktivitas')
                         ->required()
                         ->maxLength(150),
+
+                    // ✅ Kalori tampil hanya untuk "makanan"
+                    Forms\Components\TextInput::make('kalori')
+                        ->label('Kalori')
+                        ->numeric()
+                        ->minValue(0)
+                        ->suffix(' kcal')
+                        ->visible(fn(Forms\Get $get) => $get('jenis_aktivitas') === 'makanan')
+                        ->required(fn(Forms\Get $get) => $get('jenis_aktivitas') === 'makanan'),
                 ])
                 ->columns(2),
 
@@ -112,13 +123,11 @@ class AktivitasResource extends Resource
                                     Forms\Components\TextInput::make('reps')
                                         ->label('Reps (mis. 3×12)')->maxLength(30),
                                 ])
-                                // 🔹 Hindari bentrok nama action → pakai label saja
                                 ->addActionLabel('Tambah Latihan')
                                 ->default([])
                                 ->columns(2)
                                 ->collapsed(false),
                         ])
-                        // 🔹 Hindari bentrok nama action → pakai label saja
                         ->addActionLabel('Tambah Hari')
                         ->default([])
                         ->reorderable()
@@ -126,8 +135,6 @@ class AktivitasResource extends Resource
                         ->columnSpanFull(),
                 ])
                 ->collapsible(),
-
-            // NOTE: Kolom KALORI & TANGGAL disembunyikan dari form edit.
         ])->columns(1);
     }
 
@@ -141,8 +148,19 @@ class AktivitasResource extends Resource
                     ->label('Nama')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('pengguna.email')
                     ->label('Email')->searchable()->toggleable(),
+
+                // 🎨 Badge warna beda untuk jenis aktivitas
                 Tables\Columns\TextColumn::make('jenis_aktivitas')
-                    ->badge()->sortable(),
+                    ->label('Jenis')
+                    ->badge()
+                    ->color(fn(string $state) => match ($state) {
+                        'makanan' => 'success', // hijau
+                        'latihan' => 'info',    // biru
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state) => ucfirst($state))
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('nama_aktivitas')
                     ->label('Nama Aktivitas')->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
