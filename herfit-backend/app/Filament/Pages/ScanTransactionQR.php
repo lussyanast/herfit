@@ -27,9 +27,9 @@ class ScanTransactionQR extends Page
 
         $fullUrl = trim($this->qrContent);
 
-        // Ambil ID dari URL, misal: https://herfit-ladiesgym.my.id/api/transaksi/26
+        // Ambil ID dari URL
         $segments = explode('/', $fullUrl);
-        $id = intval(end($segments)); // ambil "26" dari URL
+        $id = intval(end($segments));
 
         $transaksi = Transaksi::with(['pengguna', 'produk'])
             ->where('id_transaksi', $id)
