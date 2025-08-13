@@ -17,8 +17,22 @@ class InteraksiResource extends Resource
 {
     protected static ?string $model = Interaksi::class;
     protected static ?string $slug = 'interaksi';
+
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
-    protected static ?string $navigationGroup = 'Herfit Admin';
+    protected static ?string $navigationGroup = 'Manajemen Konten Member';
+    protected static ?string $navigationLabel = 'Kelola Interaksi';
+
+    // (opsional) ubah judul list page & breadcrumb
+    public static function getPluralModelLabel(): string
+    {
+        return 'Kelola Interaksi Like dan Komentar';
+    }
+
+    // (opsional) label singular di form/create/edit
+    public static function getModelLabel(): string
+    {
+        return 'Interaksi';
+    }
 
     public static function form(Form $form): Form
     {
@@ -138,7 +152,7 @@ class InteraksiResource extends Resource
             ->columns([
                 // ID Interaksi
                 Tables\Columns\TextColumn::make('id_interaksi')
-                    ->label('ID')
+                    ->label('ID Interaksi')
                     ->sortable()
                     ->copyable()
                     ->toggleable(),
@@ -198,7 +212,7 @@ class InteraksiResource extends Resource
 
                 Tables\Filters\SelectFilter::make('id_postingan')
                     ->label('Postingan')
-                    ->relationship('postingan', 'caption') // pakai caption
+                    ->relationship('postingan', 'caption')
                     ->searchable(),
 
                 Tables\Filters\Filter::make('rentang_waktu')
