@@ -82,6 +82,19 @@ class ProdukResource extends Resource
     {
         return $table
             ->columns([
+                // ✅ Tambahan yang diminta
+                Tables\Columns\TextColumn::make('id_produk')
+                    ->label('ID Produk')
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('kode_produk')
+                    ->label('Kode')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+
+                // Kolom yang sudah ada
                 Tables\Columns\TextColumn::make('nama_produk')
                     ->label('Nama')
                     ->searchable()

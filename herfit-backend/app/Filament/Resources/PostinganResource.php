@@ -4,17 +4,22 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PostinganResource\Pages;
 use App\Models\Postingan;
+use App\Models\Pengguna;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Components\FileUpload;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PostinganResource extends Resource
 {
     protected static ?string $model = Postingan::class;
     protected static ?string $slug = 'postingan';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Kelola Postingan';
     protected static ?string $navigationGroup = 'Manajemen Konten Member';
@@ -43,13 +48,44 @@ class PostinganResource extends Resource
                 ->rows(4)
                 ->maxLength(500),
 
-            Forms\Components\FileUpload::make('gambar')
+            // ===== File gambar =====
+            FileUpload::make('foto_postingan')
                 ->label('Gambar')
                 ->image()
-                ->directory('postingan-images')
-                ->maxSize(2048)
-                ->nullable(),
-        ]);
+                ->disk('public')           // storage/app/public
+                ->directory('feeds')       // storage/app/public/feeds
+                ->visibility('public')     // bisa diakses via /storage/feeds/...
+                ->imagePreviewHeight('200')
+                ->openable()
+                ->downloadable()
+                ->maxSize(4096)
+                ->nullable()
+
+                // IMPORTANT: pakai mode multiple di UI biar Livewire selalu dapat array
+                ->multiple()
+
+                // Saat form di-load: data DB (string) -> array [string]
+                ->afterStateHydrated(function (FileUpload $component, $state) {
+                    // normalisasi "storage/feeds/xxx" -> "feeds/xxx"
+                    if (is_string($state)) {
+                        $state = preg_replace('#^storage/#', '', $state);
+                    }
+                    if (is_string($state) && $state !== '') {
+                        $component->state([$state]);
+                    }
+                })
+
+                // Saat submit: array [string] -> string (ambil file pertama saja)
+                ->dehydrateStateUsing(function ($state) {
+                    if (is_array($state)) {
+                        $first = $state[0] ?? null;
+                        return $first ? preg_replace('#^storage/#', '', (string) $first) : null;
+                    }
+                    return $state ?: null;
+                })
+
+                ->dehydrated(true),
+        ])->columns(2);
     }
 
     public static function table(Table $table): Table
@@ -61,6 +97,23 @@ class PostinganResource extends Resource
                     ->sortable()
                     ->searchable(),
 
+                // ====== Info Pengguna ======
+                Tables\Columns\TextColumn::make('pengguna.id_pengguna')
+                    ->label('ID Pengguna')
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('pengguna.nama_lengkap')
+                    ->label('Nama Pengguna')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('pengguna.email')
+                    ->label('Email')
+                    ->searchable()
+                    ->toggleable(),
+
+                // ====== Konten ======
                 Tables\Columns\TextColumn::make('caption')
                     ->label('Caption')
                     ->limit(60)
@@ -68,8 +121,27 @@ class PostinganResource extends Resource
                     ->tooltip(fn($record) => $record->caption)
                     ->searchable(),
 
-                Tables\Columns\ImageColumn::make('gambar')
+                // Thumbnail klik -> buka gambar asli (URL publik)
+                Tables\Columns\ImageColumn::make('foto_postingan')
                     ->label('Gambar')
+                    ->disk('public')
+                    ->state(
+                        fn($record) => $record->foto_postingan
+                        ? preg_replace('#^storage/#', '', (string) $record->foto_postingan)
+                        : null
+                    )
+                    ->url(function ($record) {
+                        $val = (string) ($record->foto_postingan ?? '');
+                        if ($val === '')
+                            return null;
+
+                        if (Str::startsWith($val, ['http://', 'https://'])) {
+                            return $val;
+                        }
+                        $path = preg_replace('#^storage/#', '', $val);
+                        return Storage::disk('public')->url($path); // => /storage/feeds/xxx
+                    })
+                    ->openUrlInNewTab()
                     ->square(),
 
                 Tables\Columns\TextColumn::make('created_at')
@@ -78,6 +150,11 @@ class PostinganResource extends Resource
                     ->sortable(),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('id_pengguna')
+                    ->label('Pengguna')
+                    ->relationship('pengguna', 'nama_lengkap')
+                    ->searchable(),
+
                 Tables\Filters\Filter::make('rentang_waktu')
                     ->form([
                         Forms\Components\DatePicker::make('from')->label('Dari'),

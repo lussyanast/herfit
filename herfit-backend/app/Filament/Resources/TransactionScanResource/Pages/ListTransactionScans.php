@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\TransactionScanResource\Pages;
 
 use App\Filament\Resources\TransactionScanResource;
-use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class ListTransactionScans extends ListRecords
@@ -12,8 +11,6 @@ class ListTransactionScans extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            Actions\CreateAction::make(),
-        ];
+        return [];
     }
 }

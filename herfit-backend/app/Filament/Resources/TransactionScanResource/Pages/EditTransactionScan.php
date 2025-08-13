@@ -13,7 +13,19 @@ class EditTransactionScan extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->label('Hapus')
+                ->requiresConfirmation(),
         ];
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Data scan berhasil diperbarui';
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }
