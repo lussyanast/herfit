@@ -85,7 +85,7 @@ function Home() {
 
       {/* LISTING */}
       <ListingShowcase id="membership-listing" title="Membership" subtitle="Telusuri pilihan keanggotaan khususmu." category="membership" />
-      <ListingShowcase id="other-listing" title="Produk Lainnya" subtitle="Berbagai produk lainnya yang tersedia." category="others" />
+      {/* <ListingShowcase id="other-listing" title="Produk Lainnya" subtitle="Berbagai produk lainnya yang tersedia." category="others" /> */}
 
       {/* MAP LOCATION */}
       <section id="location-section" className="container mx-auto my-24 px-4">
