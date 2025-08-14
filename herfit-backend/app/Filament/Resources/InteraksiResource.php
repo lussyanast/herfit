@@ -170,11 +170,6 @@ class InteraksiResource extends Resource
                     ->label('ID Post')
                     ->sortable()
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('postingan.caption')
-                    ->label('Caption')
-                    ->limit(60)
-                    ->wrap()
-                    ->toggleable(),
 
                 // Jenis
                 Tables\Columns\TextColumn::make('jenis_interaksi')

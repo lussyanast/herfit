@@ -19,6 +19,7 @@ use Filament\Notifications\Notification;
 class TransactionResource extends Resource
 {
     protected static ?string $model = Transaksi::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
     protected static ?string $navigationLabel = 'Kelola Transaksi';
     protected static ?string $pluralModelLabel = 'Kelola Transaksi';
@@ -40,6 +41,11 @@ class TransactionResource extends Resource
                 ->searchable()
                 ->required(),
 
+            Forms\Components\TextInput::make('kode_transaksi')
+                ->label('Kode Transaksi')
+                ->maxLength(50)
+                ->required(),
+
             Forms\Components\DatePicker::make('tanggal_mulai')
                 ->label('Tanggal Mulai')
                 ->required(),
@@ -59,6 +65,15 @@ class TransactionResource extends Resource
                 ->numeric()
                 ->required(),
 
+            Forms\Components\FileUpload::make('bukti_pembayaran')
+                ->label('Bukti Pembayaran')
+                ->disk('public')
+                ->directory('bukti')
+                ->image()
+                ->openable()
+                ->downloadable()
+                ->nullable(),
+
             Forms\Components\Select::make('status_transaksi')
                 ->label('Status')
                 ->options([
@@ -67,25 +82,50 @@ class TransactionResource extends Resource
                     'rejected' => 'Ditolak',
                 ])
                 ->required(),
-        ]);
+        ])->columns(2);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
+                // Identitas transaksi & produk
+                Tables\Columns\TextColumn::make('kode_transaksi')
+                    ->label('Kode Transaksi')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('produk.kode_produk')
+                    ->label('Kode Produk')
+                    ->searchable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('produk.nama_produk')
+                    ->label('Nama Produk')
+                    ->sortable()
+                    ->searchable()
+                    ->weight(FontWeight::Bold),
+
+                // Pemesan
+                Tables\Columns\TextColumn::make('id_pengguna')
+                    ->label('ID Pengguna')
+                    ->sortable()
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('pengguna.nama_lengkap')
                     ->label('Pengguna')
                     ->sortable()
                     ->searchable()
                     ->weight(FontWeight::Bold),
 
-                Tables\Columns\TextColumn::make('produk.nama_produk')
-                    ->label('Produk')
-                    ->sortable()
+                Tables\Columns\TextColumn::make('pengguna.email')
+                    ->label('Email')
                     ->searchable()
-                    ->weight(FontWeight::Bold),
+                    ->copyable()
+                    ->toggleable(),
 
+                // Bukti bayar (preview modal)
                 Tables\Columns\TextColumn::make('bukti_pembayaran')
                     ->label('Bukti Bayar')
                     ->html()
@@ -105,14 +145,16 @@ class TransactionResource extends Resource
                             ->visible(fn($record) => filled($record->bukti_pembayaran))
                     ),
 
-                Tables\Columns\TextColumn::make('tanggal_mulai')->label('Mulai')->sortable(),
-                Tables\Columns\TextColumn::make('tanggal_selesai')->label('Selesai')->sortable(),
-                Tables\Columns\TextColumn::make('jumlah_hari')->label('Durasi')->sortable(),
+                // Periode & harga
+                Tables\Columns\TextColumn::make('tanggal_mulai')->label('Mulai')->date('d M Y')->sortable(),
+                Tables\Columns\TextColumn::make('tanggal_selesai')->label('Selesai')->date('d M Y')->sortable(),
+                Tables\Columns\TextColumn::make('jumlah_hari')->label('Durasi (hari)')->sortable(),
 
                 Tables\Columns\TextColumn::make('jumlah_bayar')
                     ->label('Jumlah Bayar')
-                    ->getStateUsing(fn($record) => 'Rp. ' . number_format($record->jumlah_bayar, 0, ',', '.')),
+                    ->getStateUsing(fn($record) => 'Rp. ' . number_format((int) $record->jumlah_bayar, 0, ',', '.')),
 
+                // Status
                 Tables\Columns\BadgeColumn::make('status_transaksi')
                     ->label('Status')
                     ->colors([
@@ -122,9 +164,8 @@ class TransactionResource extends Resource
                     ])
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('created_at')->label('Dibuat')->dateTime()->sortable(),
-
-                Tables\Columns\TextColumn::make('updated_at')->label('Diperbarui')->dateTime()->sortable(),
+                Tables\Columns\TextColumn::make('created_at')->label('Dibuat')->dateTime('d M Y H:i')->sortable(),
+                Tables\Columns\TextColumn::make('updated_at')->label('Diperbarui')->dateTime('d M Y H:i')->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status_transaksi')
@@ -189,6 +230,7 @@ class TransactionResource extends Resource
         ];
     }
 
+    // kalau memang tidak ingin membuat data manual:
     public static function canCreate(): bool
     {
         return false;
