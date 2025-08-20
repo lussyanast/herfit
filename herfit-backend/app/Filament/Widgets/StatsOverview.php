@@ -2,7 +2,6 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Produk;
 use App\Models\Transaksi;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -25,11 +24,6 @@ class StatsOverview extends BaseWidget
         $currentMonth = $now->month;
         $currentYear = $now->year;
         $lastMonth = $now->copy()->subMonth();
-
-        // Item/produk baru bulan ini
-        $newListing = Produk::whereMonth('created_at', $currentMonth)
-            ->whereYear('created_at', $currentYear)
-            ->count();
 
         // Jumlah transaksi disetujui bulan ini
         $currentTransactions = Transaksi::where('status_transaksi', 'approved')
@@ -60,8 +54,6 @@ class StatsOverview extends BaseWidget
         $revenuePercentage = $this->getPercentage($lastRevenue, $currentRevenue);
 
         return [
-            Stat::make('Item Baru Bulan Ini', $newListing),
-
             Stat::make('Transaksi Bulan Ini', $currentTransactions)
                 ->description(abs($transactionPercentage) . '% ' . ($transactionPercentage >= 0 ? 'meningkat' : 'menurun'))
                 ->icon($transactionPercentage >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
