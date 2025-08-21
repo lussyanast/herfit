@@ -144,7 +144,7 @@ function Checkout({ params }: { params: { kode: string } }) {
                 <h2 className="font-bold text-xl sm:text-2xl text-secondary mb-3">Pembayaran</h2>
                 <div className="rounded-[20px] bg-white p-6 border border-border shadow space-y-5">
                   <div className="space-y-2 text-sm font-medium">
-                    <CardBooking title="Bank" value="HerFit Bank Mandiri" />
+                    <CardBooking title="Bank" value="Bank Mandiri" />
                     <CardBooking title="Atas Nama" value="Lussy Triana" />
                     <CardBooking title="No. Rekening" value="1670004852314" />
                   </div>
