@@ -6,9 +6,13 @@ import { useGetDetailTransactionQuery } from "@/services/transaction.service";
 import { Transaction } from "@/interfaces/transaction";
 import { Button } from "@/components/atomics/button";
 import { Separator } from "@/components/atomics/separator";
+import Image from "next/image";
 
 function BookingSuccess({ params }: { params: { kode: string } }) {
-  const { data, isLoading, error } = useGetDetailTransactionQuery(params.kode);
+  const { data, isLoading, error } = useGetDetailTransactionQuery({ kode: params.kode, token: "" } as any);
+  // ^ jika service-mu versi lama tanpa token, biarkan seperti sebelumnya:
+  // const { data, isLoading, error } = useGetDetailTransactionQuery(params.kode);
+
   const booking: Transaction | undefined = useMemo(() => data?.data, [data]);
 
   const statusApproved = booking?.status_transaksi === "approved";
@@ -31,8 +35,8 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
             {isLoading
               ? "Memuat detail transaksi..."
               : error
-              ? "Terjadi kesalahan saat memuat data transaksi."
-              : "Detail transaksi tersedia di bawah."}
+                ? "Terjadi kesalahan saat memuat data transaksi."
+                : "Detail transaksi tersedia di bawah."}
           </p>
         </div>
       </section>
@@ -53,10 +57,13 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                     QR Code Pemesanan
                   </h3>
                   <div className="inline-block p-4 bg-white border rounded-xl shadow-md">
-                    <img
+                    <Image
                       src={booking.qr_code_url}
                       alt="QR Code"
+                      width={192}
+                      height={192}
                       className="mx-auto w-48 h-48"
+                      unoptimized
                     />
                   </div>
                   <p className="text-sm text-muted-foreground mt-3">
@@ -121,11 +128,11 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                   <div>
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-xs font-semibold
-                        ${statusApproved
+                        ${booking.status_transaksi === "approved"
                           ? "bg-green-100 text-green-700"
                           : booking.status_transaksi === "rejected"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-800"}`}
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-800"}`}
                     >
                       {booking.status_transaksi}
                     </span>

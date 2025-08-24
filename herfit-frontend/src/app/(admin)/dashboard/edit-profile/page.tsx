@@ -284,12 +284,13 @@ export default function EditProfilePage() {
                                     <div className="flex flex-col gap-2 mt-4">
                                         <label className="text-sm font-medium text-gray-600">Foto Profil</label>
                                         {previewImage && (
-                                            <img
+                                            <Image
                                                 src={previewImage}
                                                 alt="Preview"
                                                 width={80}
                                                 height={80}
                                                 className="rounded-full object-cover mb-2 border shadow"
+                                                unoptimized
                                             />
                                         )}
                                         {!showCropper && (

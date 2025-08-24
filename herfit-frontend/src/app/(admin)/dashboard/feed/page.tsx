@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import dayjs from "dayjs";
 import { X } from "lucide-react";
 import { toast } from "@/components/atomics/use-toast";
+import Image from "next/image";
 
 type Post = {
     id_postingan: number;
@@ -32,7 +33,15 @@ export default function HerFeedPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const postsPerPage = 5;
 
-    const fetchPosts = async () => {
+    const resolveImageUrl = (path: string) => {
+        if (!path) return "";
+        const cleanPath = path.replace(/^storage\//, "");
+        const base = process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "");
+        return `${base}/storage/${cleanPath}`;
+    };
+
+    // ✅ Bungkus fetchPosts dengan useCallback dan jadikan dependency effect
+    const fetchPosts = useCallback(async () => {
         if (!token) return;
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/herfeed-posts`, {
@@ -51,11 +60,11 @@ export default function HerFeedPage() {
                 variant: "destructive",
             });
         }
-    };
+    }, [token]);
 
     useEffect(() => {
-        if (token) fetchPosts();
-    }, [token]);
+        fetchPosts();
+    }, [fetchPosts]);
 
     const handlePostSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -131,13 +140,6 @@ export default function HerFeedPage() {
         }
     };
 
-    const resolveImageUrl = (path: string) => {
-        if (!path) return "";
-        const cleanPath = path.replace(/^storage\//, "");
-        const base = process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "");
-        return `${base}/storage/${cleanPath}`;
-    };
-
     // 🔢 Pagination logic
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
@@ -163,7 +165,14 @@ export default function HerFeedPage() {
                 />
                 {preview && (
                     <div className="relative mt-2">
-                        <img src={preview} alt="preview" className="w-full rounded-md border" />
+                        <Image
+                            src={preview}
+                            alt="preview"
+                            width={1200}
+                            height={675}
+                            className="w-full rounded-md border"
+                            unoptimized
+                        />
                         <button
                             type="button"
                             onClick={() => handleImageChange(null)}
@@ -190,10 +199,13 @@ export default function HerFeedPage() {
                     </div>
                     <p className="text-gray-800">{post.caption}</p>
                     {post.foto_postingan && (
-                        <img
+                        <Image
                             src={resolveImageUrl(post.foto_postingan)}
                             alt="Post"
+                            width={1200}
+                            height={675}
                             className="w-full rounded-md border"
+                            unoptimized
                         />
                     )}
 
