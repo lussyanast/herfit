@@ -10,7 +10,6 @@ import moment from "moment";
 import { useCheckAvailabilityMutation } from "@/services/transaction.service";
 import { useToast } from "@/components/atomics/use-toast";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react"; // ⬅️ tambahkan
 
 interface BookingSectionProps {
   id: number;
@@ -26,9 +25,6 @@ function BookingSection({ id, kode, price }: BookingSectionProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [checkAvailability, { isLoading }] = useCheckAvailabilityMutation();
-
-  const { data: session } = useSession();                 // ⬅️ ambil session
-  const token = session?.user?.token ?? "";                // ⬅️ token aktif
 
   useEffect(() => {
     if (startDate && endDate) {
@@ -50,21 +46,20 @@ function BookingSection({ id, kode, price }: BookingSectionProps) {
     }
 
     try {
-      const payload = {
+      const data = {
         id_produk: id,
         tanggal_mulai: moment(startDate).format("YYYY-MM-DD"),
         tanggal_selesai: moment(endDate).format("YYYY-MM-DD"),
       };
 
-      // ⬇️ kirim token dari session (bukan localStorage)
-      const res = await checkAvailability({ payload, token }).unwrap();
+      const res = await checkAvailability(data).unwrap();
 
       if (res.success) {
-        localStorage.setItem("tanggal_mulai", payload.tanggal_mulai);
-        localStorage.setItem("tanggal_selesai", payload.tanggal_selesai);
+        localStorage.setItem("tanggal_mulai", data.tanggal_mulai);
+        localStorage.setItem("tanggal_selesai", data.tanggal_selesai);
 
         router.push(
-          `/produk/${kode}/checkout?start_date=${payload.tanggal_mulai}&end_date=${payload.tanggal_selesai}`
+          `/produk/${kode}/checkout?start_date=${data.tanggal_mulai}&end_date=${data.tanggal_selesai}`
         );
       }
     } catch (error: any) {

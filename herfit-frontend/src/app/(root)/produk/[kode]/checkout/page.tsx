@@ -13,11 +13,6 @@ import Produk from "./produk";
 import { useGetDetailProdukQuery } from "@/services/produk.service";
 import { moneyFormat } from "@/lib/utils";
 import { useToast } from "@/components/atomics/use-toast";
-import { useSession } from "next-auth/react";  // ⬅️ ambil token dari sini
-import {
-  useTransactionMutation,
-  useUploadProofMutation,
-} from "@/services/transaction.service"; // ⬅️ mutation baru
 
 function Checkout({ params }: { params: { kode: string } }) {
   const { data: produk } = useGetDetailProdukQuery(params.kode);
@@ -25,16 +20,11 @@ function Checkout({ params }: { params: { kode: string } }) {
   const router = useRouter();
   const { toast } = useToast();
 
-  const { data: session } = useSession();
-  const token = session?.user?.token ?? ""; // ⬅️ token aktif
-
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [totalDays, setTotalDays] = useState<number>(0);
   const [proofFile, setProofFile] = useState<File | null>(null);
-
-  const [createTransaction, { isLoading: isCreating }] = useTransactionMutation();
-  const [uploadProof, { isLoading: isUploading }] = useUploadProofMutation();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const start = searchParams.get("start_date");
@@ -65,42 +55,60 @@ function Checkout({ params }: { params: { kode: string } }) {
     }
 
     try {
-      const payload = {
-        id_produk: produk.data.id_produk,
-        // kalau backend cukup date-only, pakai YYYY-MM-DD
-        tanggal_mulai: moment(startDate).format("YYYY-MM-DD"),
-        tanggal_selesai: moment(endDate).format("YYYY-MM-DD"),
-        jumlah_hari: totalDays,
-        jumlah_bayar: produk.data.harga_produk,
-      };
+      setIsLoading(true);
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const totalBayar = produk.data.harga_produk;
 
-      // 1) Buat transaksi
-      const trx = await createTransaction({ payload, token }).unwrap();
-      const transactionId = trx?.data?.id_transaksi;
-      const kodeTransaksi = trx?.data?.kode_transaksi;
+      const transaksiRes = await fetch(`${apiBase}/transaksi`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_produk: produk.data.id_produk,
+          tanggal_mulai: moment(startDate).startOf("day").format("YYYY-MM-DD HH:mm:ss"),
+          tanggal_selesai: moment(endDate).endOf("day").format("YYYY-MM-DD HH:mm:ss"),
+          jumlah_hari: totalDays,
+          jumlah_bayar: totalBayar,
+        }),
+      });
 
-      if (!transactionId) throw new Error("ID transaksi tidak ditemukan.");
+      const transaksiData = await transaksiRes.json();
+      const transactionId = transaksiData?.data?.id_transaksi;
+      if (!transactionId) {
+        throw new Error("ID transaksi tidak ditemukan.");
+      }
 
-      // 2) Upload bukti
+      const kodeTransaksi = transaksiData.data.kode_transaksi;
+
       const formData = new FormData();
       formData.append("bukti_bayar", proofFile);
 
-      const up = await uploadProof({ id: transactionId, formData, token }).unwrap();
-      if (!up?.success) throw new Error(up?.message || "Upload bukti gagal.");
+      const uploadRes = await fetch(`${apiBase}/transaksi/${transactionId}/upload-bukti`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
+        },
+        body: formData,
+      });
 
-      // 3) Sukses → redirect
+      const uploadData = await uploadRes.json();
+      if (!uploadData.success) throw new Error(uploadData.message);
+
       router.push(`/booking-success/${kodeTransaksi}/success`);
     } catch (err: any) {
       toast({
         title: "Gagal",
-        description: err?.data?.message || err?.message || "Terjadi kesalahan.",
+        description: err.message,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const price = produk?.data?.harga_produk ?? 0;
-  const isLoading = isCreating || isUploading;
 
   return (
     <main className="bg-gray-50 pb-20">
