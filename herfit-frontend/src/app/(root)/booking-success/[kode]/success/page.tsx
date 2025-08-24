@@ -3,30 +3,48 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-
 import { useGetDetailTransactionQuery } from "@/services/transaction.service";
-import type { Transaction } from "@/interfaces/transaction";
 import { Button } from "@/components/atomics/button";
 import { Separator } from "@/components/atomics/separator";
 
-type PageProps = { params: { kode: string | string[] } };
+type Transaction = {
+  kode_transaksi: string;
+  status_transaksi: "pending" | "approved" | "rejected" | string;
+  tanggal_mulai?: string;
+  tanggal_selesai?: string;
+  jumlah_hari?: number;
+  jumlah_bayar?: number;
+  qr_code_url?: string;
+  produk?: {
+    kategori_produk?: string;
+    nama_produk?: string;
+  };
+};
 
-export default function BookingSuccess({ params }: PageProps) {
-  // Pastikan kode adalah string (bukan array)
-  const kodeParam =
-    typeof params?.kode === "string" ? params.kode : Array.isArray(params?.kode) ? params.kode[0] : "";
+export default function BookingSuccessPage({
+  params,
+}: {
+  params: { kode: string };
+}) {
+  // ❗️Jika tidak pakai token:
+  // const { data, isLoading, error } = useGetDetailTransactionQuery(params.kode);
 
-  // >>> Pakai signature object (aman untuk berkembang)
-  const { data, isLoading, error } = useGetDetailTransactionQuery({ kode: kodeParam });
+  // ✅ Jika suatu saat perlu token, tinggal isi variabel token di sini
+  const token: string | undefined = undefined;
+  const { data, isLoading, error } = useGetDetailTransactionQuery(
+    token ? { kode: params.kode, token } : params.kode
+  );
 
-  // Jika API kamu tidak pakai envelope { data: ... }, sesuaikan di sini:
-  const booking: Transaction | undefined = useMemo(() => data?.data, [data]);
+  const booking: Transaction | undefined = useMemo(
+    () => data?.data as Transaction | undefined,
+    [data]
+  );
 
   const statusApproved = booking?.status_transaksi === "approved";
   const isMembership = booking?.produk?.kategori_produk === "Membership";
-  const qrSrc = booking?.qr_code_url ?? undefined; // local var buat narrowing TS
+  const qrAvailable = !!booking?.qr_code_url;
 
-  const showQR = statusApproved && isMembership && !!qrSrc;
+  const showQR = statusApproved && isMembership && qrAvailable;
   const showQRCodeBelumTersedia = !statusApproved && isMembership;
   const showKonfirmasiGym = !statusApproved && !isMembership;
 
@@ -51,53 +69,63 @@ export default function BookingSuccess({ params }: PageProps) {
       {/* Isi */}
       <section className="container mx-auto px-4 sm:px-6 -mt-[100px] mb-[100px]">
         <div className="max-w-[700px] mx-auto rounded-[20px] bg-white border border-border shadow-indicator p-6 sm:p-[30px]">
-          {isLoading ? (
-            <p className="text-center text-muted-foreground">Memuat...</p>
-          ) : error ? (
-            <p className="text-center text-red-600">Gagal memuat transaksi.</p>
-          ) : !booking ? (
-            <p className="text-center text-muted-foreground">Data transaksi tidak ditemukan.</p>
+          {!booking ? (
+            <p className="text-center text-muted-foreground">
+              Data transaksi tidak ditemukan.
+            </p>
           ) : (
             <>
               {/* QR Code Section */}
               {showQR ? (
                 <div className="text-center mb-10">
-                  <h3 className="text-lg font-semibold text-secondary mb-3">QR Code Pemesanan</h3>
+                  <h3 className="text-lg font-semibold text-secondary mb-3">
+                    QR Code Pemesanan
+                  </h3>
                   <div className="inline-block p-4 bg-white border rounded-xl shadow-md">
-                    {qrSrc && (
-                      <Image
-                        src={qrSrc} // <-- sekarang dipastikan string pada cabang ini
-                        alt="QR Code"
-                        width={192}
-                        height={192}
-                        className="mx-auto w-48 h-48"
-                        unoptimized
-                      />
-                    )}
+                    {/* ✅ Non-null assertion aman karena sudah di-guard showQR */}
+                    <Image
+                      src={booking.qr_code_url!}
+                      alt="QR Code"
+                      width={192}
+                      height={192}
+                      className="mx-auto w-48 h-48"
+                      unoptimized
+                    />
                   </div>
-                  <p className="text-sm text-muted-foreground mt-3">Tunjukkan QR ini saat check-in</p>
+                  <p className="text-sm text-muted-foreground mt-3">
+                    Tunjukkan QR ini saat check-in
+                  </p>
                   <div className="mt-4 text-xs text-muted-foreground bg-yellow-50 border border-yellow-200 px-4 py-3 rounded-lg text-left">
                     <ul className="list-disc pl-5 space-y-1">
                       <li>
-                        Berlaku dari <strong>{booking.tanggal_mulai}</strong> sampai{" "}
-                        <strong>{booking.tanggal_selesai}</strong>.
+                        Berlaku dari <strong>{booking.tanggal_mulai}</strong>{" "}
+                        sampai <strong>{booking.tanggal_selesai}</strong>.
                       </li>
-                      <li>Jangan bagikan QR ini ke pihak lain demi keamanan akun Anda.</li>
+                      <li>
+                        Jangan bagikan QR ini ke pihak lain demi keamanan akun
+                        Anda.
+                      </li>
                     </ul>
                   </div>
                 </div>
               ) : showQRCodeBelumTersedia ? (
                 <div className="text-center mb-10">
-                  <h3 className="text-lg font-semibold text-secondary mb-3">QR Code Belum Tersedia</h3>
+                  <h3 className="text-lg font-semibold text-secondary mb-3">
+                    QR Code Belum Tersedia
+                  </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    QR akan tampil setelah transaksi disetujui oleh admin. Silakan cek kembali melalui dashboard.
+                    QR akan tampil setelah transaksi disetujui oleh admin.
+                    Silakan cek kembali secara berkala melalui dashboard.
                   </p>
                 </div>
               ) : showKonfirmasiGym ? (
                 <div className="text-center mb-10">
-                  <h3 className="text-lg font-semibold text-secondary mb-3">Konfirmasi Admin</h3>
+                  <h3 className="text-lg font-semibold text-secondary mb-3">
+                    Konfirmasi Admin
+                  </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Silakan konfirmasi pembayaran langsung kepada admin yang bertugas di gym.
+                    Silakan konfirmasi pembayaran langsung kepada admin yang
+                    bertugas di gym.
                   </p>
                 </div>
               ) : null}
@@ -119,10 +147,15 @@ export default function BookingSuccess({ params }: PageProps) {
                   </p>
 
                   <p className="font-semibold">Total Hari</p>
-                  <p>{booking.jumlah_hari ?? "-"} hari</p>
+                  <p>{booking.jumlah_hari} hari</p>
 
                   <p className="font-semibold">Total Bayar</p>
-                  <p>Rp {booking.jumlah_bayar != null ? booking.jumlah_bayar.toLocaleString("id-ID") : "-"}</p>
+                  <p>
+                    Rp{" "}
+                    {booking.jumlah_bayar?.toLocaleString("id-ID", {
+                      maximumFractionDigits: 0,
+                    }) ?? "-"}
+                  </p>
 
                   <p className="font-semibold">Status</p>
                   <div>
@@ -146,12 +179,20 @@ export default function BookingSuccess({ params }: PageProps) {
           {/* Tombol Aksi */}
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link href="/">
-              <Button variant="third" size="header" className="min-w-[160px] w-full sm:w-auto">
+              <Button
+                variant="third"
+                size="header"
+                className="min-w-[160px] w-full sm:w-auto"
+              >
                 Jelajahi Lagi
               </Button>
             </Link>
             <Link href="/dashboard">
-              <Button variant="third" size="header" className="min-w-[160px] w-full sm:w-auto">
+              <Button
+                variant="third"
+                size="header"
+                className="min-w-[160px] w-full sm:w-auto"
+              >
                 Ke Dashboard
               </Button>
             </Link>

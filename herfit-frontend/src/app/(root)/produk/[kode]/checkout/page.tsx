@@ -70,7 +70,7 @@ function Checkout({ params }: { params: { kode: string } }) {
     try {
       setIsLoading(true);
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const totalBayar = produk.data.harga_produk; // ⚠️ tetap apa adanya
+      const totalBayar = produk.data.harga_produk;
 
       const transaksiRes = await fetch(`${apiBase}/transaksi`, {
         method: "POST",
