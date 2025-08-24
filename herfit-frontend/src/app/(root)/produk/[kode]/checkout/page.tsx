@@ -2,8 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import moment from "moment";
-import Image from "next/image";
 import Breadcrumbs from "@/components/molecules/breadcrumbs";
 import CardBooking from "@/components/molecules/card/card-booking";
 import { Button } from "@/components/atomics/button";
@@ -15,6 +15,9 @@ import { moneyFormat } from "@/lib/utils";
 import { useToast } from "@/components/atomics/use-toast";
 
 function Checkout({ params }: { params: { kode: string } }) {
+  const { data: session } = useSession();
+  const token = session?.user?.token;
+
   const { data: produk } = useGetDetailProdukQuery(params.kode);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -54,15 +57,26 @@ function Checkout({ params }: { params: { kode: string } }) {
       return;
     }
 
+    if (!token) {
+      toast({
+        title: "Tidak dapat melanjutkan",
+        description: "Silakan login terlebih dahulu",
+        variant: "destructive",
+      });
+      router.push(`/sign-in?callbackUrl=${window.location.href}`);
+      return;
+    }
+
     try {
       setIsLoading(true);
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const totalBayar = produk.data.harga_produk;
+      const totalBayar = produk.data.harga_produk; // ⚠️ tetap apa adanya
 
       const transaksiRes = await fetch(`${apiBase}/transaksi`, {
         method: "POST",
+        credentials: "omit",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -87,8 +101,9 @@ function Checkout({ params }: { params: { kode: string } }) {
 
       const uploadRes = await fetch(`${apiBase}/transaksi/${transactionId}/upload-bukti`, {
         method: "POST",
+        credentials: "omit",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
