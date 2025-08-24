@@ -1,37 +1,32 @@
-import { apiSlice } from "./apiSlice";
+import { apiSlice } from "./base-query";
 
 export const transactionApi = apiSlice.injectEndpoints({
     endpoints: (build) => ({
-        checkAvailability: build.mutation<
-            { success: boolean; message: string },
-            { id_produk: number; tanggal_mulai: string; tanggal_selesai: string }
-        >({
+        checkAvailability: build.mutation({
             query: (payload) => ({
                 url: "/transaksi/is-available",
                 method: "POST",
                 body: payload,
             }),
         }),
-
-        transaction: build.mutation<
-            any,
-            { id_produk: number; tanggal_mulai: string; tanggal_selesai: string }
-        >({
+        transaction: build.mutation({
             query: (payload) => ({
                 url: "/transaksi",
                 method: "POST",
                 body: payload,
             }),
-            invalidatesTags: ["Transaction"],
         }),
-
-        getTransactions: build.query<any, void>({
-            query: () => ({ url: "/transaksi", method: "GET" }),
-            providesTags: ["Transaction"],
+        getTransactions: build.query({
+            query: () => ({
+                url: "/transaksi",
+                method: "GET",
+            }),
         }),
-
-        getDetailTransaction: build.query<any, string>({
-            query: (kode) => ({ url: `/transaksi/kode/${kode}`, method: "GET" }),
+        getDetailTransaction: build.query({
+            query: (kode) => ({
+                url: `/transaksi/kode/${kode}`,
+                method: "GET",
+            }),
         }),
     }),
 });

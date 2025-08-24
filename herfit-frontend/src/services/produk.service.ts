@@ -1,13 +1,19 @@
-import { apiSlice } from "./apiSlice";
+import { apiSlice } from "./base-query";
 
 export const produkApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getAllProduk: builder.query<any, void>({
-            query: () => ({ url: "/produk", method: "GET" }),
+        getAllProduk: builder.query({
+            query: () => ({
+                url: "/produk",
+                method: "GET",
+            }),
         }),
-        getDetailProduk: builder.query<any, string>({
-            query: (slug) => ({ url: `/produk/${slug}`, method: "GET" }),
-        }),
+        getDetailProduk: builder.query({
+            query: (slug: string) => ({
+                url: `/produk/${slug}`,
+                method: "GET",
+            }),
+        }),        
     }),
 });
 
