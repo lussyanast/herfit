@@ -2,24 +2,35 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useGetDetailTransactionQuery } from "@/services/transaction.service";
 import { Transaction } from "@/interfaces/transaction";
 import { Button } from "@/components/atomics/button";
 import { Separator } from "@/components/atomics/separator";
-import Image from "next/image";
+
+function resolveUrl(path?: string) {
+  if (!path) return null;
+  // kalau backend sudah kirim full URL, pakai apa adanya
+  try {
+    const u = new URL(path);
+    return u.toString();
+  } catch {
+    // kalau backend kirim "storage/..." atau relatif, prefix pakai STORAGE_BASE_URL
+    const base = (process.env.NEXT_PUBLIC_STORAGE_BASE_URL || "").replace(/\/$/, "");
+    return base ? `${base}/${path.replace(/^\/+/, "")}` : null;
+  }
+}
 
 function BookingSuccess({ params }: { params: { kode: string } }) {
-  const { data, isLoading, error } = useGetDetailTransactionQuery({ kode: params.kode, token: "" } as any);
-  // ^ jika service-mu versi lama tanpa token, biarkan seperti sebelumnya:
-  // const { data, isLoading, error } = useGetDetailTransactionQuery(params.kode);
-
+  const { data, isLoading, error } = useGetDetailTransactionQuery(params.kode);
   const booking: Transaction | undefined = useMemo(() => data?.data, [data]);
 
   const statusApproved = booking?.status_transaksi === "approved";
   const isMembership = booking?.produk?.kategori_produk === "Membership";
-  const qrAvailable = !!booking?.qr_code_url;
 
-  const showQR = statusApproved && isMembership && qrAvailable;
+  // Narrowing & sanitizing QR URL
+  const qrUrl = useMemo(() => resolveUrl(booking?.qr_code_url), [booking?.qr_code_url]);
+  const showQR = Boolean(statusApproved && isMembership && qrUrl);
   const showQRCodeBelumTersedia = !statusApproved && isMembership;
   const showKonfirmasiGym = !statusApproved && !isMembership;
 
@@ -35,8 +46,8 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
             {isLoading
               ? "Memuat detail transaksi..."
               : error
-                ? "Terjadi kesalahan saat memuat data transaksi."
-                : "Detail transaksi tersedia di bawah."}
+              ? "Terjadi kesalahan saat memuat data transaksi."
+              : "Detail transaksi tersedia di bawah."}
           </p>
         </div>
       </section>
@@ -45,57 +56,46 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
       <section className="container mx-auto px-4 sm:px-6 -mt-[100px] mb-[100px]">
         <div className="max-w-[700px] mx-auto rounded-[20px] bg-white border border-border shadow-indicator p-6 sm:p-[30px]">
           {!booking ? (
-            <p className="text-center text-muted-foreground">
-              Data transaksi tidak ditemukan.
-            </p>
+            <p className="text-center text-muted-foreground">Data transaksi tidak ditemukan.</p>
           ) : (
             <>
               {/* QR Code Section */}
               {showQR ? (
                 <div className="text-center mb-10">
-                  <h3 className="text-lg font-semibold text-secondary mb-3">
-                    QR Code Pemesanan
-                  </h3>
+                  <h3 className="text-lg font-semibold text-secondary mb-3">QR Code Pemesanan</h3>
                   <div className="inline-block p-4 bg-white border rounded-xl shadow-md">
+                    {/* qrUrl sudah dipastikan string pada cabang ini */}
                     <Image
-                      src={booking.qr_code_url}
+                      src={qrUrl as string}
                       alt="QR Code"
                       width={192}
                       height={192}
+                      priority
                       className="mx-auto w-48 h-48"
-                      unoptimized
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground mt-3">
-                    Tunjukkan QR ini saat check-in
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-3">Tunjukkan QR ini saat check-in</p>
                   <div className="mt-4 text-xs text-muted-foreground bg-yellow-50 border border-yellow-200 px-4 py-3 rounded-lg text-left">
                     <ul className="list-disc pl-5 space-y-1">
                       <li>
                         Berlaku dari <strong>{booking.tanggal_mulai}</strong> sampai{" "}
                         <strong>{booking.tanggal_selesai}</strong>.
                       </li>
-                      <li>
-                        Jangan bagikan QR ini ke pihak lain demi keamanan akun Anda.
-                      </li>
+                      <li>Jangan bagikan QR ini ke pihak lain demi keamanan akun Anda.</li>
                     </ul>
                   </div>
                 </div>
               ) : showQRCodeBelumTersedia ? (
                 <div className="text-center mb-10">
-                  <h3 className="text-lg font-semibold text-secondary mb-3">
-                    QR Code Belum Tersedia
-                  </h3>
+                  <h3 className="text-lg font-semibold text-secondary mb-3">QR Code Belum Tersedia</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    QR akan tampil setelah transaksi disetujui oleh admin.
-                    Silakan cek kembali secara berkala melalui dashboard.
+                    QR akan tampil setelah transaksi disetujui oleh admin. Silakan cek kembali secara berkala melalui
+                    dashboard.
                   </p>
                 </div>
               ) : showKonfirmasiGym ? (
                 <div className="text-center mb-10">
-                  <h3 className="text-lg font-semibold text-secondary mb-3">
-                    Konfirmasi Admin
-                  </h3>
+                  <h3 className="text-lg font-semibold text-secondary mb-3">Konfirmasi Admin</h3>
                   <p className="text-sm text-muted-foreground mb-4">
                     Silakan konfirmasi pembayaran langsung kepada admin yang bertugas di gym.
                   </p>
@@ -128,11 +128,13 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                   <div>
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-xs font-semibold
-                        ${booking.status_transaksi === "approved"
-                          ? "bg-green-100 text-green-700"
-                          : booking.status_transaksi === "rejected"
+                        ${
+                          statusApproved
+                            ? "bg-green-100 text-green-700"
+                            : booking.status_transaksi === "rejected"
                             ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-800"}`}
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
                     >
                       {booking.status_transaksi}
                     </span>
