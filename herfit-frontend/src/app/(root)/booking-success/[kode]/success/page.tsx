@@ -9,17 +9,16 @@ import { Separator } from "@/components/atomics/separator";
 import Image from "next/image";
 
 function BookingSuccess({ params }: { params: { kode: string } }) {
-  const { data, isLoading, error } = useGetDetailTransactionQuery({ kode: params.kode, token: "" } as any);
-  // ^ jika service-mu versi lama tanpa token, biarkan seperti sebelumnya:
-  // const { data, isLoading, error } = useGetDetailTransactionQuery(params.kode);
+  const { data, isLoading, error } =
+    useGetDetailTransactionQuery({ kode: params.kode, token: "" } as any);
 
   const booking: Transaction | undefined = useMemo(() => data?.data, [data]);
 
   const statusApproved = booking?.status_transaksi === "approved";
   const isMembership = booking?.produk?.kategori_produk === "Membership";
-  const qrAvailable = !!booking?.qr_code_url;
+  const qrSrc = booking?.qr_code_url ?? undefined; // <- lokal var untuk narrowing
 
-  const showQR = statusApproved && isMembership && qrAvailable;
+  const showQR = statusApproved && isMembership && !!qrSrc;
   const showQRCodeBelumTersedia = !statusApproved && isMembership;
   const showKonfirmasiGym = !statusApproved && !isMembership;
 
@@ -35,8 +34,8 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
             {isLoading
               ? "Memuat detail transaksi..."
               : error
-                ? "Terjadi kesalahan saat memuat data transaksi."
-                : "Detail transaksi tersedia di bawah."}
+              ? "Terjadi kesalahan saat memuat data transaksi."
+              : "Detail transaksi tersedia di bawah."}
           </p>
         </div>
       </section>
@@ -57,14 +56,16 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                     QR Code Pemesanan
                   </h3>
                   <div className="inline-block p-4 bg-white border rounded-xl shadow-md">
-                    <Image
-                      src={booking.qr_code_url}
-                      alt="QR Code"
-                      width={192}
-                      height={192}
-                      className="mx-auto w-48 h-48"
-                      unoptimized
-                    />
+                    {qrSrc && (
+                      <Image
+                        src={qrSrc} // <- sekarang bertipe string pada cabang ini
+                        alt="QR Code"
+                        width={192}
+                        height={192}
+                        className="mx-auto w-48 h-48"
+                        unoptimized
+                      />
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground mt-3">
                     Tunjukkan QR ini saat check-in
@@ -75,9 +76,7 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                         Berlaku dari <strong>{booking.tanggal_mulai}</strong> sampai{" "}
                         <strong>{booking.tanggal_selesai}</strong>.
                       </li>
-                      <li>
-                        Jangan bagikan QR ini ke pihak lain demi keamanan akun Anda.
-                      </li>
+                      <li>Jangan bagikan QR ini ke pihak lain demi keamanan akun Anda.</li>
                     </ul>
                   </div>
                 </div>
@@ -131,8 +130,8 @@ function BookingSuccess({ params }: { params: { kode: string } }) {
                         ${booking.status_transaksi === "approved"
                           ? "bg-green-100 text-green-700"
                           : booking.status_transaksi === "rejected"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-800"}`}
+                          ? "bg-red-100 text-red-700"
+                          : "bg-yellow-100 text-yellow-800"}`}
                     >
                       {booking.status_transaksi}
                     </span>
