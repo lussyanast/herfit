@@ -16,6 +16,7 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use App\Filament\Resources\TransactionResource\Pages;
+use Illuminate\Database\Eloquent\Builder;
 
 class TransactionResource extends Resource
 {
@@ -90,12 +91,18 @@ class TransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            // Paksa urutan default: terbaru dulu + tie-breaker PK
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                $pk = $query->getModel()->getKeyName(); // contoh: id_transaksi atau id
+                return $query->orderByDesc('created_at')->orderByDesc($pk);
+            })
+            ->defaultSort('created_at', 'desc')
             ->columns([
-                // Identitas transaksi & produk
                 Tables\Columns\TextColumn::make('kode_transaksi')
                     ->label('Kode Transaksi')
                     ->searchable()
                     ->copyable()
+                    ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('produk.kode_produk')
@@ -109,7 +116,6 @@ class TransactionResource extends Resource
                     ->searchable()
                     ->weight(FontWeight::Bold),
 
-                // Pengguna
                 Tables\Columns\TextColumn::make('id_pengguna')
                     ->label('ID Pengguna')
                     ->sortable()
@@ -127,7 +133,6 @@ class TransactionResource extends Resource
                     ->copyable()
                     ->toggleable(),
 
-                // Bukti bayar (modal preview)
                 Tables\Columns\TextColumn::make('bukti_pembayaran')
                     ->label('Bukti Bayar')
                     ->html()
@@ -142,51 +147,29 @@ class TransactionResource extends Resource
                             ->modalSubmitAction(false)
                             ->modalCancelActionLabel('Tutup')
                             ->modalContent(fn($record) => view('filament.preview-bukti', [
-                                'url' => $record->bukti_pembayaran
-                                    ? asset('storage/' . $record->bukti_pembayaran)
-                                    : null,
+                                'url' => $record->bukti_pembayaran ? asset('storage/' . $record->bukti_pembayaran) : null,
                             ]))
                             ->visible(fn($record) => filled($record->bukti_pembayaran))
                     ),
 
-                // Periode & harga
                 Tables\Columns\TextColumn::make('tanggal_mulai')
-                    ->label('Mulai')
-                    ->date('d M Y')
-                    ->sortable(),
+                    ->label('Mulai')->date('d M Y')->sortable(),
 
                 Tables\Columns\TextColumn::make('tanggal_selesai')
-                    ->label('Selesai')
-                    ->date('d M Y')
-                    ->sortable(),
+                    ->label('Selesai')->date('d M Y')->sortable(),
 
                 Tables\Columns\TextColumn::make('jumlah_hari')
-                    ->label('Durasi (hari)')
-                    ->sortable(),
+                    ->label('Durasi (hari)')->sortable(),
 
                 Tables\Columns\TextColumn::make('jumlah_bayar')
                     ->label('Jumlah Bayar')
                     ->getStateUsing(fn($record) => 'Rp ' . number_format((int) $record->jumlah_bayar, 0, ',', '.')),
 
-                // Status
-                Tables\Columns\BadgeColumn::make('status_transaksi')
-                    ->label('Status')
-                    ->colors([
-                        'gray' => 'waiting',
-                        'success' => 'approved',
-                        'danger' => 'rejected',
-                    ])
-                    ->sortable(),
-
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Dibuat')
-                    ->dateTime('d M Y H:i')
-                    ->sortable(),
+                    ->label('Dibuat')->dateTime('d M Y H:i')->sortable(),
 
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Diperbarui')
-                    ->dateTime('d M Y H:i')
-                    ->sortable(),
+                    ->label('Diperbarui')->dateTime('d M Y H:i')->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status_transaksi')
