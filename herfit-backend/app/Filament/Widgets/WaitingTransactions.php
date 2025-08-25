@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Widgets\TableWidget as BaseWidget;
+use App\Services\TransaksiFsm;
 
 class WaitingTransactions extends BaseWidget
 {
@@ -40,24 +41,24 @@ class WaitingTransactions extends BaseWidget
                     ->label('Nama Produk')
                     ->searchable(),
 
-                // Pemesan
+                // Pengguna / pemesan
                 Tables\Columns\TextColumn::make('id_pengguna')
                     ->label('ID Pengguna')
                     ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('pengguna.nama_lengkap')
-                    ->label('Pemesan')
+                    ->label('Nama Pengguna')
                     ->sortable()
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('pengguna.email')
-                    ->label('Email Pemesan')
+                    ->label('Email Pengguna')
                     ->searchable()
                     ->copyable()
                     ->toggleable(),
 
-                // ===== Bukti pembayaran (SAMA seperti di Resource: modal preview) =====
+                // Bukti pembayaran (modal preview)
                 Tables\Columns\TextColumn::make('bukti_pembayaran')
                     ->label('Bukti Bayar')
                     ->html()
@@ -81,8 +82,8 @@ class WaitingTransactions extends BaseWidget
 
                 // Harga & status
                 Tables\Columns\TextColumn::make('jumlah_bayar')
-                    ->label('Harga')
-                    ->getStateUsing(fn($record) => 'Rp. ' . number_format((int) $record->jumlah_bayar, 0, ',', '.'))
+                    ->label('Jumlah Bayar')
+                    ->getStateUsing(fn($record) => 'Rp ' . number_format((int) $record->jumlah_bayar, 0, ',', '.'))
                     ->sortable(),
 
                 Tables\Columns\BadgeColumn::make('status_transaksi')
@@ -94,7 +95,7 @@ class WaitingTransactions extends BaseWidget
                     ])
                     ->sortable(),
 
-                // Periode keanggotaan
+                // Periode
                 Tables\Columns\TextColumn::make('tanggal_mulai')
                     ->label('Mulai')
                     ->date('d M Y')
@@ -122,7 +123,7 @@ class WaitingTransactions extends BaseWidget
                     ->requiresConfirmation()
                     ->visible(fn(Transaksi $record) => $record->status_transaksi === 'waiting')
                     ->action(function (Transaksi $record) {
-                        $record->update(['status_transaksi' => 'approved']);
+                        app(TransaksiFsm::class)->handle($record, 'approve');
 
                         Notification::make()
                             ->title('Transaksi Disetujui')
@@ -138,7 +139,7 @@ class WaitingTransactions extends BaseWidget
                     ->requiresConfirmation()
                     ->visible(fn(Transaksi $record) => $record->status_transaksi === 'waiting')
                     ->action(function (Transaksi $record) {
-                        $record->update(['status_transaksi' => 'rejected']);
+                        app(TransaksiFsm::class)->handle($record, 'reject');
 
                         Notification::make()
                             ->title('Transaksi Ditolak')
