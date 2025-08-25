@@ -7,18 +7,51 @@ import { useGetDetailTransactionQuery } from "@/services/transaction.service";
 import { Button } from "@/components/atomics/button";
 import { Separator } from "@/components/atomics/separator";
 
+// =====================
+// Helpers: format & calc
+// =====================
+const dtfID = new Intl.DateTimeFormat("id-ID", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "Asia/Jakarta",
+});
+
+function formatDateTimeID(value?: string | null) {
+  if (!value) return "-";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return String(value);
+  return `${dtfID.format(d)} WIB`;
+}
+
+/**
+ * Hitung total hari inklusif (start & end dihitung tanggalnya saja).
+ * Contoh: 1–31 Agustus => 31 hari.
+ */
+function inclusiveDays(start?: string | null, end?: string | null) {
+  if (!start || !end) return undefined;
+  const s = new Date(start);
+  const e = new Date(end);
+  if (isNaN(s.getTime()) || isNaN(e.getTime())) return undefined;
+
+  // Normalisasi ke UTC midnite (hindari bias timezone/HH:mm:ss)
+  const sUTC = Date.UTC(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate());
+  const eUTC = Date.UTC(e.getUTCFullYear(), e.getUTCMonth(), e.getUTCDate());
+  const diff = Math.floor((eUTC - sUTC) / 86_400_000) + 1;
+  return diff > 0 ? diff : 0;
+}
+
 type Transaction = {
   kode_transaksi: string;
   status_transaksi: "pending" | "approved" | "rejected" | string;
-  tanggal_mulai?: string;
-  tanggal_selesai?: string;
-  jumlah_hari?: number;
-  jumlah_bayar?: number;
-  qr_code_url?: string;
+  tanggal_mulai?: string | null;
+  tanggal_selesai?: string | null;
+  jumlah_hari?: number | null;
+  jumlah_bayar?: number | null;
+  qr_code_url?: string | null;
   produk?: {
-    kategori_produk?: string;
-    nama_produk?: string;
-  };
+    kategori_produk?: string | null;
+    nama_produk?: string | null;
+  } | null;
 };
 
 export default function BookingSuccessPage({
@@ -29,14 +62,14 @@ export default function BookingSuccessPage({
   // ❗️Jika tidak pakai token:
   // const { data, isLoading, error } = useGetDetailTransactionQuery(params.kode);
 
-  // ✅ Jika suatu saat perlu token, tinggal isi variabel token di sini
+  // ✅ Kalau suatu saat perlu token, isi variabel token
   const token: string | undefined = undefined;
   const { data, isLoading, error } = useGetDetailTransactionQuery(
     token ? { kode: params.kode, token } : params.kode
   );
 
   const booking: Transaction | undefined = useMemo(
-    () => data?.data as Transaction | undefined,
+    () => (data?.data as Transaction) || undefined,
     [data]
   );
 
@@ -47,6 +80,14 @@ export default function BookingSuccessPage({
   const showQR = statusApproved && isMembership && qrAvailable;
   const showQRCodeBelumTersedia = !statusApproved && isMembership;
   const showKonfirmasiGym = !statusApproved && !isMembership;
+
+  const tanggalMulaiStr = formatDateTimeID(booking?.tanggal_mulai);
+  const tanggalSelesaiStr = formatDateTimeID(booking?.tanggal_selesai);
+
+  // Pakai nilai dari backend jika ada, kalau tidak hitung ulang inklusif
+  const totalHari =
+    booking?.jumlah_hari ??
+    inclusiveDays(booking?.tanggal_mulai, booking?.tanggal_selesai);
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -82,7 +123,6 @@ export default function BookingSuccessPage({
                     QR Code Pemesanan
                   </h3>
                   <div className="inline-block p-4 bg-white border rounded-xl shadow-md">
-                    {/* ✅ Non-null assertion aman karena sudah di-guard showQR */}
                     <Image
                       src={booking.qr_code_url!}
                       alt="QR Code"
@@ -95,11 +135,12 @@ export default function BookingSuccessPage({
                   <p className="text-sm text-muted-foreground mt-3">
                     Tunjukkan QR ini saat check-in
                   </p>
+
                   <div className="mt-4 text-xs text-muted-foreground bg-yellow-50 border border-yellow-200 px-4 py-3 rounded-lg text-left">
                     <ul className="list-disc pl-5 space-y-1">
                       <li>
-                        Berlaku dari <strong>{booking.tanggal_mulai}</strong>{" "}
-                        sampai <strong>{booking.tanggal_selesai}</strong>.
+                        Berlaku dari <strong>{tanggalMulaiStr}</strong> sampai{" "}
+                        <strong>{tanggalSelesaiStr}</strong>.
                       </li>
                       <li>
                         Jangan bagikan QR ini ke pihak lain demi keamanan akun
@@ -114,8 +155,8 @@ export default function BookingSuccessPage({
                     QR Code Belum Tersedia
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    QR akan tampil setelah transaksi disetujui oleh admin.
-                    Silakan cek kembali secara berkala melalui dashboard.
+                    QR akan tampil setelah transaksi disetujui oleh admin. Silakan
+                    cek kembali secara berkala melalui dashboard.
                   </p>
                 </div>
               ) : showKonfirmasiGym ? (
@@ -143,18 +184,19 @@ export default function BookingSuccessPage({
 
                   <p className="font-semibold">Tanggal</p>
                   <p>
-                    {booking.tanggal_mulai} s.d. {booking.tanggal_selesai}
+                    {tanggalMulaiStr} s.d. {tanggalSelesaiStr}
                   </p>
 
                   <p className="font-semibold">Total Hari</p>
-                  <p>{booking.jumlah_hari} hari</p>
+                  <p>{typeof totalHari === "number" ? `${totalHari} hari` : "-"}</p>
 
                   <p className="font-semibold">Total Bayar</p>
                   <p>
-                    Rp{" "}
-                    {booking.jumlah_bayar?.toLocaleString("id-ID", {
-                      maximumFractionDigits: 0,
-                    }) ?? "-"}
+                    {typeof booking.jumlah_bayar === "number"
+                      ? `Rp ${booking.jumlah_bayar.toLocaleString("id-ID", {
+                        maximumFractionDigits: 0,
+                      })}`
+                      : "-"}
                   </p>
 
                   <p className="font-semibold">Status</p>
