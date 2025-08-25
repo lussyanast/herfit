@@ -36,10 +36,16 @@ function Checkout({ params }: { params: { kode: string } }) {
     if (end) setEndDate(moment(end, "YYYY-MM-DD").toDate());
   }, [searchParams]);
 
+  // ✅ Hitung total hari inklusif (start + end dihitung)
   useEffect(() => {
     if (startDate && endDate) {
-      const days = moment(endDate).diff(moment(startDate), "days");
-      setTotalDays(days > 0 ? days : 0);
+      const start = moment(startDate).startOf("day");
+      const end = moment(endDate).endOf("day");
+
+      const diff = end.diff(start, "days") + 1;
+      setTotalDays(diff > 0 ? diff : 0);
+    } else {
+      setTotalDays(0);
     }
   }, [startDate, endDate]);
 
@@ -51,7 +57,7 @@ function Checkout({ params }: { params: { kode: string } }) {
     if (!produk?.data?.id_produk || !startDate || !endDate || !proofFile || totalDays <= 0) {
       toast({
         title: "Validasi Gagal",
-        description: "Tanggal, produk, dan bukti pembayaran wajib diisi.",
+        description: "Tanggal mulai harus ≤ tanggal selesai dan minimal 1 hari.",
         variant: "destructive",
       });
       return;

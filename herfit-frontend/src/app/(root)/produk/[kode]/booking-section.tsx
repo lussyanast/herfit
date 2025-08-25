@@ -26,12 +26,16 @@ function BookingSection({ id, kode, price }: BookingSectionProps) {
   const router = useRouter();
   const [checkAvailability, { isLoading }] = useCheckAvailabilityMutation();
 
+  // ✅ Hitung total hari inklusif
   useEffect(() => {
     if (startDate && endDate) {
-      const start = moment(startDate);
-      const end = moment(endDate);
-      const daysDifference = end.diff(start, "days");
-      setTotalDays(daysDifference > 0 ? daysDifference : 0);
+      const start = moment(startDate).startOf("day");
+      const end = moment(endDate).endOf("day");
+
+      const diff = end.diff(start, "days") + 1;
+      setTotalDays(diff > 0 ? diff : 0);
+    } else {
+      setTotalDays(0);
     }
   }, [startDate, endDate]);
 
@@ -39,7 +43,7 @@ function BookingSection({ id, kode, price }: BookingSectionProps) {
     if (!startDate || !endDate || totalDays <= 0) {
       toast({
         title: "Tanggal tidak valid",
-        description: "Silakan pilih tanggal mulai dan akhir yang benar",
+        description: "Tanggal mulai harus ≤ tanggal selesai dan minimal 1 hari.",
         variant: "destructive",
       });
       return;
@@ -104,7 +108,7 @@ function BookingSection({ id, kode, price }: BookingSectionProps) {
       </div>
 
       <div className="space-y-5">
-        <CardBooking title="Total hari" value={`${totalDays} hari`} />
+        <CardBooking title="Total Hari" value={`${totalDays} hari`} />
       </div>
 
       <Button variant="default" className="mt-4 w-full" onClick={handleBook} disabled={isLoading}>
