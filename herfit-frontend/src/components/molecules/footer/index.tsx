@@ -16,7 +16,6 @@ function Footer() {
               <li><Link href="/#about-section" className="hover:underline">Tentang Kami</Link></li>
               <li><Link href="/#benefits-section" className="hover:underline">Fasilitas</Link></li>
               <li><Link href="/#membership-listing" className="hover:underline">Membership</Link></li>
-              <li><Link href="/#other-listing" className="hover:underline">Produk Lainnya</Link></li>
               <li><Link href="/#location-section" className="hover:underline">Lokasi</Link></li>
               <li><Link href="/chat" className="hover:underline">Chatbot AI</Link></li>
             </ul>

@@ -23,7 +23,6 @@ function Header() {
     { href: "/#about-section", label: "Tentang Kami" },
     { href: "/#benefits-section", label: "Fasilitas" },
     { href: "/#membership-listing", label: "Membership" },
-    { href: "/#other-listing", label: "Produk" },
     { href: "/#location-section", label: "Lokasi" },
     { href: "/#faq-section", label: "FAQ" },
     { href: "/#contact-section", label: "Hubungi Kami" },
