@@ -3,11 +3,8 @@
 namespace App\Filament\Pages;
 
 use App\Models\Transaksi;
-use App\Models\Absensi;
-use Carbon\Carbon;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Auth;
 
 class ScanTransactionQR extends Page
 {
@@ -23,74 +20,24 @@ class ScanTransactionQR extends Page
 
     public function scanQR()
     {
-        // $kode = trim($this->qrContent);
+        $id = intval(basename(trim($this->qrContent)));
+        $trx = Transaksi::with(['pengguna', 'produk'])->where('id_transaksi', $id)->first();
 
-        $fullUrl = trim($this->qrContent);
-
-        // Ambil ID dari URL
-        $segments = explode('/', $fullUrl);
-        $id = intval(end($segments));
-
-        $transaksi = Transaksi::with(['pengguna', 'produk'])
-            ->where('id_transaksi', $id)
-            ->where('status_transaksi', 'approved')
-            ->first();
-
-        if (!$transaksi) {
-            Notification::make()
-                ->danger()
-                ->title('QR Tidak Valid')
-                ->body("QR tidak valid atau transaksi belum disetujui.")
-                ->send();
+        if (!$trx) {
+            Notification::make()->danger()->title('QR Tidak Valid')->body('Transaksi tidak ditemukan.')->send();
             return;
         }
 
-        $now = Carbon::now();
-        $mulai = Carbon::parse($transaksi->tanggal_mulai);
-        $selesai = Carbon::parse($transaksi->tanggal_selesai);
+        $res = app(\App\Services\TransaksiFsm::class)->handle($trx, 'scan');
 
-        if ($now->lt($mulai)) {
-            Notification::make()
-                ->warning()
-                ->title('QR Belum Aktif')
-                ->body('QR hanya berlaku mulai tanggal transaksi.')
-                ->send();
-            return;
-        }
+        match ($res) {
+            'not_active' => Notification::make()->warning()->title('QR Belum Aktif')->body('QR hanya berlaku mulai tanggal transaksi.')->send(),
+            'expired' => Notification::make()->warning()->title('QR Kedaluwarsa')->body('QR sudah tidak berlaku.')->send(),
+            'active' => Notification::make()->success()->title('Scan Berhasil')->body('Absensi tercatat.')->send(),
+            default => Notification::make()->danger()->title('QR Tidak Valid')->body('QR tidak valid atau transaksi belum disetujui.')->send(),
+        };
 
-        if ($now->gt($selesai)) {
-            Notification::make()
-                ->warning()
-                ->title('QR Kedaluwarsa')
-                ->body('QR sudah tidak berlaku.')
-                ->send();
-            return;
-        }
-
-        // Buat kode absensi unik dengan format ABS + tanggal + 3 digit increment
-        $prefix = 'ABS' . $now->format('Ymd');
-
-        $lastKode = Absensi::where('kode_absensi', 'like', $prefix . '%')
-            ->orderByDesc('kode_absensi')
-            ->value('kode_absensi');
-
-        $lastIncrement = $lastKode ? (int) substr($lastKode, -3) : 0;
-        $nextIncrement = str_pad($lastIncrement + 1, 3, '0', STR_PAD_LEFT);
-        $kodeAbsensi = $prefix . $nextIncrement;
-
-        Absensi::create([
-            'id_transaksi' => $transaksi->id_transaksi,
-            'id_pengguna' => Auth::id(),
-            'kode_absensi' => $kodeAbsensi,
-            'waktu_scan' => $now,
-        ]);
-
-        $this->transaksi = $transaksi;
-
-        Notification::make()
-            ->success()
-            ->title('Scan Berhasil')
-            ->body("Absensi dicatat dengan kode: {$kodeAbsensi}.")
-            ->send();
+        if (in_array($res, ['active', 'not_active', 'expired']))
+            $this->transaksi = $trx;
     }
 }

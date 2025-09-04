@@ -33,9 +33,7 @@ class ProdukResource extends Resource
             Forms\Components\TextInput::make('nama_produk')
                 ->label('Nama Produk')
                 ->required()
-                ->afterStateUpdated(fn($state, callable $set) => $set('slug', Str::slug($state)))
-                ->live(debounce: 250)
-                ->maxLength(255),
+                ->maxLength(30),
 
             Forms\Components\Select::make('kategori_produk')
                 ->label('Kategori')

@@ -165,6 +165,22 @@ class TransactionResource extends Resource
                     ->label('Jumlah Bayar')
                     ->getStateUsing(fn($record) => 'Rp ' . number_format((int) $record->jumlah_bayar, 0, ',', '.')),
 
+                Tables\Columns\BadgeColumn::make('status_transaksi')
+                    ->label('Status')
+                    ->colors([
+                        'gray' => 'waiting',
+                        'success' => 'approved',
+                        'danger' => 'rejected',
+                    ])
+                    ->formatStateUsing(fn(string $state) => match ($state) {
+                        'waiting' => 'Menunggu',
+                        'approved' => 'Disetujui',
+                        'rejected' => 'Ditolak',
+                        default => ucfirst($state),
+                    })
+                    ->sortable()
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')->dateTime('d M Y H:i')->sortable(),
 
