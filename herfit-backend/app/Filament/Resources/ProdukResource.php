@@ -30,10 +30,17 @@ class ProdukResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
+            Forms\Components\TextInput::make('kode_produk')
+                ->label('Kode Produk')
+                ->disabled()
+                ->dehydrated(false)
+                ->visibleOn('edit')
+                ->required(false),
+
             Forms\Components\TextInput::make('nama_produk')
                 ->label('Nama Produk')
                 ->required()
-                ->maxLength(30),
+                ->maxLength(50),
 
             Forms\Components\Select::make('kategori_produk')
                 ->label('Kategori')
@@ -66,10 +73,8 @@ class ProdukResource extends Resource
                 ->directory('produk')
                 ->preserveFilenames()
                 ->getUploadedFileNameForStorageUsing(function ($file) {
-                    $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-                    return $filename;
+                    return time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
                 })
-                ->dehydrated()
                 ->openable()
                 ->downloadable()
                 ->columnSpanFull(),
@@ -80,69 +85,47 @@ class ProdukResource extends Resource
     {
         return $table
             ->columns([
-                // ✅ Tambahan yang diminta
-                Tables\Columns\TextColumn::make('id_produk')
-                    ->label('ID Produk')
-                    ->sortable()
-                    ->toggleable(),
-
                 Tables\Columns\TextColumn::make('kode_produk')
-                    ->label('Kode')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(),
-
-                // Kolom yang sudah ada
-                Tables\Columns\TextColumn::make('nama_produk')
-                    ->label('Nama')
+                    ->label('Kode Produk')
                     ->searchable()
                     ->sortable()
                     ->weight(FontWeight::Bold),
+
+                Tables\Columns\TextColumn::make('nama_produk')
+                    ->label('Nama')
+                    ->searchable()
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('kategori_produk')
                     ->label('Kategori')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('maksimum_peserta')
-                    ->label('Max')
-                    ->sortable(),
+                    ->label('Max Peserta'),
 
                 Tables\Columns\TextColumn::make('harga_produk')
                     ->label('Harga')
                     ->sortable()
-                    ->getStateUsing(fn($record) => 'Rp. ' . number_format($record->harga_produk, 0, ',', '.')),
+                    ->getStateUsing(fn($record) => 'Rp ' . number_format($record->harga_produk, 0, ',', '.')),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui')
                     ->dateTime('d M Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
             ->filters([
                 TrashedFilter::make(),
             ])
             ->actions([
-                EditAction::make()
-                    ->label('Edit')
-                    ->icon('heroicon-o-pencil')
-                    ->color('warning'),
-
-                DeleteAction::make()
-                    ->label('Hapus')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger'),
-
-                ForceDeleteAction::make()
-                    ->label('Hapus Permanen'),
-
-                RestoreAction::make()
-                    ->label('Pulihkan'),
+                EditAction::make()->label('Edit')->icon('heroicon-o-pencil')->color('warning'),
+                DeleteAction::make()->label('Hapus')->icon('heroicon-o-trash')->color('danger'),
+                ForceDeleteAction::make()->label('Hapus Permanen'),
+                RestoreAction::make()->label('Pulihkan'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
