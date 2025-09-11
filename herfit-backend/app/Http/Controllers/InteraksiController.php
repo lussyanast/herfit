@@ -28,14 +28,14 @@ class InteraksiController extends Controller
             return response()->json(['liked' => false]);
         }
 
-        Interaksi::create([
+        $newLike = Interaksi::create([
             'id_pengguna' => Auth::id(),
             'id_postingan' => $request->id_postingan,
             'jenis_interaksi' => 'like',
             'waktu_interaksi' => now(),
         ]);
 
-        return response()->json(['liked' => true]);
+        return response()->json(['liked' => true, 'id_interaksi' => $newLike->id_interaksi]);
     }
 
     /**
@@ -56,7 +56,11 @@ class InteraksiController extends Controller
             'waktu_interaksi' => now(),
         ]);
 
-        return response()->json($komentar, 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Komentar ditambahkan',
+            'data' => $komentar,
+        ], 201);
     }
 
     /**
