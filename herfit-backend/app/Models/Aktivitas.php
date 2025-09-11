@@ -8,8 +8,11 @@ class Aktivitas extends Model
 {
     protected $table = 'aktivitas';
     protected $primaryKey = 'id_aktivitas';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
+        'id_aktivitas',
         'id_pengguna',
         'jenis_aktivitas',
         'nama_aktivitas',
@@ -19,13 +22,11 @@ class Aktivitas extends Model
         'tanggal',
     ];
 
-    // Jangan cast 'jadwal' ke array; kita kelola sendiri via accessor/mutator
     protected $casts = [
-        // 'jadwal' => 'array',
         'tanggal' => 'date',
     ];
 
-    /** Selalu kembalikan array rapi untuk kolom 'jadwal' */
+    /** Accessor jadwal */
     public function getJadwalAttribute($value)
     {
         if (is_array($value))
@@ -44,7 +45,7 @@ class Aktivitas extends Model
         return [];
     }
 
-    /** Simpan 'jadwal' sebagai JSON string yang bersih */
+    /** Mutator jadwal */
     public function setJadwalAttribute($value): void
     {
         if (is_string($value)) {

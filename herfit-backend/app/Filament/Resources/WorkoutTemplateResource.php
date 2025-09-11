@@ -20,7 +20,6 @@ class WorkoutTemplateResource extends Resource
     protected static ?string $navigationLabel = 'Kelola Template Latihan';
     protected static ?string $navigationGroup = 'Manajemen Konten Member';
 
-    // (opsional) ubah judul list page & breadcrumb
     public static function getPluralModelLabel(): string
     {
         return 'Kelola Template Latihan';
@@ -138,7 +137,7 @@ class WorkoutTemplateResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id_aktivitas')
-                    ->label('ID Aktivitas')->sortable()->toggleable(),
+                    ->label('ID Aktivitas')->sortable()->toggleable()->searchable(),
                 Tables\Columns\TextColumn::make('pengguna.id_pengguna')->label('ID Pengguna')->sortable()->toggleable(),
                 Tables\Columns\TextColumn::make('pengguna.nama_lengkap')->label('Nama')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('pengguna.email')->label('Email')->searchable()->toggleable(),

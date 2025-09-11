@@ -20,7 +20,6 @@ class RiwayatKonsumsiResource extends Resource
     protected static ?string $navigationLabel = 'Kelola Riwayat Konsumsi';
     protected static ?string $navigationGroup = 'Manajemen Konten Member';
 
-    // (opsional) ubah judul list page & breadcrumb
     public static function getPluralModelLabel(): string
     {
         return 'Kelola Riwayat Konsumsi';
@@ -109,23 +108,17 @@ class RiwayatKonsumsiResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id_aktivitas')
-                    ->label('ID Aktivitas')->sortable()->toggleable(),
-
+                    ->label('ID Aktivitas')->sortable()->toggleable()->searchable(),
                 Tables\Columns\TextColumn::make('pengguna.id_pengguna')
                     ->label('ID Pengguna')->sortable()->toggleable(),
-
                 Tables\Columns\TextColumn::make('pengguna.nama_lengkap')
                     ->label('Nama')->searchable()->sortable(),
-
                 Tables\Columns\TextColumn::make('pengguna.email')
                     ->label('Email')->searchable()->toggleable(),
-
                 Tables\Columns\TextColumn::make('nama_aktivitas')
                     ->label('Nama Konsumsi')->searchable(),
-
                 Tables\Columns\TextColumn::make('kalori')
                     ->label('Kalori')->suffix(' kcal')->sortable(),
-
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')->dateTime('d M Y H:i')->sortable(),
             ])
