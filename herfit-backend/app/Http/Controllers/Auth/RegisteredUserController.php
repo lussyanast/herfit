@@ -22,9 +22,11 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'no_identitas' => ['nullable', 'string', 'max:16'],
             'no_telp' => ['nullable', 'string', 'max:15'],
+            'peran_pengguna' => ['required', 'in:admin,member'],
         ]);
 
         $user = Pengguna::create([
+            'peran_pengguna' => $request->peran_pengguna,
             'nama_lengkap' => $request->nama_lengkap,
             'email' => $request->email,
             'kata_sandi' => Hash::make($request->password),

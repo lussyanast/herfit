@@ -31,8 +31,7 @@ class UserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            // ID (read-only saat edit)
-            Forms\Components\Placeholder::make('id_info')
+            Forms\Components\Placeholder::make('id_pengguna')
                 ->label('ID Pengguna')
                 ->content(fn(Forms\Get $get) => $get('id_pengguna') ?? '—')
                 ->hidden(fn(string $context) => $context === 'create'),
@@ -46,16 +45,14 @@ class UserResource extends Resource
                 ->label('Email')
                 ->email()
                 ->required()
-                ->maxLength(30),
+                ->maxLength(255),
 
             Forms\Components\TextInput::make('no_identitas')
                 ->label('NIK')
-                ->required()
                 ->maxLength(16),
 
             Forms\Components\TextInput::make('no_telp')
                 ->label('No. Telepon')
-                ->required()
                 ->maxLength(15),
 
             Forms\Components\Select::make('peran_pengguna')
@@ -66,32 +63,26 @@ class UserResource extends Resource
                 ])
                 ->required(),
 
-            // ===== Foto Profil (pakai multiple + konversi array<->string untuk hindari foreach error) =====
             FileUpload::make('foto_profil')
                 ->label('Foto Profil')
                 ->image()
-                ->disk('public')          // storage/app/public
-                ->directory('profil')     // storage/app/public/profil   (sesuai data kamu)
-                ->visibility('public')    // URL => /storage/profil/xxx
+                ->disk('public')
+                ->directory('profil')
+                ->visibility('public')
                 ->imagePreviewHeight('160')
                 ->openable()
                 ->downloadable()
                 ->maxSize(4096)
                 ->nullable()
-                ->multiple()              // <— bikin state selalu array
-
-                // Saat form di-load: string -> array [string]
+                ->multiple()
                 ->afterStateHydrated(function (FileUpload $component, $state) {
                     if (is_string($state)) {
-                        // normalisasi "storage/profil/xxx" -> "profil/xxx"
                         $state = preg_replace('#^storage/#', '', $state);
                     }
                     if (is_string($state) && $state !== '') {
                         $component->state([$state]);
                     }
                 })
-
-                // Saat submit: array -> string (ambil file pertama), atau null jika kosong
                 ->dehydrateStateUsing(function ($state) {
                     if (is_array($state)) {
                         $first = $state[0] ?? null;
@@ -101,12 +92,11 @@ class UserResource extends Resource
                 })
                 ->dehydrated(true),
 
-            // ===== Ganti Kata Sandi (hash otomatis) =====
             Forms\Components\TextInput::make('kata_sandi')
                 ->label('Kata Sandi')
                 ->password()
                 ->revealable()
-                ->rules(['confirmed']) // butuh field 'kata_sandi_confirmation'
+                ->rules(['confirmed'])
                 ->required(fn(string $context) => $context === 'create')
                 ->dehydrated(fn($state) => filled($state))
                 ->dehydrateStateUsing(fn($state) => filled($state) ? Hash::make($state) : null),
@@ -128,24 +118,15 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(),
 
-                // Avatar
                 Tables\Columns\ImageColumn::make('foto_profil')
                     ->label('Foto')
                     ->disk('public')
-                    ->state(
-                        fn($record) => $record->foto_profil
+                    ->state(fn($record) => $record->foto_profil
                         ? preg_replace('#^storage/#', '', (string) $record->foto_profil)
-                        : null
-                    )
-                    ->url(function ($record) {
-                        $val = (string) ($record->foto_profil ?? '');
-                        if ($val === '')
-                            return null;
-                        if (Str::startsWith($val, ['http://', 'https://']))
-                            return $val;
-                        $path = preg_replace('#^storage/#', '', $val);
-                        return Storage::disk('public')->url($path);
-                    })
+                        : null)
+                    ->url(fn($record) => $record->foto_profil
+                        ? Storage::disk('public')->url(preg_replace('#^storage/#', '', $record->foto_profil))
+                        : null)
                     ->openUrlInNewTab()
                     ->circular()
                     ->height(36)
@@ -192,19 +173,11 @@ class UserResource extends Resource
                     ]),
             ])
             ->actions([
-                EditAction::make()
-                    ->label('Edit')
-                    ->icon('heroicon-o-pencil')
-                    ->color('warning'),
-
-                DeleteAction::make()
-                    ->label('Hapus')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger'),
+                EditAction::make()->label('Edit')->icon('heroicon-o-pencil')->color('warning'),
+                DeleteAction::make()->label('Hapus')->icon('heroicon-o-trash')->color('danger'),
             ])
             ->bulkActions([
-                DeleteBulkAction::make()
-                    ->label('Hapus Massal'),
+                DeleteBulkAction::make()->label('Hapus Massal'),
             ]);
     }
 

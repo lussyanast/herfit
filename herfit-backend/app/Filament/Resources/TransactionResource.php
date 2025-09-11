@@ -37,7 +37,7 @@ class TransactionResource extends Resource
                 ->searchable()
                 ->required(),
 
-            Forms\Components\Select::make('id_produk')
+            Forms\Components\Select::make('kode_produk')
                 ->label('Produk')
                 ->relationship('produk', 'nama_produk')
                 ->searchable()
@@ -45,7 +45,7 @@ class TransactionResource extends Resource
 
             Forms\Components\TextInput::make('kode_transaksi')
                 ->label('Kode Transaksi')
-                ->maxLength(50)
+                ->disabledOn('create')
                 ->required(),
 
             Forms\Components\DatePicker::make('tanggal_mulai')
@@ -83,7 +83,6 @@ class TransactionResource extends Resource
                     'approved' => 'Disetujui',
                     'rejected' => 'Ditolak',
                 ])
-                ->helperText('Hanya dapat diubah jika status masih "waiting". Selain itu akan ditolak oleh sistem.')
                 ->required(),
         ])->columns(2);
     }
@@ -91,24 +90,21 @@ class TransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            // Paksa urutan default: terbaru dulu + tie-breaker PK
-            ->modifyQueryUsing(function (Builder $query): Builder {
-                $pk = $query->getModel()->getKeyName(); // contoh: id_transaksi atau id
-                return $query->orderByDesc('created_at')->orderByDesc($pk);
-            })
+            ->modifyQueryUsing(
+                fn(Builder $query): Builder =>
+                $query->orderByDesc('created_at')->orderByDesc('kode_transaksi')
+            )
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('kode_transaksi')
                     ->label('Kode Transaksi')
                     ->searchable()
                     ->copyable()
-                    ->sortable()
-                    ->toggleable(),
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('produk.kode_produk')
                     ->label('Kode Produk')
-                    ->searchable()
-                    ->toggleable(),
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('produk.nama_produk')
                     ->label('Nama Produk')
@@ -118,8 +114,7 @@ class TransactionResource extends Resource
 
                 Tables\Columns\TextColumn::make('id_pengguna')
                     ->label('ID Pengguna')
-                    ->sortable()
-                    ->toggleable(),
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('pengguna.nama_lengkap')
                     ->label('Nama Pengguna')
@@ -130,27 +125,7 @@ class TransactionResource extends Resource
                 Tables\Columns\TextColumn::make('pengguna.email')
                     ->label('Email Pengguna')
                     ->searchable()
-                    ->copyable()
-                    ->toggleable(),
-
-                Tables\Columns\TextColumn::make('bukti_pembayaran')
-                    ->label('Bukti Bayar')
-                    ->html()
-                    ->formatStateUsing(fn($state, $record) => $record->bukti_pembayaran
-                        ? '<span class="text-primary underline hover:text-blue-700 font-medium">👁️ Lihat Bukti</span>'
-                        : '<span class="text-gray-400 italic">Tidak ada</span>')
-                    ->action(
-                        Action::make('lihat_bukti')
-                            ->label('Lihat Bukti')
-                            ->icon('heroicon-o-eye')
-                            ->modalHeading('Bukti Pembayaran')
-                            ->modalSubmitAction(false)
-                            ->modalCancelActionLabel('Tutup')
-                            ->modalContent(fn($record) => view('filament.preview-bukti', [
-                                'url' => $record->bukti_pembayaran ? asset('storage/' . $record->bukti_pembayaran) : null,
-                            ]))
-                            ->visible(fn($record) => filled($record->bukti_pembayaran))
-                    ),
+                    ->copyable(),
 
                 Tables\Columns\TextColumn::make('tanggal_mulai')
                     ->label('Mulai')->date('d M Y')->sortable(),
@@ -163,7 +138,10 @@ class TransactionResource extends Resource
 
                 Tables\Columns\TextColumn::make('jumlah_bayar')
                     ->label('Jumlah Bayar')
-                    ->getStateUsing(fn($record) => 'Rp ' . number_format((int) $record->jumlah_bayar, 0, ',', '.')),
+                    ->getStateUsing(
+                        fn($record) =>
+                        'Rp ' . number_format((int) $record->jumlah_bayar, 0, ',', '.')
+                    ),
 
                 Tables\Columns\BadgeColumn::make('status_transaksi')
                     ->label('Status')
@@ -178,14 +156,10 @@ class TransactionResource extends Resource
                         'rejected' => 'Ditolak',
                         default => ucfirst($state),
                     })
-                    ->sortable()
-                    ->toggleable(),
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')->dateTime('d M Y H:i')->sortable(),
-
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Diperbarui')->dateTime('d M Y H:i')->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status_transaksi')
@@ -203,14 +177,13 @@ class TransactionResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(fn(Transaksi $record) => $record->status_transaksi === 'waiting')
-                    ->action(function (Transaksi $record) {
-                        app(TransaksiFsm::class)->handle($record, 'approve');
-                    })
+                    ->action(
+                        fn(Transaksi $record) =>
+                        app(TransaksiFsm::class)->handle($record, 'approve')
+                    )
                     ->after(fn() => Notification::make()
                         ->title('Transaksi Disetujui')
-                        ->body('Status transaksi diubah menjadi approved.')
-                        ->success()
-                        ->send()),
+                        ->success()->send()),
 
                 Action::make('reject')
                     ->label('Tolak')
@@ -218,14 +191,13 @@ class TransactionResource extends Resource
                     ->color('danger')
                     ->requiresConfirmation()
                     ->visible(fn(Transaksi $record) => $record->status_transaksi === 'waiting')
-                    ->action(function (Transaksi $record) {
-                        app(TransaksiFsm::class)->handle($record, 'reject');
-                    })
+                    ->action(
+                        fn(Transaksi $record) =>
+                        app(TransaksiFsm::class)->handle($record, 'reject')
+                    )
                     ->after(fn() => Notification::make()
                         ->title('Transaksi Ditolak')
-                        ->body('Status transaksi diubah menjadi rejected.')
-                        ->warning()
-                        ->send()),
+                        ->warning()->send()),
 
                 EditAction::make()
                     ->label('Edit')
@@ -235,8 +207,7 @@ class TransactionResource extends Resource
                 DeleteAction::make()
                     ->label('Hapus')
                     ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->requiresConfirmation(),
+                    ->color('danger'),
             ]);
     }
 

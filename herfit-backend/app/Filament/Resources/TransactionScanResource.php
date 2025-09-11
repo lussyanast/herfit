@@ -20,13 +20,24 @@ class TransactionScanResource extends Resource
     protected static ?string $navigationGroup = 'Manajemen Transaksi';
     protected static ?int $navigationSort = 2;
 
+    public static function getRecordRouteKeyName(): string
+    {
+        return 'kode_absensi';
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
             Forms\Components\Section::make('Detail Scan')
                 ->schema([
-                    Forms\Components\TextInput::make('id_transaksi')
-                        ->label('ID Transaksi')
+                    // tampilkan kode_absensi (readonly)
+                    Forms\Components\TextInput::make('kode_absensi')
+                        ->label('Kode Absensi')
+                        ->disabled()
+                        ->dehydrated(false),
+
+                    Forms\Components\TextInput::make('kode_transaksi')
+                        ->label('Kode Transaksi')
                         ->disabled()
                         ->dehydrated(false),
 
@@ -50,15 +61,17 @@ class TransactionScanResource extends Resource
     {
         return $table
             ->columns([
-                // ===== Info transaksi & produk =====
-                Tables\Columns\TextColumn::make('id_transaksi')
-                    ->label('ID Transaksi')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('kode_absensi')
+                    ->label('Kode Absensi')
+                    ->copyable()
+                    ->sortable()
+                    ->toggleable(),
 
-                Tables\Columns\TextColumn::make('transaksi.kode_transaksi')
+                Tables\Columns\TextColumn::make('kode_transaksi')
                     ->label('Kode Transaksi')
                     ->searchable()
                     ->copyable()
+                    ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('transaksi.produk.kode_produk')
@@ -70,22 +83,14 @@ class TransactionScanResource extends Resource
                     ->label('Nama Produk')
                     ->searchable(),
 
-                // ===== Pemesan & petugas scan =====
                 Tables\Columns\TextColumn::make('transaksi.pengguna.nama_lengkap')
                     ->label('Pemesan')
                     ->searchable(),
-
-                Tables\Columns\TextColumn::make('transaksi.pengguna.email')
-                    ->label('Email Pemesan')
-                    ->searchable()
-                    ->copyable()
-                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('pengguna.nama_lengkap')
                     ->label('Discan Oleh')
                     ->searchable(),
 
-                // ===== Periode keanggotaan =====
                 Tables\Columns\TextColumn::make('transaksi.tanggal_mulai')
                     ->label('Mulai')
                     ->date('d M Y')
@@ -98,16 +103,13 @@ class TransactionScanResource extends Resource
                     ->sortable()
                     ->toggleable(),
 
-                // ===== Scan time =====
                 Tables\Columns\TextColumn::make('waktu_scan')
                     ->label('Waktu Scan')
                     ->dateTime('d M Y H:i')
                     ->sortable(),
             ])
             ->defaultSort('waktu_scan', 'desc')
-            ->filters([
-                // tambahkan filter jika diperlukan
-            ])
+            ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('Edit')

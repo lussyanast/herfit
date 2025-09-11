@@ -22,7 +22,7 @@ class AuthenticatedSessionController extends Controller
             'success' => true,
             'message' => 'Anda berhasil login!',
             'data' => [
-                'id' => $user->id_pengguna,
+                'id_pengguna' => $user->id_pengguna,
                 'nama_lengkap' => $user->nama_lengkap,
                 'email' => $user->email,
                 'foto_profil' => $user->foto_profil,

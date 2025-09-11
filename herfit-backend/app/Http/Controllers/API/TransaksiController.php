@@ -19,12 +19,11 @@ use Carbon\Carbon;
 class TransaksiController extends Controller
 {
     /**
-     * Helper: selalu ambil ID dari guard Sanctum (bukan sesi web)
+     * Helper: ambil ID dari guard Sanctum (bukan sesi web)
      */
-    private function authUserId(Request $request): int
+    private function authUserId(Request $request): string
     {
-        // $request->user() sudah di-resolve oleh middleware auth:sanctum
-        return (int) $request->user()->getAuthIdentifier();
+        return (string) $request->user()->getAuthIdentifier();
     }
 
     public function index(Request $request): JsonResponse
@@ -43,9 +42,9 @@ class TransaksiController extends Controller
 
     private function _fullyBookedChecker(Store $request): void
     {
-        $produk = Produk::findOrFail($request->id_produk);
+        $produk = Produk::where('kode_produk', $request->kode_produk)->firstOrFail();
 
-        $count = Transaksi::where('id_produk', $produk->id_produk)
+        $count = Transaksi::where('id_produk', $produk->kode_produk)
             ->where('status_transaksi', '!=', 'rejected')
             ->where(function ($query) use ($request) {
                 $query->whereBetween('tanggal_mulai', [$request->tanggal_mulai, $request->tanggal_selesai])
@@ -80,36 +79,36 @@ class TransaksiController extends Controller
     {
         $this->_fullyBookedChecker($request);
 
-        $startDate  = Carbon::parse($request->tanggal_mulai)->startOfDay();
-        $endDate    = Carbon::parse($request->tanggal_selesai)->endOfDay();
+        $startDate = Carbon::parse($request->tanggal_mulai)->startOfDay();
+        $endDate = Carbon::parse($request->tanggal_selesai)->endOfDay();
         $jumlahHari = $startDate->diffInDays($endDate) + 1;
 
-        $produk     = Produk::findOrFail($request->id_produk);
-        $totalHarga = $produk->harga_produk; // sesuaikan jika perlu dikali jumlah hari
+        $produk = Produk::where('kode_produk', $request->kode_produk)->firstOrFail();
+        $totalHarga = $produk->harga_produk;
 
-        // Kode transaksi harian incremental
+        // Generate kode transaksi unik
         $tanggalSekarang = now()->format('Ymd');
-        $jumlahHariIni   = Transaksi::whereDate('created_at', now())->count() + 1;
-        $kodeTransaksi   = 'TRX' . $tanggalSekarang . str_pad($jumlahHariIni, 3, '0', STR_PAD_LEFT);
+        $jumlahHariIni = Transaksi::whereDate('created_at', now())->count() + 1;
+        $kodeTransaksi = 'TRX' . $tanggalSekarang . str_pad($jumlahHariIni, 3, '0', STR_PAD_LEFT);
 
         $transaksi = Transaksi::create([
-            'kode_transaksi'    => $kodeTransaksi,
-            'id_pengguna'       => $this->authUserId($request), // << fix utama: pakai sanctum user
-            'id_produk'         => $produk->id_produk,
-            'tanggal_mulai'     => $startDate,
-            'tanggal_selesai'   => $endDate,
-            'jumlah_hari'       => $jumlahHari,
-            'jumlah_bayar'      => $totalHarga,
-            'status_transaksi'  => 'waiting',
+            'kode_transaksi' => $kodeTransaksi,
+            'id_pengguna' => $this->authUserId($request),
+            'id_produk' => $produk->kode_produk,
+            'tanggal_mulai' => $startDate,
+            'tanggal_selesai' => $endDate,
+            'jumlah_hari' => $jumlahHari,
+            'jumlah_bayar' => $totalHarga,
+            'status_transaksi' => 'waiting',
         ]);
 
-        // Generate QR yang menunjuk ke route show transaksi
-        $qrData = route('transaction.show', $transaksi->id_transaksi);
+        // Generate QR code -> pointing ke kode_transaksi
+        $qrData = route('transaction.show', $transaksi->kode_transaksi);
         $qrCode = new QrCode($qrData);
         $writer = new PngWriter();
         $qrImage = $writer->write($qrCode);
 
-        $fileName = 'qr_codes/transaksi_' . $transaksi->id_transaksi . '_' . Str::random(6) . '.png';
+        $fileName = 'qr_codes/transaksi_' . $transaksi->kode_transaksi . '_' . Str::random(6) . '.png';
         Storage::disk('public')->put($fileName, $qrImage->getString());
 
         $transaksi->update(['kode_qr' => $fileName]);
@@ -117,13 +116,13 @@ class TransaksiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Transaksi berhasil dibuat.',
-            'data'    => $transaksi
+            'data' => $transaksi
         ]);
     }
 
     public function show(Request $request, Transaksi $transaksi): JsonResponse
     {
-        if ((int)$transaksi->id_pengguna !== $this->authUserId($request)) {
+        if ($transaksi->id_pengguna !== $this->authUserId($request)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Tidak diizinkan.',
@@ -140,15 +139,12 @@ class TransaksiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Detail transaksi berhasil diambil.',
-            'data'    => $data
+            'data' => $data
         ]);
     }
 
     public function scan(Transaksi $transaksi): JsonResponse
     {
-        // Batasi hanya owner jika diperlukan:
-        // if ($transaksi->id_pengguna !== auth('sanctum')->id()) { ... }
-
         if ($transaksi->status_transaksi !== 'approved') {
             return response()->json([
                 'success' => false,
@@ -179,10 +175,10 @@ class TransaksiController extends Controller
                 'success' => true,
                 'message' => 'QR valid.',
                 'data' => [
-                    'transaksi_id'   => $transaksi->id_transaksi,
-                    'produk'         => $transaksi->produk->only(['id_produk', 'nama_produk']),
-                    'tanggal_mulai'  => $transaksi->tanggal_mulai,
-                    'tanggal_selesai'=> $transaksi->tanggal_selesai,
+                    'kode_transaksi' => $transaksi->kode_transaksi,
+                    'produk' => $transaksi->produk->only(['kode_produk', 'nama_produk']),
+                    'tanggal_mulai' => $transaksi->tanggal_mulai,
+                    'tanggal_selesai' => $transaksi->tanggal_selesai,
                 ]
             ]);
         }
@@ -193,12 +189,11 @@ class TransaksiController extends Controller
         ], 422);
     }
 
-    public function uploadBukti(Request $request, $id): JsonResponse
+    public function uploadBukti(Request $request, $kode): JsonResponse
     {
-        $transaksi = Transaksi::findOrFail($id);
+        $transaksi = Transaksi::where('kode_transaksi', $kode)->firstOrFail();
 
-        // Pastikan hanya pemilik yang boleh upload bukti
-        if ((int)$transaksi->id_pengguna !== (int)$this->authUserId($request)) {
+        if ($transaksi->id_pengguna !== $this->authUserId($request)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Tidak diizinkan.',
@@ -250,13 +245,10 @@ class TransaksiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Detail transaksi berhasil diambil.',
-            'data'    => $data
+            'data' => $data
         ]);
     }
 
-    /**
-     * Tambahan untuk route GET /transaksi/scan/{kode}
-     */
     public function scanByKode($kode): JsonResponse
     {
         $transaksi = Transaksi::where('kode_transaksi', $kode)->first();
