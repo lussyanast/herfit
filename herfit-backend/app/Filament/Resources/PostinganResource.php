@@ -37,11 +37,12 @@ class PostinganResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
+            // ID otomatis digenerate → tampil read-only
             Forms\Components\TextInput::make('id_postingan')
                 ->label('ID Postingan')
-                ->disabledOn('edit')
-                ->required()
-                ->maxLength(50),
+                ->disabled()
+                ->dehydrated(false)
+                ->default(null),
 
             Forms\Components\Textarea::make('caption')
                 ->label('Caption')
@@ -60,13 +61,8 @@ class PostinganResource extends Resource
                 ->downloadable()
                 ->maxSize(4096)
                 ->nullable()
-
-                // IMPORTANT: pakai mode multiple di UI biar Livewire selalu dapat array
                 ->multiple()
-
-                // Saat form di-load: data DB (string) -> array [string]
                 ->afterStateHydrated(function (FileUpload $component, $state) {
-                    // normalisasi "storage/feeds/xxx" -> "feeds/xxx"
                     if (is_string($state)) {
                         $state = preg_replace('#^storage/#', '', $state);
                     }
@@ -74,8 +70,6 @@ class PostinganResource extends Resource
                         $component->state([$state]);
                     }
                 })
-
-                // Saat submit: array [string] -> string (ambil file pertama saja)
                 ->dehydrateStateUsing(function ($state) {
                     if (is_array($state)) {
                         $first = $state[0] ?? null;
@@ -83,7 +77,6 @@ class PostinganResource extends Resource
                     }
                     return $state ?: null;
                 })
-
                 ->dehydrated(true),
         ])->columns(2);
     }
@@ -121,7 +114,6 @@ class PostinganResource extends Resource
                     ->tooltip(fn($record) => $record->caption)
                     ->searchable(),
 
-                // Thumbnail klik -> buka gambar asli (URL publik)
                 Tables\Columns\ImageColumn::make('foto_postingan')
                     ->label('Gambar')
                     ->disk('public')
@@ -139,7 +131,7 @@ class PostinganResource extends Resource
                             return $val;
                         }
                         $path = preg_replace('#^storage/#', '', $val);
-                        return Storage::disk('public')->url($path); // => /storage/feeds/xxx
+                        return Storage::disk('public')->url($path);
                     })
                     ->openUrlInNewTab()
                     ->square(),

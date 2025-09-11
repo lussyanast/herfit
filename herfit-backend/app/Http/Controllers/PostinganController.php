@@ -54,13 +54,10 @@ class PostinganController extends Controller
             $file = $request->file('image');
             $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
-            // Simpan ke /home/herfitla/public_html/storage/feeds
             $publicStoragePath = base_path('../storage/feeds');
-
             if (!File::exists($publicStoragePath)) {
                 File::makeDirectory($publicStoragePath, 0755, true);
             }
-
             $file->move($publicStoragePath, $filename);
 
             $path = 'storage/feeds/' . $filename;
