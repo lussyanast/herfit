@@ -24,7 +24,7 @@ class Store extends FormRequest
     public function rules(): array
     {
         return [
-            'id_produk' => 'required|exists:produk,id_produk',
+            'kode_produk' => 'required|string|exists:produk,kode_produk',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
         ];

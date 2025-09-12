@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Transaction\Store;
 use App\Models\Produk;
 use App\Models\Transaksi;
-use App\Models\Absensi;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Storage;
@@ -18,9 +17,6 @@ use Carbon\Carbon;
 
 class TransaksiController extends Controller
 {
-    /**
-     * Helper: ambil ID dari guard Sanctum (bukan sesi web)
-     */
     private function authUserId(Request $request): string
     {
         return (string) $request->user()->getAuthIdentifier();
@@ -36,15 +32,13 @@ class TransaksiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Mengambil semua transaksi.',
-            'data' => $transaksi
+            'data' => $transaksi,
         ]);
     }
 
-    private function _fullyBookedChecker(Store $request): void
+    private function _fullyBookedChecker(Store $request, Produk $produk): void
     {
-        $produk = Produk::where('kode_produk', $request->kode_produk)->firstOrFail();
-
-        $count = Transaksi::where('id_produk', $produk->kode_produk)
+        $count = Transaksi::where('kode_produk', $produk->kode_produk)
             ->where('status_transaksi', '!=', 'rejected')
             ->where(function ($query) use ($request) {
                 $query->whereBetween('tanggal_mulai', [$request->tanggal_mulai, $request->tanggal_selesai])
@@ -53,7 +47,8 @@ class TransaksiController extends Controller
                         $sub->where('tanggal_mulai', '<', $request->tanggal_mulai)
                             ->where('tanggal_selesai', '>', $request->tanggal_selesai);
                     });
-            })->count();
+            })
+            ->count();
 
         if ($count >= $produk->maksimum_peserta) {
             throw new HttpResponseException(
@@ -67,45 +62,48 @@ class TransaksiController extends Controller
 
     public function isAvailable(Store $request): JsonResponse
     {
-        $this->_fullyBookedChecker($request);
+        $produk = Produk::where('kode_produk', $request->kode_produk)->firstOrFail();
+
+        $this->_fullyBookedChecker($request, $produk);
 
         return response()->json([
             'success' => true,
-            'message' => 'Produk tersedia untuk dipesan.'
+            'message' => 'Produk tersedia untuk dipesan.',
         ]);
     }
 
     public function store(Store $request): JsonResponse
     {
-        $this->_fullyBookedChecker($request);
+        $produk = Produk::where('kode_produk', $request->kode_produk)->firstOrFail();
+
+        $this->_fullyBookedChecker($request, $produk);
 
         $startDate = Carbon::parse($request->tanggal_mulai)->startOfDay();
-        $endDate = Carbon::parse($request->tanggal_selesai)->endOfDay();
+        $endDate   = Carbon::parse($request->tanggal_selesai)->endOfDay();
         $jumlahHari = $startDate->diffInDays($endDate) + 1;
 
-        $produk = Produk::where('kode_produk', $request->kode_produk)->firstOrFail();
         $totalHarga = $produk->harga_produk;
 
         // Generate kode transaksi unik
         $tanggalSekarang = now()->format('Ymd');
-        $jumlahHariIni = Transaksi::whereDate('created_at', now())->count() + 1;
-        $kodeTransaksi = 'TRX' . $tanggalSekarang . str_pad($jumlahHariIni, 3, '0', STR_PAD_LEFT);
+        $jumlahHariIni   = Transaksi::whereDate('created_at', now())->count() + 1;
+        $kodeTransaksi   = 'TRX' . $tanggalSekarang . str_pad($jumlahHariIni, 3, '0', STR_PAD_LEFT);
 
         $transaksi = Transaksi::create([
-            'kode_transaksi' => $kodeTransaksi,
-            'id_pengguna' => $this->authUserId($request),
-            'id_produk' => $produk->kode_produk,
-            'tanggal_mulai' => $startDate,
-            'tanggal_selesai' => $endDate,
-            'jumlah_hari' => $jumlahHari,
-            'jumlah_bayar' => $totalHarga,
+            'kode_transaksi'   => $kodeTransaksi,
+            'id_pengguna'      => $this->authUserId($request),
+            'kode_produk'      => $produk->kode_produk,
+            'tanggal_mulai'    => $startDate,
+            'tanggal_selesai'  => $endDate,
+            'jumlah_hari'      => $jumlahHari,
+            'jumlah_bayar'     => $totalHarga,
             'status_transaksi' => 'waiting',
         ]);
 
-        // Generate QR code -> pointing ke kode_transaksi
-        $qrData = route('transaction.show', $transaksi->kode_transaksi);
-        $qrCode = new QrCode($qrData);
-        $writer = new PngWriter();
+        // Generate QR code
+        $qrData  = route('transaction.show', $transaksi->kode_transaksi);
+        $qrCode  = new QrCode($qrData);
+        $writer  = new PngWriter();
         $qrImage = $writer->write($qrCode);
 
         $fileName = 'qr_codes/transaksi_' . $transaksi->kode_transaksi . '_' . Str::random(6) . '.png';
@@ -116,7 +114,7 @@ class TransaksiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Transaksi berhasil dibuat.',
-            'data' => $transaksi
+            'data'    => $transaksi,
         ]);
     }
 
@@ -139,7 +137,7 @@ class TransaksiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Detail transaksi berhasil diambil.',
-            'data' => $data
+            'data'    => $data,
         ]);
     }
 
@@ -157,7 +155,7 @@ class TransaksiController extends Controller
         if ($result === 'not_active') {
             return response()->json([
                 'success' => false,
-                'message' => 'QR belum aktif. Berlaku mulai ' . \Carbon\Carbon::parse($transaksi->tanggal_mulai)->format('d M Y H:i'),
+                'message' => 'QR belum aktif. Berlaku mulai ' . Carbon::parse($transaksi->tanggal_mulai)->format('d M Y H:i'),
             ], 403);
         }
 
@@ -174,12 +172,12 @@ class TransaksiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'QR valid.',
-                'data' => [
+                'data'    => [
                     'kode_transaksi' => $transaksi->kode_transaksi,
-                    'produk' => $transaksi->produk->only(['kode_produk', 'nama_produk']),
-                    'tanggal_mulai' => $transaksi->tanggal_mulai,
-                    'tanggal_selesai' => $transaksi->tanggal_selesai,
-                ]
+                    'produk'         => $transaksi->produk->only(['kode_produk', 'nama_produk']),
+                    'tanggal_mulai'  => $transaksi->tanggal_mulai,
+                    'tanggal_selesai'=> $transaksi->tanggal_selesai,
+                ],
             ]);
         }
 
@@ -218,7 +216,7 @@ class TransaksiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Bukti pembayaran berhasil diunggah.',
-            'data' => [
+            'data'    => [
                 'bukti_bayar_url' => Storage::url($path),
             ],
         ]);
@@ -245,7 +243,7 @@ class TransaksiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Detail transaksi berhasil diambil.',
-            'data' => $data
+            'data'    => $data,
         ]);
     }
 

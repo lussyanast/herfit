@@ -36,12 +36,11 @@ function Checkout({ params }: { params: { kode: string } }) {
     if (end) setEndDate(moment(end, "YYYY-MM-DD").toDate());
   }, [searchParams]);
 
-  // ✅ Hitung total hari inklusif (start + end dihitung)
+  // ✅ Hitung total hari inklusif
   useEffect(() => {
     if (startDate && endDate) {
       const start = moment(startDate).startOf("day");
       const end = moment(endDate).endOf("day");
-
       const diff = end.diff(start, "days") + 1;
       setTotalDays(diff > 0 ? diff : 0);
     } else {
@@ -54,7 +53,7 @@ function Checkout({ params }: { params: { kode: string } }) {
   };
 
   const handlePayment = async () => {
-    if (!produk?.data?.id_produk || !startDate || !endDate || !proofFile || totalDays <= 0) {
+    if (!produk?.data?.kode_produk || !startDate || !endDate || !proofFile || totalDays <= 0) {
       toast({
         title: "Validasi Gagal",
         description: "Tanggal mulai harus ≤ tanggal selesai dan minimal 1 hari.",
@@ -78,6 +77,7 @@ function Checkout({ params }: { params: { kode: string } }) {
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
       const totalBayar = produk.data.harga_produk;
 
+      // ✅ Buat transaksi
       const transaksiRes = await fetch(`${apiBase}/transaksi`, {
         method: "POST",
         credentials: "omit",
@@ -86,26 +86,25 @@ function Checkout({ params }: { params: { kode: string } }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id_produk: produk.data.id_produk,
-          tanggal_mulai: moment(startDate).startOf("day").format("YYYY-MM-DD HH:mm:ss"),
-          tanggal_selesai: moment(endDate).endOf("day").format("YYYY-MM-DD HH:mm:ss"),
+          kode_produk: produk.data.kode_produk,
+          tanggal_mulai: moment(startDate).format("YYYY-MM-DD"),
+          tanggal_selesai: moment(endDate).format("YYYY-MM-DD"),
           jumlah_hari: totalDays,
           jumlah_bayar: totalBayar,
         }),
       });
 
       const transaksiData = await transaksiRes.json();
-      const transactionId = transaksiData?.data?.id_transaksi;
-      if (!transactionId) {
-        throw new Error("ID transaksi tidak ditemukan.");
+      const kodeTransaksi = transaksiData?.data?.kode_transaksi;
+      if (!kodeTransaksi) {
+        throw new Error("Kode transaksi tidak ditemukan.");
       }
 
-      const kodeTransaksi = transaksiData.data.kode_transaksi;
-
+      // ✅ Upload bukti pembayaran
       const formData = new FormData();
       formData.append("bukti_bayar", proofFile);
 
-      const uploadRes = await fetch(`${apiBase}/transaksi/${transactionId}/upload-bukti`, {
+      const uploadRes = await fetch(`${apiBase}/transaksi/${kodeTransaksi}/upload-bukti`, {
         method: "POST",
         credentials: "omit",
         headers: {
