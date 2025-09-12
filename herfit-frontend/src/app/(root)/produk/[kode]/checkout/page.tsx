@@ -29,6 +29,7 @@ function Checkout({ params }: { params: { kode: string } }) {
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // ambil tanggal dari query
   useEffect(() => {
     const start = searchParams.get("start_date");
     const end = searchParams.get("end_date");
@@ -36,7 +37,7 @@ function Checkout({ params }: { params: { kode: string } }) {
     if (end) setEndDate(moment(end, "YYYY-MM-DD").toDate());
   }, [searchParams]);
 
-  // ✅ Hitung total hari inklusif
+  // hitung total hari inklusif
   useEffect(() => {
     if (startDate && endDate) {
       const start = moment(startDate).startOf("day");
@@ -75,12 +76,10 @@ function Checkout({ params }: { params: { kode: string } }) {
     try {
       setIsLoading(true);
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const totalBayar = produk.data.harga_produk;
 
       // ✅ Buat transaksi
       const transaksiRes = await fetch(`${apiBase}/transaksi`, {
         method: "POST",
-        credentials: "omit",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -89,10 +88,13 @@ function Checkout({ params }: { params: { kode: string } }) {
           kode_produk: produk.data.kode_produk,
           tanggal_mulai: moment(startDate).format("YYYY-MM-DD"),
           tanggal_selesai: moment(endDate).format("YYYY-MM-DD"),
-          jumlah_hari: totalDays,
-          jumlah_bayar: totalBayar,
         }),
       });
+
+      if (!transaksiRes.ok) {
+        const errText = await transaksiRes.text();
+        throw new Error(`Gagal buat transaksi: ${errText}`);
+      }
 
       const transaksiData = await transaksiRes.json();
       const kodeTransaksi = transaksiData?.data?.kode_transaksi;
@@ -106,7 +108,6 @@ function Checkout({ params }: { params: { kode: string } }) {
 
       const uploadRes = await fetch(`${apiBase}/transaksi/${kodeTransaksi}/upload-bukti`, {
         method: "POST",
-        credentials: "omit",
         headers: {
           Authorization: `Bearer ${token}`,
         },
