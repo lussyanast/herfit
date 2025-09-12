@@ -12,12 +12,11 @@ import { useToast } from "@/components/atomics/use-toast";
 import { useRouter } from "next/navigation";
 
 interface BookingSectionProps {
-  id: number;
-  kode: string;
+  kode: string;   // ✅ backend expect kode_produk
   price: number;
 }
 
-function BookingSection({ id, kode, price }: BookingSectionProps) {
+function BookingSection({ kode, price }: BookingSectionProps) {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [totalDays, setTotalDays] = useState<number>(0);
@@ -43,7 +42,8 @@ function BookingSection({ id, kode, price }: BookingSectionProps) {
     if (!startDate || !endDate || totalDays <= 0) {
       toast({
         title: "Tanggal tidak valid",
-        description: "Tanggal mulai harus ≤ tanggal selesai dan minimal 1 hari.",
+        description:
+          "Tanggal mulai harus ≤ tanggal selesai dan minimal 1 hari.",
         variant: "destructive",
       });
       return;
@@ -51,7 +51,7 @@ function BookingSection({ id, kode, price }: BookingSectionProps) {
 
     try {
       const data = {
-        id_produk: id,
+        kode_produk: kode, // ✅ backend expect kode_produk
         tanggal_mulai: moment(startDate).format("YYYY-MM-DD"),
         tanggal_selesai: moment(endDate).format("YYYY-MM-DD"),
       };
@@ -103,15 +103,28 @@ function BookingSection({ id, kode, price }: BookingSectionProps) {
       </span>
 
       <div className="space-y-5">
-        <DatePickerDemo placeholder="Start Date" date={startDate} setDate={setStartDate} />
-        <DatePickerDemo placeholder="End Date" date={endDate} setDate={setEndDate} />
+        <DatePickerDemo
+          placeholder="Start Date"
+          date={startDate}
+          setDate={setStartDate}
+        />
+        <DatePickerDemo
+          placeholder="End Date"
+          date={endDate}
+          setDate={setEndDate}
+        />
       </div>
 
       <div className="space-y-5">
         <CardBooking title="Total Hari" value={`${totalDays} hari`} />
       </div>
 
-      <Button variant="default" className="mt-4 w-full" onClick={handleBook} disabled={isLoading}>
+      <Button
+        variant="default"
+        className="mt-4 w-full"
+        onClick={handleBook}
+        disabled={isLoading}
+      >
         {isLoading ? "Memeriksa..." : "Pesan Sekarang"}
       </Button>
     </div>
