@@ -10,7 +10,7 @@ class MakananController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Aktivitas::makanan()->where('id_pengguna', Auth::id());
+        $query = Aktivitas::makanan()->where('id_pengguna', Auth::user()->id_pengguna ?? Auth::id());
 
         if ($request->has('tanggal')) {
             $query->whereDate('tanggal', $request->tanggal);
@@ -33,20 +33,31 @@ class MakananController extends Controller
             'tanggal' => 'nullable|date',
         ]);
 
-        $data['id_pengguna'] = Auth::id();
+        $data['id_pengguna'] = Auth::user()->id_pengguna ?? Auth::id();
         $data['jenis_aktivitas'] = 'makanan';
         $data['tanggal'] = $data['tanggal'] ?? now()->toDateString();
 
-        $aktivitas = Aktivitas::create($data);
+        // Generate id_aktivitas otomatis MKN001, MKN002, dst.
+        $lastId = Aktivitas::where('jenis_aktivitas', 'makanan')->max('id_aktivitas'); // contoh: MKN020
+        $num = $lastId ? (int) substr($lastId, 3) + 1 : 1;
+        $data['id_aktivitas'] = 'MKN' . str_pad($num, 3, '0', STR_PAD_LEFT);
 
-        return response()->json($aktivitas, 201);
+        try {
+            $aktivitas = Aktivitas::create($data);
+            return response()->json($aktivitas, 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal menyimpan data aktivitas',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(Request $request, $id)
     {
         $aktivitas = Aktivitas::makanan()
             ->where('id_aktivitas', $id)
-            ->where('id_pengguna', Auth::id())
+            ->where('id_pengguna', Auth::user()->id_pengguna ?? Auth::id())
             ->firstOrFail();
 
         $data = $request->validate([
@@ -64,7 +75,7 @@ class MakananController extends Controller
     {
         $aktivitas = Aktivitas::makanan()
             ->where('id_aktivitas', $id)
-            ->where('id_pengguna', Auth::id())
+            ->where('id_pengguna', Auth::user()->id_pengguna ?? Auth::id())
             ->firstOrFail();
 
         $aktivitas->delete();
