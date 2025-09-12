@@ -100,8 +100,8 @@ class TransaksiController extends Controller
             'status_transaksi' => 'waiting',
         ]);
 
-        // Generate QR code
-        $qrData  = route('transaction.show', $transaksi->kode_transaksi);
+        // ✅ Generate QR code
+        $qrData  = route('transaksi.show', $transaksi->kode_transaksi);
         $qrCode  = new QrCode($qrData);
         $writer  = new PngWriter();
         $qrImage = $writer->write($qrCode);
