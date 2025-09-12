@@ -30,7 +30,7 @@ function Header() {
   ];
 
   const avatarUrl = session?.user?.foto_profil
-    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/${session.user.foto_profil}`
+    ? `${process.env.NEXT_PUBLIC_STORAGE_BASE_URL}/storage/${session.user.foto_profil.replace(/^storage\//, "")}`
     : "/images/avatar.png";
 
   return (
