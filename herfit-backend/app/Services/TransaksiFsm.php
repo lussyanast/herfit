@@ -26,21 +26,29 @@ class TransaksiFsm
                 return 'invalid';
 
             case 'approved':
-                if ($event !== 'scan')
+                if ($event !== 'scan') {
                     return 'invalid';
+                }
+
                 $now = Carbon::now();
                 $start = Carbon::parse($trx->tanggal_mulai);
                 $end = Carbon::parse($trx->tanggal_selesai);
-                if ($now->lt($start))
+
+                if ($now->lt($start)) {
                     return 'not_active';
-                if ($now->gt($end))
+                }
+                if ($now->gt($end)) {
                     return 'expired';
+                }
+
+                // ✅ simpan absensi
                 Absensi::create([
-                    'id_transaksi' => $trx->id_transaksi,
-                    'id_pengguna' => Auth::id(),
                     'kode_absensi' => 'ABS' . $now->format('YmdHis'),
+                    'kode_transaksi' => $trx->kode_transaksi,
+                    'id_pengguna' => Auth::id(),
                     'waktu_scan' => $now,
                 ]);
+
                 return 'active';
 
             default:
@@ -50,10 +58,17 @@ class TransaksiFsm
 
     private function setStatus(Transaksi $trx, string $new): void
     {
-        $allowed = ['waiting' => ['approved', 'rejected'], 'approved' => [], 'rejected' => []];
+        $allowed = [
+            'waiting' => ['approved', 'rejected'],
+            'approved' => [],
+            'rejected' => [],
+        ];
+
         $cur = $trx->status_transaksi;
-        if (!in_array($new, $allowed[$cur] ?? [], true))
+        if (!in_array($new, $allowed[$cur] ?? [], true)) {
             abort(422, "Transisi tidak valid ($cur → $new).");
+        }
+
         $trx->update(['status_transaksi' => $new]);
     }
 }

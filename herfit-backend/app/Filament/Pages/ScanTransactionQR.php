@@ -20,24 +20,49 @@ class ScanTransactionQR extends Page
 
     public function scanQR()
     {
-        $id = intval(basename(trim($this->qrContent)));
-        $trx = Transaksi::with(['pengguna', 'produk'])->where('id_transaksi', $id)->first();
+        // Ambil kode transaksi dari URL QR
+        $kode = basename(trim($this->qrContent));
+
+        $trx = Transaksi::with(['pengguna', 'produk'])
+            ->where('kode_transaksi', $kode)
+            ->first();
 
         if (!$trx) {
-            Notification::make()->danger()->title('QR Tidak Valid')->body('Transaksi tidak ditemukan.')->send();
+            Notification::make()
+                ->danger()
+                ->title('QR Tidak Valid')
+                ->body('Transaksi tidak ditemukan.')
+                ->send();
             return;
         }
 
         $res = app(\App\Services\TransaksiFsm::class)->handle($trx, 'scan');
 
         match ($res) {
-            'not_active' => Notification::make()->warning()->title('QR Belum Aktif')->body('QR hanya berlaku mulai tanggal transaksi.')->send(),
-            'expired' => Notification::make()->warning()->title('QR Kedaluwarsa')->body('QR sudah tidak berlaku.')->send(),
-            'active' => Notification::make()->success()->title('Scan Berhasil')->body('Absensi tercatat.')->send(),
-            default => Notification::make()->danger()->title('QR Tidak Valid')->body('QR tidak valid atau transaksi belum disetujui.')->send(),
+            'not_active' => Notification::make()
+                ->warning()
+                ->title('QR Belum Aktif')
+                ->body('QR hanya berlaku mulai tanggal transaksi.')
+                ->send(),
+            'expired' => Notification::make()
+                ->warning()
+                ->title('QR Kedaluwarsa')
+                ->body('QR sudah tidak berlaku.')
+                ->send(),
+            'active' => Notification::make()
+                ->success()
+                ->title('Scan Berhasil')
+                ->body('Absensi tercatat.')
+                ->send(),
+            default => Notification::make()
+                ->danger()
+                ->title('QR Tidak Valid')
+                ->body('QR tidak valid atau transaksi belum disetujui.')
+                ->send(),
         };
 
-        if (in_array($res, ['active', 'not_active', 'expired']))
+        if (in_array($res, ['active', 'not_active', 'expired'])) {
             $this->transaksi = $trx;
+        }
     }
 }
