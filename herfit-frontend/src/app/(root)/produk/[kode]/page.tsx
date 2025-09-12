@@ -24,7 +24,10 @@ function Detail({ params }: { params: { kode: string } }) {
   return (
     <main>
       {/* SECTION: HERO */}
-      <section id="overview-section" className="bg-gray-light pt-[170px] pb-[50px]">
+      <section
+        id="overview-section"
+        className="bg-gray-light pt-[170px] pb-[50px]"
+      >
         <div className="px-4 sm:px-6 xl:container xl:mx-auto">
           <Breadcrumbs />
 
@@ -68,7 +71,6 @@ function Detail({ params }: { params: { kode: string } }) {
         {produk && (
           <div className="w-full">
             <BookingSection
-              id={produk.id_produk}
               kode={produk.kode_produk}
               price={produk.harga_produk}
             />
@@ -81,7 +83,8 @@ function Detail({ params }: { params: { kode: string } }) {
         id="membership-listing"
         title="Lihat membership lainnya"
         subtitle="Membership lainnya untuk kamu."
-        category="membership" />
+        category="membership"
+      />
       {/* <ListingShowcase
         id="deals-section"
         title="Lihat produk lainnya"
