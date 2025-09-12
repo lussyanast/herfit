@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProfileController extends Controller
@@ -30,24 +30,16 @@ class ProfileController extends Controller
 
         if ($request->hasFile('foto_profil')) {
             // Hapus foto lama jika ada
-            if ($user->foto_profil && file_exists(public_path($user->foto_profil))) {
-                unlink(public_path($user->foto_profil));
+            if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+                Storage::disk('public')->delete($user->foto_profil);
             }
 
+            // Simpan file baru ke disk public
             $file = $request->file('foto_profil');
             $filename = time() . '_' . Str::random(20) . '.' . $file->getClientOriginalExtension();
-            $destination = public_path('storage/profil');
+            $path = $file->storeAs('profil', $filename, 'public');
 
-            // Buat folder jika belum ada
-            if (!File::exists($destination)) {
-                File::makeDirectory($destination, 0755, true);
-            }
-
-            // Simpan ke public/storage/profil
-            $file->move($destination, $filename);
-
-            // Path relatif untuk disimpan ke database
-            $data['foto_profil'] = 'storage/profil/' . $filename;
+            $data['foto_profil'] = $path;
         }
 
         $user->update($data);

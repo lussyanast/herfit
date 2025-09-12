@@ -14,7 +14,6 @@ import {
     FormItem,
     FormMessage,
 } from "@/components/atomics/form";
-import Title from "@/components/atomics/title";
 import { useToast } from "@/components/atomics/use-toast";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -49,6 +48,7 @@ export default function EditProfilePage() {
         },
     });
 
+    // Ambil data profil
     useEffect(() => {
         const fetchProfile = async () => {
             if (!session?.user?.token) {
@@ -57,11 +57,14 @@ export default function EditProfilePage() {
             }
 
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/user`, {
-                    headers: {
-                        Authorization: `Bearer ${session.user.token}`,
-                    },
-                });
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/user`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${session.user.token}`,
+                        },
+                    }
+                );
 
                 const result = await res.json();
 
@@ -74,9 +77,10 @@ export default function EditProfilePage() {
                     });
 
                     if (result.data.foto_profil) {
-                        const cleanBase = process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "");
+                        const cleanBase =
+                            process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "");
                         const cleanPath = result.data.foto_profil.replace(/^\/+/, "");
-                        setPreviewImage(`${cleanBase}/${cleanPath}`);
+                        setPreviewImage(`${cleanBase}/storage/${cleanPath}`);
                     }
                 } else {
                     throw new Error(result.message);
@@ -95,6 +99,7 @@ export default function EditProfilePage() {
         fetchProfile();
     }, [session, form, toast]);
 
+    // Submit update profil
     async function onSubmit(values: FormData) {
         try {
             const formData = new FormData();
@@ -106,21 +111,34 @@ export default function EditProfilePage() {
                 formData.append("foto_profil", selectedFile);
             }
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/update-profile`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${session?.user?.token}`,
-                },
-                body: formData,
-            });
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/update-profile`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${session?.user?.token}`,
+                    },
+                    body: formData,
+                }
+            );
 
             const result = await res.json();
 
             if (res.ok) {
-                toast({ title: "Berhasil", description: "Profil berhasil diperbarui!" });
+                toast({
+                    title: "Berhasil",
+                    description: "Profil berhasil diperbarui!",
+                });
                 setSelectedFile(null);
-                setPreviewImage(null);
                 setShowCropper(false);
+
+                if (result?.data?.foto_profil) {
+                    const cleanBase =
+                        process.env.NEXT_PUBLIC_STORAGE_BASE_URL?.replace(/\/$/, "");
+                    const cleanPath = result.data.foto_profil.replace(/^\/+/, "");
+                    setPreviewImage(`${cleanBase}/storage/${cleanPath}`);
+                }
+
                 router.refresh();
             } else {
                 throw new Error(result.message);
@@ -134,6 +152,7 @@ export default function EditProfilePage() {
         }
     }
 
+    // File input handler
     const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -170,7 +189,9 @@ export default function EditProfilePage() {
         <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 pt-20 px-4">
             <div className="w-full max-w-xl bg-white rounded-3xl shadow-lg px-6 py-8 space-y-6">
                 {loading ? (
-                    <div className="text-center text-sm text-gray-500">Memuat profil...</div>
+                    <div className="text-center text-sm text-gray-500">
+                        Memuat profil...
+                    </div>
                 ) : (
                     <>
                         <div className="flex justify-center">
@@ -186,7 +207,9 @@ export default function EditProfilePage() {
 
                         <div className="text-center">
                             <h2 className="text-xl font-bold text-secondary">Edit Profil</h2>
-                            <p className="text-sm text-gray-500 mt-1">Perbarui data pribadi Anda</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Perbarui data pribadi Anda
+                            </p>
                         </div>
 
                         {showCropper && previewImage ? (
@@ -197,7 +220,10 @@ export default function EditProfilePage() {
                             />
                         ) : (
                             <Form {...form}>
-                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                                <form
+                                    onSubmit={form.handleSubmit(onSubmit)}
+                                    className="space-y-5"
+                                >
                                     <div className="space-y-4">
                                         <FormField
                                             control={form.control}
@@ -210,7 +236,11 @@ export default function EditProfilePage() {
                                                             placeholder="Nama lengkap"
                                                             icon="/icons/profile.svg"
                                                             variant="auth"
-                                                            className={form.formState.errors.nama_lengkap ? "border-destructive" : ""}
+                                                            className={
+                                                                form.formState.errors.nama_lengkap
+                                                                    ? "border-destructive"
+                                                                    : ""
+                                                            }
                                                             {...field}
                                                         />
                                                     </FormControl>
@@ -230,7 +260,11 @@ export default function EditProfilePage() {
                                                             placeholder="Nomor Identitas (NIK)"
                                                             icon="/icons/card.svg"
                                                             variant="auth"
-                                                            className={form.formState.errors.no_identitas ? "border-destructive" : ""}
+                                                            className={
+                                                                form.formState.errors.no_identitas
+                                                                    ? "border-destructive"
+                                                                    : ""
+                                                            }
                                                             {...field}
                                                         />
                                                     </FormControl>
@@ -250,7 +284,11 @@ export default function EditProfilePage() {
                                                             placeholder="Nomor Telepon"
                                                             icon="/icons/call.svg"
                                                             variant="auth"
-                                                            className={form.formState.errors.no_telp ? "border-destructive" : ""}
+                                                            className={
+                                                                form.formState.errors.no_telp
+                                                                    ? "border-destructive"
+                                                                    : ""
+                                                            }
                                                             {...field}
                                                         />
                                                     </FormControl>
@@ -270,7 +308,11 @@ export default function EditProfilePage() {
                                                             placeholder="Alamat Email"
                                                             icon="/icons/sms.svg"
                                                             variant="auth"
-                                                            className={form.formState.errors.email ? "border-destructive" : ""}
+                                                            className={
+                                                                form.formState.errors.email
+                                                                    ? "border-destructive"
+                                                                    : ""
+                                                            }
                                                             {...field}
                                                         />
                                                     </FormControl>
@@ -282,7 +324,9 @@ export default function EditProfilePage() {
 
                                     {/* Foto profil */}
                                     <div className="flex flex-col gap-2 mt-4">
-                                        <label className="text-sm font-medium text-gray-600">Foto Profil</label>
+                                        <label className="text-sm font-medium text-gray-600">
+                                            Foto Profil
+                                        </label>
                                         {previewImage && (
                                             <Image
                                                 src={previewImage}
@@ -303,7 +347,10 @@ export default function EditProfilePage() {
                                         )}
                                     </div>
 
-                                    <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                                    <Button
+                                        type="submit"
+                                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                                    >
                                         Simpan Perubahan
                                     </Button>
                                 </form>
